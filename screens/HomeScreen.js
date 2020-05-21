@@ -15,7 +15,6 @@ export default class HomeScreen extends React.Component
 
     onResult = (QuerySnapshot)  =>
     {
-        // console.log('Got Users collection result.');
         console.log(QuerySnapshot.docs.map(doc => doc.data()));
         const data = [];
         QuerySnapshot.forEach((doc) => 
@@ -49,30 +48,18 @@ export default class HomeScreen extends React.Component
         firestore()
         .collection('Test')
         .add({
-            name: 'User',
+            name: this.state.email,
             age: uuidv4(),
         })
         .then(() => {
             console.log('Document added!');
         });
 
-        // this.readDatabase();
     }
 
 
     readDatabase = () =>
     {
-        // useEffect(() => {
-        //   const subscriber = firestore()
-        //     .collection('Test')
-        //     .onSnapshot(documentSnapshot => {
-        //     //   console.log('User data: ', documentSnapshot.data());
-        //     this.setState({database: documentSnapshot.data()});
-        //     });
-      
-        //   // Stop listening for updates when no longer required
-        // //   return () => subscriber();
-        // });
         firestore()
         .collection('Test')
         .onSnapshot(this.onResult, this.onError);
