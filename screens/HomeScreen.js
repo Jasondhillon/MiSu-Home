@@ -33,8 +33,7 @@ export default class HomeScreen extends React.Component
             if(doc.get("uid") === this.state.uid)
             {
                 // console.log("This entry is: " + doc.get("uid"));
-                // userData.push(doc.get('name') + '\n' + doc.get('hub_url') + "\n\n");
-                userData.push(doc.get('name') + '\n' +'****.mozilla-iot.org' + "\n\n");
+                userData.push(doc.get('name') + '\n' + doc.get('hub_url') + "\n\n");
                 gateway = doc.get('hub_url');
                 user = doc.get('hub_email');
                 pass = doc.get('hub_password');
