@@ -8,7 +8,7 @@ import HomeScreen from './screens/HomeScreen';
 import auth from '@react-native-firebase/auth';
 
 const AppStack = createStackNavigator({
-  Home: HomeScreen
+  SmartShare: HomeScreen
 });
 
 const AuthStack = createStackNavigator({

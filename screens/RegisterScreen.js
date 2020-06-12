@@ -9,17 +9,20 @@ export default class RegisterScreen extends React.Component
         name: '',
         email: '',
         password: '',
+        hub_url: '',
         errorMessage: null
     }
 
     handleSignUp = () =>
     {
         if(this.state.name === '')
-            this.setState({errorMessage: 'Missing name'});
-        else if(this.state.email === '')
+        //     this.setState({errorMessage: 'Missing name'});
+        if(this.state.email === '')
             this.setState({errorMessage: 'Missing email address'});
         else if(this.state.password === '')
             this.setState({errorMessage: 'Missing password'});
+        // else if(this.state.hub_url === '')
+        //     this.setState({errorMessage: 'Missing Mozilla Gateway URL'});
         else
             auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then(userCredentials => {
                 return userCredentials.user.updateProfile({
@@ -40,7 +43,7 @@ export default class RegisterScreen extends React.Component
                 </View>
 
                 <View style={styles.form}>
-                    <View>
+                    {/* <View>
                         <Text style={styles.inputTitle}>Full Name</Text>
                         <TextInput 
                             style={styles.input} 
@@ -48,7 +51,7 @@ export default class RegisterScreen extends React.Component
                             onChangeText={name => this.setState({name})} 
                             value={this.state.name}>
                         </TextInput>
-                    </View>
+                    </View> */}
                     
                     <View style={{marginTop: 32}}>
                         <Text style={styles.inputTitle}>Email Address</Text>
@@ -59,6 +62,16 @@ export default class RegisterScreen extends React.Component
                             value={this.state.email}>
                         </TextInput>
                     </View>
+
+                    {/* <View style={{marginTop: 32}}>
+                        <Text style={styles.inputTitle}>Hub URL</Text>
+                        <TextInput 
+                            style={styles.input} 
+                            autoCapitalize="none" 
+                            onChangeText={hub_url => this.setState({hub_url})} 
+                            value={this.state.hub_url}>
+                        </TextInput>
+                    </View> */}
 
                     <View style={{marginTop: 32}}>
                         <Text style={styles.inputTitle}>Password</Text>
