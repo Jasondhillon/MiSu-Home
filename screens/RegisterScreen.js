@@ -10,20 +10,25 @@ export default class RegisterScreen extends React.Component
         email: '',
         password: '',
         hub_url: '',
+        // Error handling
         errorMessage: null
     }
 
     handleSignUp = () =>
     {
-        if(this.state.name === '')
+        // TODO: Check if we can handle adding additional information to this firebase registration screen beyond email and password (don't believe so)
+        // if(this.state.name === '')
         //     this.setState({errorMessage: 'Missing name'});
+        // else if(this.state.hub_url === '')
+        //     this.setState({errorMessage: 'Missing Mozilla Gateway URL'});
+
+        // Form validation
         if(this.state.email === '')
             this.setState({errorMessage: 'Missing email address'});
         else if(this.state.password === '')
             this.setState({errorMessage: 'Missing password'});
-        // else if(this.state.hub_url === '')
-        //     this.setState({errorMessage: 'Missing Mozilla Gateway URL'});
         else
+            // Creates a new firebase user account
             auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then(userCredentials => {
                 return userCredentials.user.updateProfile({
                     displayName: this.state.name
@@ -38,10 +43,12 @@ export default class RegisterScreen extends React.Component
           <View style={styles.container}>
                 <Text style={styles.greeting}>{`Welcome,\nSign up to get started.`}</Text>
 
+                {/* Error message */}
                 <View style={styles.errorMessage}>
                     {this.state.errorMessage && <Text style={styles.errorMessage}>{this.state.errorMessage}</Text>}
                 </View>
 
+                {/* Form input */}
                 <View style={styles.form}>
                     {/* <View>
                         <Text style={styles.inputTitle}>Full Name</Text>
@@ -50,6 +57,16 @@ export default class RegisterScreen extends React.Component
                             autoCapitalize="none" 
                             onChangeText={name => this.setState({name})} 
                             value={this.state.name}>
+                        </TextInput>
+                    </View> */}
+
+                    {/* <View style={{marginTop: 32}}>
+                        <Text style={styles.inputTitle}>Hub URL</Text>
+                        <TextInput 
+                            style={styles.input} 
+                            autoCapitalize="none" 
+                            onChangeText={hub_url => this.setState({hub_url})} 
+                            value={this.state.hub_url}>
                         </TextInput>
                     </View> */}
                     
@@ -63,16 +80,6 @@ export default class RegisterScreen extends React.Component
                         </TextInput>
                     </View>
 
-                    {/* <View style={{marginTop: 32}}>
-                        <Text style={styles.inputTitle}>Hub URL</Text>
-                        <TextInput 
-                            style={styles.input} 
-                            autoCapitalize="none" 
-                            onChangeText={hub_url => this.setState({hub_url})} 
-                            value={this.state.hub_url}>
-                        </TextInput>
-                    </View> */}
-
                     <View style={{marginTop: 32}}>
                         <Text style={styles.inputTitle}>Password</Text>
                         <TextInput 
@@ -84,7 +91,8 @@ export default class RegisterScreen extends React.Component
                         </TextInput>
                     </View>
                 </View>
-
+                
+                {/* Buttons */}
                 <TouchableOpacity style={styles.button} onPress={this.handleSignUp}>
                     <Text style={{color: '#FFF', fontWeight: '500'}}>Sign Up</Text>
                 </TouchableOpacity>

@@ -20,6 +20,7 @@ export default class LoginScreen extends React.Component
         else if(password === '')
             this.setState({errorMessage: 'Missing password'});
         else
+            // Logins into firebase and returns error to screen if failed
             auth().signInWithEmailAndPassword(email, password).catch(error => 
             {this.setState({errorMessage: error.code})});
     }
@@ -83,6 +84,7 @@ const styles = StyleSheet.create({
    },
    errorMessage: {
        height: 72,
+       color: 'red',
        alignItems: 'center',
        justifyContent: 'center',
        marginHorizontal: 30
