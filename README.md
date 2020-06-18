@@ -1,5 +1,12 @@
 # SmartShare
-> Demo of React-Native and Firebase
+> DEMO of React-Native and Firebase, EXPO IS NOT IMPLEMENTED
+
+I recommend to install 
+> https://marketplace.visualstudio.com/items?itemName=wayou.vscode-todo-highlight 
+
+if using VS studio which highlights TODO comments left behind for others
+
+> Majority of the code is found under the screens folder, login/register/home
 
 ## Setup Android Nonsense (This is all for Windows btw)
 https://reactnative.dev/docs/environment-setup
