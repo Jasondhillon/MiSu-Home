@@ -48,7 +48,7 @@ export default class HomeScreen extends React.Component
             }
         });
 
-        // If there are no User's document associated with this account, create one
+        // If there is not a User document associated with this firebase account, create one
         if(userData.length === 0)
         {
             firestore()
