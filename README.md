@@ -31,3 +31,5 @@ https://reactnative.dev/docs/environment-setup
 > In the root directory, run yarn install
 
 > To run the code,  npx react-native run-android
+
+> To run the server,  npx react-native start
