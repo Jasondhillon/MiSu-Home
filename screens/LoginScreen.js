@@ -1,17 +1,17 @@
 import React from 'react';
 import {View, Text, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
-import auth from '@react-native-firebase/auth';
+import { Auth } from 'aws-amplify';
 
 export default class LoginScreen extends React.Component 
 {
     state = 
     {
-        email: '',
-        password: '',
+        email: 'test@example.com',
+        password: '123456789',
         errorMessage: null
     }
 
-    handleLogin = () =>
+    handleLogin = async () =>
     {
         const {email, password} = this.state;
 
@@ -20,9 +20,15 @@ export default class LoginScreen extends React.Component
         else if(password === '')
             this.setState({errorMessage: 'Missing password'});
         else
-            // Logins into firebase and returns error to screen if failed
-            auth().signInWithEmailAndPassword(email, password).catch(error => 
-            {this.setState({errorMessage: error.code})});
+        {
+            await Auth.signIn(email, password)
+            .then(() => {
+                this.props.navigation.navigate("App");
+            })
+            .catch((error) => {
+                this.setState({errorMessage: error.message})
+            });
+        }
     }
 
     render()
@@ -83,8 +89,8 @@ const styles = StyleSheet.create({
        textAlign: 'center'
    },
    errorMessage: {
-       height: 72,
        color: 'red',
+       height: 72,
        alignItems: 'center',
        justifyContent: 'center',
        marginHorizontal: 30

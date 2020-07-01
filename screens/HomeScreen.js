@@ -1,395 +1,791 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import auth from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
-import {v4 as uuidv4} from 'uuid';
+import { gql } from "apollo-boost";
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ToastAndroid, ActivityIndicator } from 'react-native';
+import CheckBox from '@react-native-community/checkbox'; 
+import { Auth, API,  graphqlOperation} from 'aws-amplify';
+import * as queries from '../src/graphql/queries'
+import * as mutations from  '../src/graphql/mutations'
 
-export default class HomeScreen extends React.Component 
-{
-    // Checks if component is mounted(implemented due to warnings during emulation)
-    _isMounted = false;
+const AWS = require('aws-sdk');
+AWS.config.update({ region: "us-east-1"});
 
-    // Holds information retrieved from firestore(DB) to display on UI
-    state = 
-    {
-        // Email of the person logged in
-        email: '',
-        // Unique Identification 
-        uid: '',
-        // URL to the gateway
-        gateway: '',
-        // 
-        database: null,
-        shared_database: null,
-        shared_with_me: null
+export default class HomeScreen extends React.Component {
+
+      state = {
+      id: null,
+      name: null,
+      email: null,
+      error: null,
+      message: null,
+      idToken: null,
+      accessToken: null,
+      hub_url: null,
+      hub_email: null,
+      devices: null,
+      sharedDevices: null,
+      sharedAccounts: null,
+      selectedProperties: 0
     }
 
-    // Adds the users to the UI
-    getUserInfo = (QuerySnapshot)  =>
-    {
-        // console.log('Got Users collection result.');
-        // console.log(QuerySnapshot.docs.map(doc => doc.data()));
-        const userData = [];
-        var gateway = '';
-        var user = '';
-        var pass = '';
-        //Iterates through the documents found by the query
-        QuerySnapshot.forEach((doc) => 
-        {
-            // Check if there is a user document for this user
-            if (doc.get('uid') === this.state.uid)
-            {
-                // Display information about the logged in user's name and hub url
-                userData.push(doc.get('name') + '\n' + doc.get('hub_url') + '\n\n');
-                // Store the information about the user into the component state
-                gateway = doc.get('hub_url');
-                user = doc.get('hub_email');
-                pass = doc.get('hub_password');
-            }
-        });
+    showToast = (text) => {
+        ToastAndroid.show(text, ToastAndroid.LONG);
+    };
 
-        // If there is not a User document associated with this firebase account, create one
-        if(userData.length === 0)
-        {
-            firestore()
-            .collection('Users')
-            .add({
-                uid: this.state.uid,
-                name: this.state.email,
-                // Currently hardcoded to my Pi, will change once there is a UI entry
-                hub_url: 'https://cop4934.mozilla-iot.org/',
-                hub_email: 'test@cop4934test.com',
-                hub_password:'1234'
+    // Gets user's credentials
+    componentDidMount() {
+      Auth.currentSession().
+      then(data1 => {
+        console.log("USERID: " + data1.getIdToken().payload.sub);
+          this.setState({
+              id: data1.getIdToken().payload.sub,
+              idToken: data1.getIdToken().getJwtToken(),
+              accessToken: data1.getAccessToken().getJwtToken(),
+              email: data1.getIdToken().payload.email,
+              name: data1.getIdToken().payload.name
+          });
+      })
+      .then(() => {
+        this.getHubInfo();
+        // this.getListofSharedDevices();
+        this.getListofSharedAccounts();
+      }).then(()=> {
+        // this.setupSubscriptions();
+      });
 
-            })
-            // Debug purposes
-            .then(() => {
-                console.log('User added!');
-            });
-
-        }
-        // Change the state to save information about the user
-        this.setState({database: userData, gateway, user, pass});
     }
 
-    // Adds information about shared users to the UI/state
-    getSharedData = (QuerySnapshot)  =>
-    {
-        const users_shared_to = [];
-        const shared_with_me = [];
-        //Iterates through the documents found by the query
-        QuerySnapshot.forEach((doc) => 
-        {   
-            if(doc.get('sharer_id') === this.state.uid)
-            {
-                users_shared_to.push(doc.get('name'));
-            }
-            if(doc.get('sharee_id') === this.state.uid)
-            {
-                shared_with_me.push(doc.get('sharer_name') + '\'s Gateway' + '\n\n');
-            }
-        });
-        // Change the state to save information about the shared users
-        this.setState({shared_database: users_shared_to, shared_with_me});
-    }
-    
-    // Error handler
-    onError = (error) =>
-    {
-        console.error(error);
+    refreshToken() {
+      Auth.currentSession().
+      then(data1 => {
+          this.setState({
+              id: data1.getIdToken().payload.sub,
+              idToken: data1.getIdToken().getJwtToken(),
+              accessToken: data1.getAccessToken().getJwtToken(),
+              email: data1.getIdToken().payload.email,
+              name: data1.getIdToken().payload.name
+          });
+      })
     }
 
-    // Called when the component is mounted, refreshes information when screen is shown
-    componentDidMount()
-    {
-        // Stops async calls from changing state when the component is hidden
-        this._isMounted = true;
-        if(this._isMounted)
-        {
-            // Gets information from firebase auth and loads DB information for the user
-            const { email, uid } = auth().currentUser;
-            // Waits till the state is set before loading user information from User Collection DB
-            this.setState( { email, uid }, () => { 
-                firestore()
-                .collection('Users')
-                .onSnapshot(this.getUserInfo, this.onError);
-            });
-
-            // Loads information from Shared_Accounts Collection DB
-            firestore()
-            .collection('Shared_Accounts')
-            .onSnapshot(this.getSharedData, this.onError);
-        }
+    componentWillUnmount() {
+      // this.state.onCreateDeviceSub.unsubscribe();
+      // // console.log(this.state.onDeleteSub);
+      // this.state.onDeleteDeviceSub.unsubscribe();
+      // this.state.onCreateSharedAccountSub.unsubscribe();
+      // this.state.onDeleteSharedAccountSub.unsubscribe();
     }
 
-    // Stops async calls from changing state when the component is hidden
-    componentWillUnmount()
-    {
-        this._isMounted = false;
-    }
-   
-    // Signs the user out and changes screens to the auth stack
-    signOutUser = () =>
-    {
-        auth().signOut();
-    }
-
-    // Creates entry into the Shared_Accounts Collection
-    createSharedAccount = () =>
-    {
-        var sharee_id = null;
-        // Generates a random password
-        var pass = uuidv4();
-
-        // Finds the user we are adding to the hub (searches by their login email, user must have logged in at least once to the app, which happens by default upon registration)
-        firestore()
-        // Hardcoded the account to add until UI is updated
-        .collection('Users').where('hub_email', '==', 'test@account.com')
-        .get()
-        .then((QuerySnapshot)  => {
-            // Finds the UID generated by the firebase account for the user we are sharing to
-            QuerySnapshot.forEach((doc) => {
-                sharee_id = doc.get('uid');
-            // Handle error
-            }, this.onError);
-
-            //Only add the user if they exist
-            if (sharee_id !== null)
-            {
-                firestore()
-                .collection('Shared_Accounts')
-                .add({
-                    sharer_id: this.state.uid,
-                    sharer_name: this.state.email,
-                    sharee_id: sharee_id,
-                    name: 'Mr. Roger',
-                    hub_url: 'https://cop4934.mozilla-iot.org/',
-                    hub_email: 'test@account.com',
-                    hub_password: pass
-
-                })
-                .then(() => {
-                    console.log('User added!');
-                });
-            }
-
-            // TODO: Add an error message or something to show if the user does not exist, add when UI is updated
-            
-            // Create an account on the hub we are sharing (same email associated to the firebase auth account) for person we are sharing to
-            // Login to the hub from the host account
-            const gateway = this.state.gateway;
-            fetch(gateway + '/login', {
-                method: 'POST',
-                headers: 
-                {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    email: this.state.user,
-                    password: this.state.pass
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Nested fetch to create the new account on the gateway for the shared account with newly acquired JWT(found in data)
-                fetch(gateway + '/users/', {
-                    method: 'POST',
-                    headers: 
-                    {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                        Authorization: 'Bearer ' + data.jwt
-                    },
-                        // Hardcoded user information until UI gets updated
-                        body: JSON.stringify({
-                        email: 'test@account.com',
-                        name: 'Mr. Roger',
-                        password: pass
-                    })
-                })
-                .then(response => response.json())
-                // Error handling for the POST create user fetch
-                .catch((error) => {
-                console.error('Error:', error);
-                });
-            })
-            // Error handling for the POST login fetch
-            .catch((error) => {
-            console.error('Error:', error);
-            });
-        });
-    }
-
-    // Allows the host user to remove access of users who are sharing their hub
-    deleteSharedAccount = () => 
-    {
-        // Remove from the database
-        firestore()
-        .collection('Shared_Accounts').where('hub_email', '==', 'test@account.com').get()
-        .then((QuerySnapshot) => {
-            QuerySnapshot.forEach(function(doc) {
-                doc.ref.delete();
-              });
-        });
-
-        // Delete user with email test@account.com from the gateway
-        // Login to the hub from the host account
-        const gateway = this.state.gateway;
-        // Save the JWT for nested fetch calls down the line
-        var jwt = '';
-        fetch(gateway+'/login', {
-            method: 'POST',
-            headers: 
-            {
-                Accept: 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: this.state.user,
-                password: this.state.pass
-            })
+    // Gets user's hub information from User's table through ID in idToken
+    getHubInfo = async () => {
+        await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/getUserInfo', {
+          method: 'GET',
+          headers: 
+          {
+              Authorization: 'Bearer ' + this.state.idToken
+          }
         })
         .then(response => response.json())
         .then(data => {
-            // Save the token
-            jwt = data.jwt;
-            // Search for the account id (on the hub) associated with the user email which we are deleting
-            fetch(gateway + '/users/info', {
-                method: 'GET',
-                headers: 
-                {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    Authorization: 'Bearer ' + jwt
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Extract the id from the JSON response returned by the GET, hardcoded for now
-                const del = data.find( entry => entry.email === 'test@account.com');
-                // Delete the account from the gateway by using the id linked to the account
-                fetch(gateway + '/users/'+ del.id, {
-                    method: 'DELETE',
-                    headers:
-                    {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                        Authorization: 'Bearer ' + jwt,
-                    }
-                })
-                // Response by the DELETE fetch returns weird non-JSON text so these two line fix that
-                .then((res) => res.text())
-                .then((text) => text.length ? JSON.parse(text) : {})
-                // Error handling for the delete fetch
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-            })
-            // Error handling for the GET fetch which retrieves the account id's
-            .catch((error) => {
-                console.error('Error:', error);
-            });
+          if(data.hub_url === undefined)
+          {
+            this.setState({error: "Please update your hub information!"});
+          }
+          else
+          {
+            this.setState({hub_url: data.hub_url, hub_email: data.email, error: null});
+            this.showToast("Data fetched from personal DB!");
+            this.getDevices();
+          }
         })
-        // Error handling for the POST login fetch
         .catch((error) => {
-        console.error('Error:', error);
+          console.error('Error:', error);
+          this.showToast(error);
+          this.setState({error});
         });
     }
 
-    render()
-    {
-        return(
-          <View style={styles.container}>
-            
-            {/* This view contains all the text information */}
-            <View style={styles.errorMessage}>
-                {this.state.database && <Text style={{fontSize:20}}>Your Gateway</Text>} 
-                <Text>─────────────</Text>
-                {this.state.database && <Text style={styles.errorMessage}>{this.state.database}</Text>}
-                
-
-                {this.state.database && <Text style={{fontSize:20}}>People you are sharing with</Text>}
-                <Text>────────────────────────</Text>
-                
-                <View style={{flexDirection: 'row'}}>
-                    {this.state.shared_database && this.state.shared_database.length > 0 && 
-                    <TouchableOpacity style={styles.button4} onPress={this.deleteSharedAccount}>
-                        <Text style={{fontSize:20}}>X</Text>
-                    </TouchableOpacity>}
-                    <Text style={styles.errorMessage}>{this.state.shared_database}</Text>
-                </View>
-                
-
-                {this.state.database && <Text style={{fontSize:20}}>Gateway's shared with you</Text>} 
-                <Text>───────────────────────</Text>
-                {this.state.shared_with_me && <Text style={styles.errorMessage}>{this.state.shared_with_me}</Text>}
-            </View>
-            
-            {/* Code below is for the two buttons */}
-            {/* Hardcoded to remove the share button with Mr. Roger as that doesn't make sense */}
-            {this.state.uid !== 'Y30JO2CDGQXgkCi4hrJMjzxsREd2' && <TouchableOpacity style={styles.button2} onPress={this.createSharedAccount}>
-                <Text style={{color: '#FFF', fontWeight: '500'}}>Share Gateway with Mr.Rogers!</Text>
-            </TouchableOpacity>}
-
-            <TouchableOpacity style={styles.button} onPress={this.signOutUser}>
-                <Text style={{color: '#FFF', fontWeight: '500'}}>Log Out</Text>
-            </TouchableOpacity>
-          </View> 
-        );
+    // Sets/updates the user's hub info
+    setHubInfo = async () => {
+        await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/updatehubinfo', {
+            method: 'POST',
+            headers: 
+            {
+                Authorization: 'Bearer ' + this.state.idToken,
+                // CANNOT HAVE https:// in front or bork
+                hub_url: 'cop4934.mozilla-iot.org',
+                hub_email: 'test@cop4934test.com',
+                hub_password: '1234'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // console.log("%j",2,data);
+            this.setState({error: null});
+            this.showToast("Info successfully updated!");
+            this.getHubInfo();
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            this.showToast(error);
+            this.setState({error});
+        });
     }
-}
 
-const styles = StyleSheet.create({
+    // Gets user's hub devices from User's table through ID in idToken
+    getDevices = async () => {
+      await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/getdevices', {
+          method: 'GET',
+          headers: 
+          {
+              Authorization: 'Bearer ' + this.state.idToken
+          }
+      })
+      .then(response => response.json())
+      .then(data => {
+          let devices = [];
+          // console.log("%j", 2, data);
+          var count = 0;
+          if(data !== null)
+          {
+            // devices.push(data);
+            data.forEach(function(item) 
+            {
+              // console.log("\n\n%j",2,item.properties);
+              // devices.push(item);
+              var device = item;
+              // if(count === 0)
+              // {
+              //   devices.push("| " + item.title + ":\n| |  " + item.description);
+              //   count = 1;
+              // }
+              // else  
+              //   devices.push("\n\n| " + item.title + ":\n| |  " + item.description);
+              var properties = [];
+              var count = 0;
+              for (var key in item.properties) 
+              {
+                if (item.properties.hasOwnProperty(key)) 
+                {
+                    // console.log(key + " -> " + item.properties[key]);
+                    // devices.push("\n| | |   -> " + item.properties[key].title);
+                    var temp = item.properties[key];
+                    temp.isChecked = false;
+                    properties.push({"property" : temp});
+                }
+              }
+              device.newProps = properties;
+              devices.push(device);
+            });
+            
+          this.setState({devices});
+          this.showToast("Devices list updated!");
+          // console.log("%j",2,devices[0].newProps);
+          }
+          else
+            throw error("Devices empty"); 
+      })
+      .catch((error) => {
+          console.error('Error:', error);
+          this.showToast(error);
+          this.setState({error});
+      });
+    }
+
+    // setupSubscriptions = async () => {
+    //   const onCreateDeviceSub = API.graphql(graphqlOperation(subscriptions.onCreateDevice)).subscribe({
+    //     next: (data) => {
+    //       console.log("New subscription data: " + data.value.data.onCreateDevice.id);
+    //       var currDevices = this.state.sharedDevices;
+
+    //       if(currDevices !== null)
+    //       {
+    //         if(currDevices.includes(data.value.data.onCreateDevice))
+    //         {
+    //           return null;
+    //         }
+    //         else
+    //         {
+    //           currDevices.push(data.value.data.onCreateDevice)
+    //           return this.setState({
+    //             sharedDevices: currDevices
+    //           });
+    //         }
+    //       }
+    //       else
+    //       {
+    //         var test = [];
+    //         test.push(data.value.data.onCreateDevice);
+    //         return this.setState({sharedDevices: test});
+    //       }
+    //     },
+    //     error: error => {
+    //       this.setState({error:"error getting live updates for devices"});
+    //     }
+    //   });
+
+    //   const onCreateSharedAccountSub = API.graphql(graphqlOperation(subscriptions.onCreateSharedAccounts1)).subscribe({
+    //     next: (data) => {
+    //       console.log("New shared account made");
+    //       console.log("New shared account made: " + data.value.data.onCreateSharedAccount.id);
+    //       var currSharedAccounts = this.state.sharedAccounts;
+
+    //       if(currSharedAccounts !== null)
+    //       {
+    //         if(currSharedAccounts.includes(data.value.data.onCreateSharedAccount))
+    //         {
+    //           console.log("Account already loaded on ui");
+    //           return null;
+    //         }
+    //         else
+    //         {
+    //           console.log("Adding new account to ui");
+    //           currSharedAccounts.push(data.value.data.onCreateSharedAccount)
+    //           return this.setState({
+    //             sharedDevices: currSharedAccounts
+    //           });
+    //         }
+    //       }
+    //       else
+    //       {
+    //         console.log("Adding new account to ui for the first time");
+    //         var test = [];
+    //         test.push(data.value.data.onCreateSharedAccount);
+    //         return this.setState({sharedDevices: test});
+    //       }
+    //     },
+    //     error: error => {
+    //       this.setState({error:"error getting live updates for shared accounts"});
+    //       console.log(error);
+    //     }
+    //   });
+
+    //   const onDeleteSharedAccountSub = API.graphql(graphqlOperation(subscriptions.onDeleteSharedAccounts, {owner: "495565e5-585b-41a4-af30-9bc2c3f05862"})).subscribe({
+    //     next: (data) => {
+    //       console.log("Removing shared account from ui: " + data.value.data.onDeleteSharedAccounts.id);
+
+    //       if(currSharedAccounts !== null)
+    //       {
+    //         console.log("Deleting account from ui");
+    //         var currSharedAccounts = this.state.sharedAccounts.filter( el => el.id !== data.value.data.onDeleteSharedAccounts.id);
+    //         return this.setState({
+    //           sharedDevices: currSharedAccounts
+    //         });
+    //       }
+    //     },
+    //     error: error => {
+    //       this.setState({error:"error getting live updates for onDelete shared accounts"});
+    //       console.log(error);
+    //     }
+    //   });
+
+    //   const onDeleteDeviceSub = API.graphql(graphqlOperation(subscriptions.onDeleteDevice)).subscribe({
+    //     next: (data) => {
+    //       console.log("New delete subscription data " + data.value.data.onDeleteDevice.id);
+    //       var currDevices = [];
+    //       if(currDevices !== null)
+    //       {
+    //         currDevices = this.state.sharedDevices.filter( el => el.id !== data.value.data.onDeleteDevice.id );
+    //         return this.setState({
+    //           sharedDevices: currDevices
+    //         });
+    //       }
+    //     },
+    //     error: error => {
+    //       this.setState({error:"error getting live updates for onDelete devices"});
+    //     }
+    //   });
+
+    //   this.setState({onCreateSharedAccountSub, onCreateDeviceSub, onDeleteDeviceSub, onDeleteSharedAccountSub});
+    // }
+
+    signOut = async () => {
+        this.showToast("Signing out!");
+        Auth.signOut()
+        .then(this.props.navigation.navigate("Auth"));
+    }
+
+    getListofSharedDevices = async (hasNextToken = null) => {
+      try 
+      {
+        const getDeviceListResult = await API.graphql(graphqlOperation(listDevices, {nextToken: hasNextToken}));
+        const newDeviceList = getDeviceListResult.data.listDevices.items;
+        var currentDeviceList = this.state.sharedDevices;
+
+        newDeviceList.map((device) => {
+          if (currentDeviceList !== null)
+          {
+            if(currentDeviceList.includes(device))
+              return null;
+            else
+              currentDeviceList.push(device);
+          }
+          else
+          {
+            currentDeviceList = [];
+            currentDeviceList.push(device);
+          }
+        });
+
+        this.setState({
+            sharedDevices: currentDeviceList
+        });
+
+      }
+      catch (error)
+      {
+        this.setState({error:error.message});
+      }
+    }
+
+    getListofSharedAccounts = async (hasNextToken = null) => {
+      try 
+      {
+        const getAccountsList = await API.graphql(graphqlOperation(queries.listSharedAccountss, {nextToken:hasNextToken}));
+        const newAccountsList = getAccountsList.data.listSharedAccountss.items;
+        var currentAccountsList = [];
+        console.log("Fetching shared accounts...");
+        // console.log("Accounts Fetched: %j", 2, getAccountsList.data.listSharedAccountss.items[0].devices.items[0]);
+
+        newAccountsList.map((acc) => {
+          // if (currentAccountsList !== null)
+          // {
+            // if(currentAccountsList.includes(acc))
+            //   return null;
+            // else
+            // {
+              // var devices = [];
+              // acc.nextToken.forEach(dev => {
+              //   devices.push(dev);
+              // });
+              // acc.devices = devices;
+              currentAccountsList.unshift(acc);
+              // console.log("\n\n%j", 2, acc);
+            // }
+          // }
+          // else
+          // {
+          //   currentAccountsList = [];
+          //   currentAccountsList.unshift(acc);
+          // }
+        });
+
+        this.setState({
+            sharedAccounts: currentAccountsList
+        });
+        // console.log("%j", 2, currentAccountsList);
+
+      }
+      catch (error)
+      {
+        console.log("error:%j",2,error);
+        this.setState({error:error.message});
+      }
+    }
+
+    createASharedAccount = async () => {
+      try {
+        if (this.state.selectedProperties > 0)
+        {
+          var acc;
+          var esc = 0;
+          for (acc in this.state.sharedAccounts)
+          {
+            if (this.state.sharedAccounts[acc].sharee_id === "7b135dd7-f7fb-4db7-81d5-dcd6bc456f32")
+            {
+              this.showToast("User already exists, run an update command here!");
+              esc = 1;
+            }
+          }
+          if (esc !== 1)
+          {  
+            console.log("Creating a new shared account...");
+            var date = new Date();
+            const res = await API.graphql(graphqlOperation(mutations.createSharedAccounts, {input: {
+              hub_url: "cop4934.mozilla-iot.org",
+              hub_email: "test@cop4934test.com",
+              hub_password: "1234",
+              sharer_id: "doesn't matter",
+              sharee_id: "7b135dd7-f7fb-4db7-81d5-dcd6bc456f32",
+              sharer_name: this.state.name,
+              name: date.getHours()%12 + ":" + date.getMinutes() + " Neighbor 7b135dd7"
+            }}));
+            // console.log("RESONSEE %j", 2, res.data.createSharedAccounts.id);
+            this.createADevice(res.data.createSharedAccounts.id);
+          }
+          else
+          {
+            this.createADevice("7b135dd7-f7fb-4db7-81d5-dcd6bc456f32");
+          }
+
+        }
+        else
+          this.setState({error: "You need to have at least a single property selected to share!"});
+      }
+      catch (err)
+      {
+        console.log("Error adding a shared account");
+        console.log("%j",2,err);
+        // this.setState({error:err.message});
+        this.refreshToken();
+      }
+    }
+
+    createADevice = async (id) => {
+      try 
+      {
+        var device;
+        for (device in this.state.devices)
+        {
+          var properties = [];
+          var property;
+          for (property in this.state.devices[device].newProps)
+          {
+            // console.log("%j\nNEWPROPS", this.state.devices);
+            // console.log("%j\nNEWPROPS", 2, this.state.devices[device].newProps[property].property.isChecked);
+            if (this.state.devices[device].newProps[property].property.isChecked)
+              properties.push(this.state.devices[device].newProps[property]);
+          }
+          if (properties.length !== 0)
+          {
+            console.log("Creating a device...");
+            const date = new Date();
+            const res = await API.graphql(graphqlOperation(mutations.createDevice, {input: {
+              name: this.state.devices[device].title + "",
+              description: this.state.devices[device].description + "",
+              rule_set:"Mon/Tue/Wed",
+              path: this.state.devices[device].base + "",
+              deviceSharedAccountIdId: id
+            }}));
+            // console.log("RESPONSE:", res);
+            this.createAProperty(res.data.createDevice.id, properties);
+          }
+          else
+            this.setState({error: "Couldn't find properties so no new device was made"});
+            this.getListofSharedAccounts();
+        } 
+      }
+      catch (err)
+      {
+        console.log("Error adding a device");
+        console.log("%j", 2, err);
+        this.setState({error:err.message});
+        this.refreshToken();
+      }
+    }
+
+    // TODO: Add dynamic input from list of hub devices
+    createAProperty = async (id, properties) => {
+      try {
+        if (properties)
+        {
+          var property;
+          for (property in properties)
+          {
+            console.log("Creating a property... for " + id);
+            const res = await API.graphql(graphqlOperation(mutations.createProperty, {input: {
+              name: properties[property].property.title + "",
+              type: properties[property].property.type + "",
+              read_only: 0,
+              devicePropertiesId: id
+            }}))
+            // console.log("RESPONSE:", res);
+          }
+        }
+      }
+      catch (err)
+      {
+        console.log("Error adding a device");
+        console.log("%j", 2, err);
+        this.setState({error:err.message});
+        this.refreshToken();
+      }
+      finally {
+        this.getListofSharedAccounts();
+      }
+    }
+
+    // Working
+    deleteADevice = async (id) => {
+      try {
+        console.log("Deleting device " + id + "...");
+        await API.graphql(graphqlOperation(mutations.deleteDevice, {input: {
+          id: id,
+        }}))
+        .then(() => {
+          this.getListofSharedAccounts();
+        });
+        // var currSharedAccounts = this.state.sharedAccounts.filter( el => el.id !== id);
+        // this.setState({sharedAccounts: currSharedAccounts});
+
+      }
+      catch (err)
+      {
+        console.log("Error deleting a device");
+        this.setState({error:err.message});
+        this.refreshToken();
+      }
+    }
+
+    // Working + updates UI
+    deleteASharedAccount = async (id) => {
+      try {
+        console.log("Deleting account " + id + "...");
+        await API.graphql(graphqlOperation(mutations.deleteSharedAccounts, {input: {
+          id: id,
+        }}));
+        var currSharedAccounts = this.state.sharedAccounts.filter( el => el.id !== id);
+        this.setState({sharedAccounts: currSharedAccounts});
+      }
+      catch (err)
+      {
+        console.log("Error deleting a device");
+        this.setState({error:err.message});
+        this.refreshToken();
+      }
+    }
+
+    // Working
+    deleteAProperty = async (id) => {
+      try {
+        console.log("Deleting property " + id + "...");
+        await API.graphql(graphqlOperation(mutations.deleteProperty, {input: {
+          id: id,
+        }}))
+        .then(() => {
+          this.getListofSharedAccounts();
+        });
+
+      }
+      catch (err)
+      {
+        console.log("Error deleting a device");
+        this.setState({error:err.message});
+        this.refreshToken();
+      }
+    }
+
+    toggleCheckbox = (device, property) => {
+      var list = this.state.devices;
+      var temp = list[list.indexOf(device)].newProps;
+      temp = temp[temp.indexOf(property)];
+      temp.property.isChecked = !temp.property.isChecked;
+      this.setState({devices: list});
+      if(temp.property.isChecked)
+        this.setState({selectedProperties: this.state.selectedProperties+1});
+      else
+        this.setState({selectedProperties: this.state.selectedProperties-1});
+  }
+
+    render() 
+    {
+      return (
+        <ScrollView style={styles.container}>
+          {/* UI Messages */}
+          {this.state.error && <Text style={{color: 'red', alignSelf: 'center'}}>{this.state.error}</Text>}
+          {this.state.message && <Text style={{color:'black', alignSelf: 'center'}}>{this.state.message}</Text>}
+
+          {/* Cognito information */}
+          {/* <Text style={styles.greeting}>(Cognito Info)</Text>
+          {this.state.name && <Text style={{alignSelf: 'center'}}>Hello {this.state.name}!</Text>}
+          {this.state.id && <Text style={{alignSelf: 'center'}}>UID: {this.state.id}</Text>}
+          {this.state.email && <Text style={{alignSelf: 'center'}}>Email: {this.state.email}</Text>} */}
+
+            {/* Buttons */}
+            {this.state.hub_url === null && <TouchableOpacity style={styles.getUserInfoButton} onPress={this.getHubInfo}>
+              <Text style={{color: '#FFF', fontWeight: '500'}}>Get User Information</Text>
+            </TouchableOpacity>}
+            {this.state.hub_url === null && <TouchableOpacity style={styles.setUserInfoButton} onPress={this.setHubInfo}>
+              <Text style={{color: '#FFF', fontWeight: '500'}}>Update Hub Information(Hard Coded)</Text>
+            </TouchableOpacity>}
+            <TouchableOpacity style={styles.setUserInfoButton} onPress={this.createASharedAccount}>
+              <Text style={{color: '#FFF', fontWeight: '500'}}> Share Account</Text>
+            </TouchableOpacity>
+            {/* <TouchableOpacity style={styles.setUserInfoButton} onPress={this.createADevice}>
+              <Text style={{color: '#FFF', fontWeight: '500'}}>Create Device</Text>
+            </TouchableOpacity> */}
+
+            {/* User DB information */}
+            <Text style={styles.greeting}>(Secured Account Info)</Text>
+            {this.state.hub_url === null && <Text style={{alignSelf: 'center'}}>Add your hub information!</Text>}
+            {this.state.hub_url && <Text style={{alignSelf: 'center'}}>Hub URL: {this.state.hub_url}</Text>}
+            {this.state.hub_url && <Text style={{alignSelf: 'center'}}>Hub Email: {this.state.hub_email}</Text>}
+
+            {/* Devices on hub information */}
+            <Text style={styles.greeting}>(Devices on Hub)</Text>
+            {
+              !this.state.devices && <ActivityIndicator size="large"/>
+            }
+            {
+            this.state.devices && 
+            <ScrollView style={{alignSelf: 'center'}}>
+              {
+                this.state.devices.map((device, index) => (
+                  <View key={index}>
+                    <Text style={styles.devices}>{device.title}</Text>
+                    <View>
+                    {
+                      device.newProps.map((property, index2) => (
+                        <View key={index2} style={{flexDirection: 'row', alignSelf:'flex-start'}} >
+                          <CheckBox value= {this.state.devices[index].newProps[index2].property.isChecked} onChange={() => {this.toggleCheckbox(device, property)}}/>
+                          <Text style={styles.devices}>{property.property.title}</Text>
+                        </View>
+                      ))
+                    }
+                    </View>
+                  </View>
+                ))
+              }
+            </ScrollView>
+            }
+
+            {/* for (var key in item.properties) 
+              {
+                if (item.properties.hasOwnProperty(key)) 
+                {
+                    // console.log(key + " -> " + item.properties[key]);
+                    devices.push("\n| | |   -> " + item.properties[key].title);
+                } */}
+
+            {/* Shared Devices */}
+            {/* <Text style={styles.greeting}>(Devices Shared)</Text>
+            {
+              this.state.sharedDevices &&
+              this.state.sharedDevices.map((device, index) => (
+                <View key={device.id} style={{flexDirection: 'row', alignSelf:'center'}}>
+                  <TouchableOpacity id={device.id} style={styles.button4} onPress={this.deleteADevice.bind(this, device.id)}> 
+                    <Text style={{fontSize:20}}>X</Text>
+                  </TouchableOpacity>
+                  <Text key={device.id} style={styles.devices}>{device.name} - {device.description}</Text>
+                </View>
+              ))
+            } */}
+
+            {/* Shared Account Information */}
+            <Text style={styles.greeting}>(Shared Accounts)</Text>
+            {
+              this.state.sharedAccounts &&
+              this.state.sharedAccounts.map((account, index) => (
+                <View key={index}>
+                  <View style={{flexDirection: 'row', alignSelf:'flex-start'}}>
+                    <TouchableOpacity style={styles.button4} onPress={this.deleteASharedAccount.bind(this, account.id)}> 
+                      <Text style={{fontSize:20}}>X</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.devices}>{account.name}</Text>
+                  </View>
+                  {
+                    account.devices !== undefined &&
+                    account.devices.items.map((device, index) => (
+                      <View key={index}>
+                        <View style={{flexDirection: 'row', marginLeft: 30}}>
+                          <TouchableOpacity style={styles.button4} onPress={this.deleteADevice.bind(this, device.id)}> 
+                            <Text style={{fontSize:20}}>X</Text>
+                          </TouchableOpacity>
+                          <Text style={styles.devices}>{device.name}</Text>
+                        </View>
+                        {
+                          device.properties !== undefined &&
+                          device.properties.items.map((property, index) => (
+                            <View key={property.id} style={{flexDirection: 'row', marginLeft: 100}}>
+                              <TouchableOpacity id={property.id} style={styles.button4} onPress={this.deleteAProperty.bind(this, property.id)}> 
+                                <Text style={{fontSize:10}}>X</Text>
+                              </TouchableOpacity>
+                              <Text key={property.id} style={styles.devices}>{property.name}</Text>
+                            </View>
+                            
+                          ))
+                        }
+                      </View>
+                      ))
+                    }
+                  </View>
+              ))
+            }
+
+            <TouchableOpacity style={styles.signOutButton} onPress={this.signOut}>
+              <Text style={{color: '#FFF', fontWeight: '500'}}>Sign Out</Text>
+            </TouchableOpacity>
+  
+        </ScrollView> 
+      );
+    }
+  }
+  
+  const styles = StyleSheet.create({
     container: {
-        flex: .8,
-        justifyContent: 'center',
+      flex: 1,
     },
-    button: {
-        marginHorizontal: 30,
-        backgroundColor: '#E9446A',
-        borderRadius: 4,
-        height: 52,
-        alignItems: 'center',
-        justifyContent: 'center'
+    greeting: {
+        marginTop: 32,
+        fontSize: 18,
+        fontWeight: '400',
+        textAlign: 'center'
     },
-    button2: {
-        marginHorizontal: 30,
-        backgroundColor: '#1E88E5',
-        borderRadius: 4,
-        height: 52,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginVertical: 8,
-        marginBottom: 30,
+    devices: {
+      fontSize: 15,
+      fontWeight: '400',
+      justifyContent: 'center'
+  },
+    signOutButton: {
+      marginTop: 30,
+      marginBottom: 30,
+      marginHorizontal: 30,
+      backgroundColor: '#E9446A',
+      borderRadius: 4,
+      height: 52,
+      alignItems: 'center',
+      justifyContent: 'center'
     },
-    button3: {
-        marginHorizontal: 30,
-        backgroundColor: '#00897B',
-        borderRadius: 4,
-        height: 52,
-        alignItems: 'center',
-        justifyContent: 'center'
+    getUserInfoButton: {
+      marginTop: 30,
+      marginHorizontal: 30,
+      backgroundColor: '#00BFA5',
+      borderRadius: 4,
+      height: 52,
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    setUserInfoButton: {
+      marginTop: 30,
+      marginHorizontal: 30,
+      backgroundColor: '#00B0FF',
+      borderRadius: 4,
+      height: 52,
+      alignItems: 'center',
+      justifyContent: 'center'
     },
     button4: {
-        marginHorizontal: 10,
-        backgroundColor: '#E9446A',
-        borderRadius: 4,
-        paddingHorizontal: 15,
-        justifyContent: 'center'
-    },
+      marginHorizontal: 10,
+      backgroundColor: '#E9446A',
+      borderRadius: 4,
+      paddingHorizontal: 15,
+      justifyContent: 'center'
+    },  
     errorMessage: {
-        textAlign:"center",
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginHorizontal: 30
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginHorizontal: 30
     },
     error: {
-        color: '#E9446A',
-        fontSize: 13,
-        fontWeight: '600',
-        textAlign: 'center',
+      color: '#E9446A',
+      fontSize: 13,
+      fontWeight: '600',
+      textAlign: 'center'
+    },
+    input: {
+      borderBottomColor: '#8A8F9E',
+      borderBottomWidth: 1,
+      height: 40,
+      fontSize: 15,
+      color: '#161F3D'
+    },
+    inputTitle: {
+      marginTop: 10,
+      color: '#8A8F9E',
+      fontSize: 10,
+      textTransform: 'uppercase'
+    },
+    form: {
+      marginBottom: 48,
+      marginHorizontal: 30
     }
-});
-
- 
+  });

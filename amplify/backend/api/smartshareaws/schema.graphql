@@ -1,0 +1,33 @@
+type SharedAccounts @model 
+@auth(rules: [
+  {allow: owner},
+  {allow: owner, ownerField: "sharee_id", operations: [read]}
+  ]){
+	id: ID!
+	hub_url: String!
+	hub_email: String!
+	hub_password: String!
+	name: String!
+	sharer_id: String!
+	sharee_id: String!
+	sharer_name: String!
+	devices: [Device] @connection(name: "SharedAccountDevices")
+}
+
+type Device @model @auth(rules: [{allow: owner, operations: [create, delete, update]}]){
+  id: ID!
+  name: String!
+  description: String
+  rule_set: String!
+  path: String!
+  sharedAccountId: SharedAccounts @connection(name: "SharedAccountDevices")
+  properties: [Property] @connection
+}
+
+type Property @model @auth(rules: [{allow: owner, operations: [create, delete, update]}]){
+  id: ID!
+  name: String!
+  type: String
+  read_only: Int
+  device: Device @connection
+}

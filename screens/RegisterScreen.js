@@ -1,40 +1,69 @@
 import React from 'react';
 import {View, Text, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
-import auth from '@react-native-firebase/auth';
-
+import { Auth } from 'aws-amplify';
 export default class RegisterScreen extends React.Component 
 {
     state = 
     {
-        name: '',
-        email: '',
-        password: '',
-        hub_url: '',
-        // Error handling
-        errorMessage: null
+        name: 'Jason',
+        username: 'test@example.com',
+        password: '123456789',
+        userId: null,
+        errorMessage: null,
+        signedUp: false
     }
 
-    handleSignUp = () =>
-    {
-        // TODO: Check if we can handle adding additional information to this firebase registration screen beyond email and password (don't believe so)
-        // if(this.state.name === '')
-        //     this.setState({errorMessage: 'Missing name'});
-        // else if(this.state.hub_url === '')
-        //     this.setState({errorMessage: 'Missing Mozilla Gateway URL'});
-
-        // Form validation
-        if(this.state.email === '')
+    handleSignUp = async () => {
+        const {username, password, name} = this.state;
+        if(this.state.name === '')
+            this.setState({errorMessage: 'Missing name'});
+        else if(this.state.email === '')
             this.setState({errorMessage: 'Missing email address'});
         else if(this.state.password === '')
             this.setState({errorMessage: 'Missing password'});
         else
-            // Creates a new firebase user account
-            auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then(userCredentials => {
-                return userCredentials.user.updateProfile({
-                    displayName: this.state.name
-                });
-            }).catch(error => 
-            {this.setState({errorMessage: error.code})});
+        {
+
+            console.log(username, password, name);
+            const response = await Auth.signUp({
+                'username': username,
+                'password': password,
+                attributes: {
+                'name': name,
+                }
+            })
+            .then((response) => {
+                this.setState({error: null, userId: response.userSub, signedUp:true, message:'A verification code was sent to your email! '});
+                console.log('sign up successful!');
+                console.log(response.userSub);
+            })
+            .catch(error => {
+                this.setState({error: error.message, message: null});
+                console.log('Error', error.message);
+            });
+        }
+    }
+
+    // Verify sign up code
+    confirmSignUp = async() => {
+        const { username, authCode } = this.state
+        if(authCode !== '')
+        {
+            const user = await Auth.confirmSignUp(username, authCode)
+            .then(user => {
+            console.log('confirmed sign up successful!');
+            this.setState({name: user.name, isAuth: true});
+            })
+            .catch((err) => {
+            this.setState({error: err.message});
+            });
+            
+        }
+        // Form validation
+        else
+        {
+            this.setState({message: 'Please enter the code sent to your email'});
+        }
     }
 
     render()
@@ -43,14 +72,12 @@ export default class RegisterScreen extends React.Component
           <View style={styles.container}>
                 <Text style={styles.greeting}>{`Welcome,\nSign up to get started.`}</Text>
 
-                {/* Error message */}
                 <View style={styles.errorMessage}>
                     {this.state.errorMessage && <Text style={styles.errorMessage}>{this.state.errorMessage}</Text>}
                 </View>
 
-                {/* Form input */}
                 <View style={styles.form}>
-                    {/* <View>
+                    <View>
                         <Text style={styles.inputTitle}>Full Name</Text>
                         <TextInput 
                             style={styles.input} 
@@ -58,25 +85,15 @@ export default class RegisterScreen extends React.Component
                             onChangeText={name => this.setState({name})} 
                             value={this.state.name}>
                         </TextInput>
-                    </View> */}
-
-                    {/* <View style={{marginTop: 32}}>
-                        <Text style={styles.inputTitle}>Hub URL</Text>
-                        <TextInput 
-                            style={styles.input} 
-                            autoCapitalize="none" 
-                            onChangeText={hub_url => this.setState({hub_url})} 
-                            value={this.state.hub_url}>
-                        </TextInput>
-                    </View> */}
+                    </View>
                     
                     <View style={{marginTop: 32}}>
                         <Text style={styles.inputTitle}>Email Address</Text>
                         <TextInput 
                             style={styles.input} 
                             autoCapitalize="none" 
-                            onChangeText={email => this.setState({email})} 
-                            value={this.state.email}>
+                            onChangeText={username => this.setState({username})} 
+                            value={this.state.username}>
                         </TextInput>
                     </View>
 
@@ -91,17 +108,31 @@ export default class RegisterScreen extends React.Component
                         </TextInput>
                     </View>
                 </View>
-                
-                {/* Buttons */}
+
                 <TouchableOpacity style={styles.button} onPress={this.handleSignUp}>
                     <Text style={{color: '#FFF', fontWeight: '500'}}>Sign Up</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={{alignSelf: 'center', marginTop: 32}} onPress={() => this.props.navigation.navigate("Login")}>
+                <TouchableOpacity style={{alignSelf: 'center', marginTop: 16}} onPress={() => this.props.navigation.navigate("Login")}>
                     <Text style={{color: '#414959', fontSize: 13}}Password> 
                         Already a user? <Text style={{color: '#E9446A', fontWeight: '500'}}>Login</Text>
                     </Text>
                 </TouchableOpacity>
+                <View style={{marginTop:48}}></View>
+
+                <View style={styles.form}>
+                    <Text style={styles.inputTitle}>Confirm Code</Text>
+                    <TextInput 
+                        style={styles.input} 
+                        autoCapitalize="none" 
+                        onChangeText={authCode => this.setState({authCode})} 
+                        value={this.state.authCode}>
+                    </TextInput>
+
+                    <TouchableOpacity style={styles.button1} onPress={this.confirmSignUp}>
+                    <Text style={{color: '#FFF', fontWeight: '500'}}>Sign Up</Text>
+                    </TouchableOpacity>
+                </View>
           </View>  
         );
     }
@@ -118,7 +149,7 @@ const styles = StyleSheet.create({
        textAlign: 'center'
    },
    errorMessage: {
-       height: 72,
+       height: 32,
        color: 'red',
        alignItems: 'center',
        justifyContent: 'center',
@@ -131,7 +162,7 @@ const styles = StyleSheet.create({
         textAlign: 'center'
    },
    form: {
-       marginBottom: 48,
+       marginBottom: 32,
        marginHorizontal: 30
    },
    inputTitle: {
@@ -153,5 +184,23 @@ const styles = StyleSheet.create({
         height: 52,
         alignItems: 'center',
         justifyContent: 'center'
-   }
+   },
+   button1: {
+    marginTop: 5,
+    marginHorizontal: 30,
+    backgroundColor: '#00BFA5',
+    borderRadius: 4,
+    height: 52,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  button2: {
+    marginTop: 30,
+    marginHorizontal: 30,
+    backgroundColor: '#0336FF',
+    borderRadius: 4,
+    height: 52,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
 });
