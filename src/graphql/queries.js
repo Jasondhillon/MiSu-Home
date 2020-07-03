@@ -51,6 +51,7 @@ export const listSharedAccountss = /* GraphQL */ `
             id
             name
             description
+            rule_set
             properties {
               items {
                 id
