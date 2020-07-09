@@ -141,33 +141,20 @@ export default class HomeScreen extends React.Component {
       .then(data => {
           let devices = [];
           // console.log("%j", 2, data);
-          var count = 0;
           if(data !== null)
           {
-            // devices.push(data);
             data.forEach(function(item) 
             {
-              // console.log("\n\n%j",2,item.properties);
-              // devices.push(item);
               var device = item;
-              // if(count === 0)
-              // {
-              //   devices.push("| " + item.title + ":\n| |  " + item.description);
-              //   count = 1;
-              // }
-              // else  
-              //   devices.push("\n\n| " + item.title + ":\n| |  " + item.description);
               var properties = [];
-              var count = 0;
               for (var key in item.properties) 
               {
                 if (item.properties.hasOwnProperty(key)) 
                 {
-                    // console.log(key + " -> " + item.properties[key]);
-                    // devices.push("\n| | |   -> " + item.properties[key].title);
-                    var temp = item.properties[key];
-                    temp.isChecked = false;
-                    properties.push({"property" : temp});
+                  var temp = item.properties[key];
+                  temp.isChecked = false;
+                  temp.value = null;
+                  properties.push({"property" : temp});
                 }
               }
               device.newProps = properties;
@@ -176,7 +163,7 @@ export default class HomeScreen extends React.Component {
             
           this.setState({devices});
           this.showToast("Devices list updated!");
-          // console.log("%j",2,devices[0].newProps);
+          this.getCurrentValues();
           }
           else
             throw error("Devices empty"); 
@@ -301,6 +288,7 @@ export default class HomeScreen extends React.Component {
         .then(this.props.navigation.navigate("Auth"));
     }
 
+    // Get shared devices
     getListofSharedDevices = async (hasNextToken = null) => {
       try 
       {
@@ -334,13 +322,14 @@ export default class HomeScreen extends React.Component {
       }
     }
 
+    // Get shared accounts
     getListofSharedAccounts = async (hasNextToken = null) => {
       try 
       {
         const getAccountsList = await API.graphql(graphqlOperation(queries.listSharedAccountss, {nextToken:hasNextToken}));
         const newAccountsList = getAccountsList.data.listSharedAccountss.items;
         var currentAccountsList = [];
-        console.log("Fetching shared accounts...");
+        // console.log("Fetching shared accounts...");
         // console.log("Accounts Fetched: %j", 2, getAccountsList.data.listSharedAccountss.items[0].devices.items[0]);
 
         newAccountsList.map((acc) => {
@@ -627,7 +616,7 @@ export default class HomeScreen extends React.Component {
       }
       catch (err)
       {
-        console.log("Error deleting a device");
+        console.log("Error deleting a device%j",2, err);
         this.setState({error:err.message});
         this.refreshToken();
       }
@@ -684,24 +673,108 @@ export default class HomeScreen extends React.Component {
       }
       catch (err)
       {
-        console.log("Error deleting a device");
+        console.log("Error deleting a property%j",2, err);
         this.setState({error:err.message});
         this.refreshToken();
       }
     }
 
     toggleCheckbox = (device, property) => {
+      // Find the device and the property checked and set the value accordingly
       var list = this.state.devices;
       var temp = list[list.indexOf(device)].newProps;
       temp = temp[temp.indexOf(property)];
       temp.property.isChecked = !temp.property.isChecked;
       this.setState({devices: list});
+
+      // Keep track of the number of properties selected
       if(temp.property.isChecked)
         this.setState({selectedProperties: this.state.selectedProperties+1});
       else
         this.setState({selectedProperties: this.state.selectedProperties-1});
     }
 
+    getValueForDeviceProperty = async (device, property) => {
+      // console.log("\n\n%j", 2, property);
+      // console.log("Accessing device " + property.property.links[0].href + "...")
+      await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/getvalues', {
+          method: 'POST',
+          headers: 
+          {
+              Authorization: 'Bearer ' + this.state.idToken
+          },
+          body: JSON.stringify({
+            path: property.property.links[0].href
+          })
+      })
+      .then(response => response.json())
+      .then(data => {
+          // console.log("%j", 2, data);
+          if(data !== null)
+          {
+
+            var list = this.state.devices;
+            var temp = list[list.indexOf(device)].newProps;
+            temp = temp[temp.indexOf(property)];
+
+            for (var key in data) 
+            {
+              if (data.hasOwnProperty(key)) 
+              {
+                temp.property.value = data[key];
+              }
+            }
+
+            this.setState({devices: list});
+          }
+          else
+            throw error("Values empty"); 
+      })
+      .catch((error) => {
+          console.error('Error:', error);
+          this.showToast(error);
+          this.setState({error});
+      });
+
+    }
+
+    getCurrentValues = async () => {
+      var devices = this.state.devices;
+      devices.map((device) => {
+        device.newProps.map((property) => {
+          property.value = this.getValueForDeviceProperty(device, property)
+        })
+      })
+
+    }
+
+    useDevice = async (device, property) => {
+      // console.log(JSON.stringify(property, null, 2));
+      const propertyName = property.property.links[0].href.substring(property.property.links[0].href.lastIndexOf("/") + 1, property.property.links[0].href.length);
+      console.log("Turning " + property.property.title + " " + !property.property.value);
+      if (property.property.type == "boolean")
+        await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
+            method: 'POST',
+            headers: 
+            {
+                Authorization: 'Bearer ' + this.state.idToken
+            },
+            body: JSON.stringify({
+              path: property.property.links[0].href,
+              name: propertyName,
+              value: !property.property.value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+          this.getValueForDeviceProperty(device, property);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            this.showToast(error);
+            this.setState({error});
+        });
+    }
 
     render() 
     {
@@ -725,7 +798,7 @@ export default class HomeScreen extends React.Component {
               <Text style={{color: '#FFF', fontWeight: '500'}}>Update Hub Information(Hard Coded)</Text>
             </TouchableOpacity>}
             <TouchableOpacity style={styles.setUserInfoButton} onPress={this.createASharedAccount}>
-              <Text style={{color: '#FFF', fontWeight: '500'}}> Share Accounts</Text>
+              <Text style={{color: '#FFF', fontWeight: '500'}}> Share Account</Text>
             </TouchableOpacity>
 
             {/* User DB information */}
@@ -748,8 +821,36 @@ export default class HomeScreen extends React.Component {
                     {
                       device.newProps.map((property, index2) => (
                         <View key={index2} style={{flexDirection: 'row', alignSelf:'flex-start'}} >
-                          <CheckBox value= {this.state.devices[index].newProps[index2].property.isChecked} onChange={() => {this.toggleCheckbox(device, property)}}/>
-                          <Text style={styles.devices}>{property.property.title}</Text>
+                          <CheckBox 
+                          value={this.state.devices[index].newProps[index2].property.isChecked} 
+                          onChange={() => {this.toggleCheckbox(device, property)}}
+                          />
+                          <View>
+                            <Text style={styles.devices}>{property.property.title}</Text>
+                            {
+                              property.property.value == null && <ActivityIndicator size="small"/>
+                            }
+                            {
+                              property.property.value !== null && property.property.type === "boolean" &&
+                              <Text style={styles.devices}> 
+                              {
+                                property.property.value ? "On" : "Off"
+                              }</Text>
+                            }
+                            {
+                              property.property.value !== null && property.property.type !== "boolean" &&
+                              <Text style={styles.devices}>
+                              {property.property.value}
+                              </Text>
+                            }
+                          </View>
+                          {
+                            !property.property.readOnly &&
+                            <TouchableOpacity style={styles.button5} onPress={() => this.useDevice(device, property)}> 
+                              <Text style={{fontSize:15, color: '#FFF'}}>o</Text>
+                            </TouchableOpacity>
+                          }
+
                         </View>
                       ))
                     }
@@ -874,6 +975,13 @@ export default class HomeScreen extends React.Component {
       paddingHorizontal: 15,
       justifyContent: 'center'
     },  
+    button5: {
+      marginHorizontal: 10,
+      backgroundColor: '#00B0FF',
+      borderRadius: 4,
+      paddingHorizontal: 10,
+      justifyContent: 'center'
+    }, 
     errorMessage: {
       alignItems: 'center',
       justifyContent: 'center',
