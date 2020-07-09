@@ -752,6 +752,12 @@ export default class HomeScreen extends React.Component {
       // console.log(JSON.stringify(property, null, 2));
       const propertyName = property.property.links[0].href.substring(property.property.links[0].href.lastIndexOf("/") + 1, property.property.links[0].href.length);
       console.log("Turning " + property.property.title + " " + !property.property.value);
+      var list = this.state.devices;
+      var temp = list[list.indexOf(device)].newProps;
+      temp = temp[temp.indexOf(property)];
+      temp.property.readOnly = true;
+      this.setState({devices: list});
+      
       if (property.property.type == "boolean")
         await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
             method: 'POST',
@@ -767,6 +773,9 @@ export default class HomeScreen extends React.Component {
         })
         .then(response => response.json())
         .then(data => {
+          temp.property.value = !temp.property.value;
+          temp.property.readOnly = false;
+          this.setState({devices: list});
           this.getValueForDeviceProperty(device, property);
         })
         .catch((error) => {
