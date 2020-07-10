@@ -1,6 +1,5 @@
 import React from 'react';
-import { gql } from "apollo-boost";
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ToastAndroid, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ToastAndroid, ActivityIndicator, RefreshControl} from 'react-native';
 import CheckBox from '@react-native-community/checkbox'; 
 import { Auth, API,  graphqlOperation} from 'aws-amplify';
 import * as queries from '../src/graphql/queries'
@@ -24,7 +23,8 @@ export default class HomeScreen extends React.Component {
       devices: null,
       sharedDevices: null,
       sharedAccounts: null,
-      selectedProperties: 0
+      selectedProperties: 0,
+      refreshing: false
     }
 
     showToast = (text) => {
@@ -108,7 +108,7 @@ export default class HomeScreen extends React.Component {
             headers: 
             {
                 Authorization: 'Bearer ' + this.state.idToken,
-                // CANNOT HAVE https:// in front or bork
+                // CANNOT HAVE https:// in front or b0rk
                 hub_url: 'cop4934.mozilla-iot.org',
                 hub_email: 'test@cop4934test.com',
                 hub_password: '1234'
@@ -289,38 +289,38 @@ export default class HomeScreen extends React.Component {
     }
 
     // Get shared devices
-    getListofSharedDevices = async (hasNextToken = null) => {
-      try 
-      {
-        const getDeviceListResult = await API.graphql(graphqlOperation(listDevices, {nextToken: hasNextToken}));
-        const newDeviceList = getDeviceListResult.data.listDevices.items;
-        var currentDeviceList = this.state.sharedDevices;
+    // getListofSharedDevices = async (hasNextToken = null) => {
+    //   try 
+    //   {
+    //     const getDeviceListResult = await API.graphql(graphqlOperation(listDevices, {nextToken: hasNextToken}));
+    //     const newDeviceList = getDeviceListResult.data.listDevices.items;
+    //     var currentDeviceList = this.state.sharedDevices;
 
-        newDeviceList.map((device) => {
-          if (currentDeviceList !== null)
-          {
-            if(currentDeviceList.includes(device))
-              return null;
-            else
-              currentDeviceList.push(device);
-          }
-          else
-          {
-            currentDeviceList = [];
-            currentDeviceList.push(device);
-          }
-        });
+    //     newDeviceList.map((device) => {
+    //       if (currentDeviceList !== null)
+    //       {
+    //         if(currentDeviceList.includes(device))
+    //           return null;
+    //         else
+    //           currentDeviceList.push(device);
+    //       }
+    //       else
+    //       {
+    //         currentDeviceList = [];
+    //         currentDeviceList.push(device);
+    //       }
+    //     });
 
-        this.setState({
-            sharedDevices: currentDeviceList
-        });
+    //     this.setState({
+    //         sharedDevices: currentDeviceList
+    //     });
 
-      }
-      catch (error)
-      {
-        this.setState({error:error.message});
-      }
-    }
+    //   }
+    //   catch (error)
+    //   {
+    //     this.setState({error:error.message});
+    //   }
+    // }
 
     // Get shared accounts
     getListofSharedAccounts = async (hasNextToken = null) => {
@@ -333,6 +333,13 @@ export default class HomeScreen extends React.Component {
         // console.log("Accounts Fetched: %j", 2, getAccountsList.data.listSharedAccountss.items[0].devices.items[0]);
 
         newAccountsList.map((acc) => {
+          acc.devices.items.map((device) => {
+            device.properties.items.map((property) => {
+              property.value = null;
+              property.value = this.getValueForSharedDeviceProperty(acc, device, property)
+            });
+          });
+
           currentAccountsList.unshift(acc);
         });
 
@@ -551,7 +558,7 @@ export default class HomeScreen extends React.Component {
               name: this.state.devices[device].title + "",
               description: this.state.devices[device].description + "",
               rule_set:"Mon/Tue/Wed",
-              path: this.state.devices[device].base + "",
+              path: this.state.devices[device].href + "",
               deviceSharedAccountIdId: id
             }}));
             // console.log("RESPONSE:", res);
@@ -579,9 +586,11 @@ export default class HomeScreen extends React.Component {
           for (property in properties)
           {
             console.log("Creating a property... for " + id);
+            console.log(JSON.stringify(properties[property].property),null,2);
             const res = await API.graphql(graphqlOperation(mutations.createProperty, {input: {
               name: properties[property].property.title + "",
               type: properties[property].property.type + "",
+              path: properties[property].property.links[0].href + "",
               read_only: 0,
               devicePropertiesId: id
             }}))
@@ -694,6 +703,52 @@ export default class HomeScreen extends React.Component {
         this.setState({selectedProperties: this.state.selectedProperties-1});
     }
 
+    getValueForSharedDeviceProperty = async (account, device, property) => {
+      // console.log("\n\n%j", 2, property);
+      // console.log("Accessing device " + property.property.links[0].href + "...")
+      await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/getvalues', {
+          method: 'POST',
+          headers: 
+          {
+              Authorization: 'Bearer ' + this.state.idToken
+          },
+          body: JSON.stringify({
+            path: property.path
+          })
+      })
+      .then(response => response.json())
+      .then(data => {
+          // console.log("%j", 2, data);
+          if(data !== null)
+          {
+
+            // accounts[x].devices.items[x].properties.items[x]
+            var list = this.state.sharedAccounts;
+            var temp = list[list.indexOf(account)].devices.items;
+            temp = temp[temp.indexOf(device)].properties.items
+            temp = temp[temp.indexOf(property)];
+
+            for (var key in data) 
+            {
+              if (data.hasOwnProperty(key)) 
+              {
+                temp.value = data[key];
+              }
+            }
+
+            this.setState({sharedAccounts: list});
+          }
+          else
+            throw error("Values empty"); 
+      })
+      .catch((error) => {
+          console.error('Error:', error);
+          this.showToast(error);
+          this.setState({error});
+      });
+
+    }
+
     getValueForDeviceProperty = async (device, property) => {
       // console.log("\n\n%j", 2, property);
       // console.log("Accessing device " + property.property.links[0].href + "...")
@@ -742,9 +797,9 @@ export default class HomeScreen extends React.Component {
       var devices = this.state.devices;
       devices.map((device) => {
         device.newProps.map((property) => {
-          property.value = this.getValueForDeviceProperty(device, property)
-        })
-      })
+          property.value = this.getValueForDeviceProperty(device, property);
+        });
+      });
 
     }
 
@@ -785,10 +840,61 @@ export default class HomeScreen extends React.Component {
         });
     }
 
+    useSharedDevice = async (account, device, property) => {
+      // console.log(JSON.stringify(property, null, 2));
+      const propertyName = property.path.substring(property.path.lastIndexOf("/") + 1, property.path.length);
+      console.log("Turning " + property.name + " " + !property.value);
+      var list = this.state.sharedAccounts;
+      var temp = list[list.indexOf(account)].devices.items;
+      temp = temp[temp.indexOf(device)].properties.items
+      temp = temp[temp.indexOf(property)];
+      temp.read_only = true;
+      this.setState({sharedAccounts: list});
+
+      if (property.type == "boolean")
+        await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
+            method: 'POST',
+            headers: 
+            {
+                Authorization: 'Bearer ' + this.state.idToken
+            },
+            body: JSON.stringify({
+              path: property.path,
+              name: propertyName,
+              value: !property.value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+          temp.value = !temp.value;
+          temp.read_only = false;
+          this.setState({sharedAccounts: list});
+          this.getValueForSharedDeviceProperty(account, device, property);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            this.showToast(error);
+            this.setState({error});
+        });
+    }
+
+    onRefresh = () => {
+      if(!this.state.refreshing)
+      {
+        this.setState({refreshing: true});
+        this.getDevices();
+        this.getListofSharedAccounts();
+        this.setState({refreshing: false});
+      }
+    }
+      
     render() 
     {
       return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container}
+          refreshControl={
+          <RefreshControl refreshing={this.state.refreshing}  onRefresh={this.onRefresh}/>
+        }>
           {/* UI Messages */}
           {this.state.error && <Text style={{color: 'red', alignSelf: 'center'}}>{this.state.error}</Text>}
           {this.state.message && <Text style={{color:'black', alignSelf: 'center'}}>{this.state.message}</Text>}
@@ -806,9 +912,6 @@ export default class HomeScreen extends React.Component {
             {this.state.hub_url === null && <TouchableOpacity style={styles.setUserInfoButton} onPress={this.setHubInfo}>
               <Text style={{color: '#FFF', fontWeight: '500'}}>Update Hub Information(Hard Coded)</Text>
             </TouchableOpacity>}
-            <TouchableOpacity style={styles.setUserInfoButton} onPress={this.createASharedAccount}>
-              <Text style={{color: '#FFF', fontWeight: '500'}}> Share Account</Text>
-            </TouchableOpacity>
 
             {/* User DB information */}
             <Text style={styles.greeting}>(Secured Account Info)</Text>
@@ -843,7 +946,7 @@ export default class HomeScreen extends React.Component {
                               property.property.value !== null && property.property.type === "boolean" &&
                               <Text style={styles.devices}> 
                               {
-                                property.property.value ? "On" : "Off"
+                                property.property.value ? "True" : "False"
                               }</Text>
                             }
                             {
@@ -854,7 +957,7 @@ export default class HomeScreen extends React.Component {
                             }
                           </View>
                           {
-                            !property.property.readOnly &&
+                            !property.property.readOnly && property.property.value !== null &&
                             <TouchableOpacity style={styles.button5} onPress={() => this.useDevice(device, property)}> 
                               <Text style={{fontSize:15, color: '#FFF'}}>o</Text>
                             </TouchableOpacity>
@@ -869,26 +972,81 @@ export default class HomeScreen extends React.Component {
               }
             </ScrollView>
             }
+            <TouchableOpacity style={styles.setUserInfoButton} onPress={this.createASharedAccount}>
+              <Text style={{color: '#FFF', fontWeight: '500'}}> Share Account</Text>
+            </TouchableOpacity>
 
-            {/* Shared Devices */}
-            {/* <Text style={styles.greeting}>(Devices Shared)</Text>
-            {
-              this.state.sharedDevices &&
-              this.state.sharedDevices.map((device, index) => (
-                <View key={device.id} style={{flexDirection: 'row', alignSelf:'center'}}>
-                  <TouchableOpacity id={device.id} style={styles.button4} onPress={this.deleteADevice.bind(this, device.id)}> 
-                    <Text style={{fontSize:20}}>X</Text>
-                  </TouchableOpacity>
-                  <Text key={device.id} style={styles.devices}>{device.name} - {device.description}</Text>
-                </View>
-              ))
-            } */}
-
-            {/* Shared Account Information */}
-            <Text style={styles.greeting}>(Shared Accounts)</Text>
+            {/* Accounts Shared to You */}
+            <Text style={styles.greeting}>Accounts Shared to You</Text>
             {
               this.state.sharedAccounts &&
               this.state.sharedAccounts.map((account, index) => (
+                account.sharee_id === this.state.id &&
+                <View key={index}>
+                  <View style={{flexDirection: 'row', alignSelf:'flex-start'}}>
+                    <TouchableOpacity style={styles.button4} onPress={this.deleteASharedAccount.bind(this, account.id)}> 
+                      <Text style={{fontSize:20}}>X</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.devices}>{account.sharer_name}</Text>
+                  </View>
+                  {
+                    account.devices !== undefined &&
+                    account.devices.items.map((device, index) => (
+                      <View key={index}>
+                        <View style={{flexDirection: 'row', marginLeft: 30}}>
+                          <TouchableOpacity style={styles.button4} onPress={this.deleteADevice.bind(this, device.id)}> 
+                            <Text style={{fontSize:20}}>X</Text>
+                          </TouchableOpacity>
+                          <Text style={styles.devices}>{device.name} ({device.rule_set})</Text>
+                        </View>
+                        {
+                          device.properties !== undefined &&
+                          device.properties.items.map((property, index) => (
+                            <View key={property.id} style={{flexDirection: 'row', marginLeft: 100}}>
+                              <TouchableOpacity id={property.id} style={styles.button4} onPress={this.deleteAProperty.bind(this, property.id)}> 
+                                <Text style={{fontSize:10}}>X</Text>
+                              </TouchableOpacity>
+                              <Text key={property.id} style={styles.devices}>{property.name}</Text>
+                              <View style={{flexDirection: 'row', marginLeft: 100}}>
+                                {
+                                  property.value == null && <ActivityIndicator size="small"/>
+                                }
+                                {
+                                  property.value !== null && property.type === "boolean" &&
+                                  <Text style={styles.devices}> 
+                                  {
+                                    property.value ? "On" : "Off"
+                                  }</Text>
+                                }
+                                {
+                                  property.value !== null && property.type !== "boolean" &&
+                                  <Text style={styles.devices}>
+                                  {property.value}
+                                  </Text>
+                                }
+                              </View>
+                              {
+                                !property.read_only && property.value !== null &&
+                                <TouchableOpacity style={styles.button5} onPress={() => this.useSharedDevice(account, device, property)}> 
+                                  <Text style={{fontSize:15, color: '#FFF'}}>o</Text>
+                                </TouchableOpacity>
+                              }
+                            </View>
+                          ))
+                        }
+                      </View>
+                    ))
+                  }
+                </View>
+              ))
+            }
+
+            {/* Accounts You're Sharing */}
+            <Text style={styles.greeting}>Accounts You're Sharing </Text>
+            {
+              this.state.sharedAccounts &&
+              this.state.sharedAccounts.map((account, index) => (
+                account.sharer_id === this.state.id &&
                 <View key={index}>
                   <View style={{flexDirection: 'row', alignSelf:'flex-start'}}>
                     <TouchableOpacity style={styles.button4} onPress={this.deleteASharedAccount.bind(this, account.id)}> 
@@ -914,14 +1072,38 @@ export default class HomeScreen extends React.Component {
                                 <Text style={{fontSize:10}}>X</Text>
                               </TouchableOpacity>
                               <Text key={property.id} style={styles.devices}>{property.name}</Text>
+                              <View style={{flexDirection: 'row', marginLeft: 100}}>
+                                {
+                                  property.value == null && <ActivityIndicator size="small"/>
+                                }
+                                {
+                                  property.value !== null && property.type === "boolean" &&
+                                  <Text style={styles.devices}> 
+                                  {
+                                    property.value ? "On" : "Off"
+                                  }</Text>
+                                }
+                                {
+                                  property.value !== null && property.type !== "boolean" &&
+                                  <Text style={styles.devices}>
+                                  {property.value}
+                                  </Text>
+                                }
+                              </View>
+                              {
+                                !property.read_only && property.value !== null &&
+                                <TouchableOpacity style={styles.button5} onPress={() => this.useSharedDevice(account, device, property)}> 
+                                  <Text style={{fontSize:15, color: '#FFF'}}>o</Text>
+                                </TouchableOpacity>
+                              }
                             </View>
                             
                           ))
                         }
                       </View>
-                      ))
-                    }
-                  </View>
+                    ))
+                  }
+                </View>
               ))
             }
 
