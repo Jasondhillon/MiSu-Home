@@ -4,9 +4,9 @@ type SharedAccounts @model
   {allow: owner, ownerField: "sharee_id", operations: [read]}
   ]){
 	id: ID!
-	hub_url: String!
-	hub_email: String!
-	hub_password: String!
+	hub_url: String! @auth(rules: [{ allow: owner}])
+	hub_email: String! @auth(rules: [{ allow: owner}])
+	hub_password: String! @auth(rules: [{ allow: owner}])
 	name: String!
 	sharer_id: String!
 	sharee_id: String!
@@ -28,6 +28,7 @@ type Property @model @auth(rules: [{allow: owner, operations: [create, delete, u
   id: ID!
   name: String!
   type: String
+  path: String!
   read_only: Int
   device: Device @connection
 }

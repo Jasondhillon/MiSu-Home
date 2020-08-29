@@ -467,6 +467,7 @@ export default class HomeScreen extends React.Component {
 
           if(userExists == '1')
           {
+            // Checks if there is already hub credentials for the person we are sharing to
             var acc, esc = 0, id;
             for (acc in this.state.sharedAccounts)
             {

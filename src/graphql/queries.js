@@ -56,6 +56,7 @@ export const listSharedAccountss = /* GraphQL */ `
               items {
                 id
                 name
+                path
                 type
                 read_only
               }
