@@ -27,6 +27,6 @@ https://reactnative.dev/docs/environment-setup
 7. Create a new AVD, any phone(I chose pixel 3) and select Pie/API Level 28, hit next until finish
 
 ## Run the code
-> In the root directory, run yarn install
+> In the root directory, "yarn install"
 
-> To run the code,  npm run android
+> To run the code,  "npm run android"
