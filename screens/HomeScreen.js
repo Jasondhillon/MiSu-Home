@@ -30,7 +30,7 @@ export default class HomeScreen extends React.Component {
     showToast = (text) => {
         ToastAndroid.show(text, ToastAndroid.LONG);
     };
-
+ 
     // Gets user's credentials
     componentDidMount() {
       Auth.currentSession().
