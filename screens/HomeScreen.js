@@ -383,7 +383,7 @@ export default class HomeScreen extends React.Component {
               name: properties[property].property.title + "",
               type: properties[property].property.type + "",
               path: properties[property].property.links[0].href + "",
-              read_only: 0,
+              read_only: properties[property].property.readOnly ? 1:0,
               devicePropertiesId: id
             }}))
           }
@@ -402,15 +402,22 @@ export default class HomeScreen extends React.Component {
     }
 
     // Removes a device and all properties associated with this shared device from the secondary user
-    deleteADevice = async (id) => {
+    deleteADevice = async (id, properties) => {
       try {
         // console.log("Deleting device " + id + "...");
         await API.graphql(graphqlOperation(mutations.deleteDevice, {input: {
           id: id,
         }}))
         .then(() => {
+          properties.map((property) => {
+            API.graphql(graphqlOperation(mutations.deleteProperty, {input: {
+              id: property.id,
+            }}))
+          });
+        }).then(() => {
           this.getListofSharedAccounts();
         });
+
         // var currSharedAccounts = this.state.sharedAccounts.filter( el => el.id !== id);
         // this.setState({sharedAccounts: currSharedAccounts});
 
@@ -796,7 +803,7 @@ export default class HomeScreen extends React.Component {
                     account.devices.map((device, index) => (
                       <View key={index}>
                         <View style={{flexDirection: 'row', marginLeft: 30}}>
-                          <TouchableOpacity style={styles.button4} onPress={this.deleteADevice.bind(this, device.id)}> 
+                          <TouchableOpacity style={styles.button4} onPress={this.deleteADevice.bind(this, device.id, device.properties)}> 
                             <Text style={{fontSize:20}}>X</Text>
                           </TouchableOpacity>
                           <Text style={styles.devices}>{device.name} ({device.rule_set})</Text>
