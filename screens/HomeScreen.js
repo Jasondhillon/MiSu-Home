@@ -9,7 +9,8 @@ AWS.config.update({ region: "us-east-1"});
 
 export default class HomeScreen extends React.Component {
 
-      state = {
+    // Holds all of our global variables
+    state = {
       id: null,
       name: null,
       email: null,
@@ -48,7 +49,6 @@ export default class HomeScreen extends React.Component {
       }).then(()=> {
         this.getListofSharedAccounts();
         this.getListofSharedDevices();
-      }).then(()=> {
       });
 
     }
@@ -379,6 +379,7 @@ export default class HomeScreen extends React.Component {
           {
             // console.log("Creating a property... for " + id);
             // console.log(JSON.stringify(properties[property].property),null,2);
+            // TODO: Decide whether we want a property to be read only, even if the device can be toggled, can change that here 
             const res = await API.graphql(graphqlOperation(mutations.createProperty, {input: {
               name: properties[property].property.title + "",
               type: properties[property].property.type + "",
