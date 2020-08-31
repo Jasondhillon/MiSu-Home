@@ -378,7 +378,7 @@ export default class HomeScreen extends React.Component {
           for (property in properties)
           {
             // console.log("Creating a property... for " + id);
-            console.log(JSON.stringify(properties[property].property),null,2);
+            // console.log(JSON.stringify(properties[property].property),null,2);
             const res = await API.graphql(graphqlOperation(mutations.createProperty, {input: {
               name: properties[property].property.title + "",
               type: properties[property].property.type + "",
@@ -475,7 +475,7 @@ export default class HomeScreen extends React.Component {
     // Deletes a property from the properties table
     deleteAProperty = async (id) => {
       try {
-        console.log("Deleting property " + id + "...");
+        // console.log("Deleting property " + id + "...");
         await API.graphql(graphqlOperation(mutations.deleteProperty, {input: {
           id: id,
         }}))
@@ -573,7 +573,7 @@ export default class HomeScreen extends React.Component {
     // Sends a command to a hub
     useSharedDevice = async (account, device, property) => {
       // console.log(JSON.stringify(property, null, 2));
-      console.log("Turning " + property.name + " " + !property.value);
+      // console.log("Turning " + property.name + " " + !property.value);
       var list = this.state.sharedDevices;
       var temp = list[list.indexOf(account)].devices;
       temp = temp[temp.indexOf(device)].properties
