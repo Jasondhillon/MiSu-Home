@@ -138,14 +138,17 @@ export default class HomeScreen extends React.Component {
               var properties = [];
               for (var key in item.properties) 
               {
+                // This gets the name of the property since we don't know what the property is called
                 if (item.properties.hasOwnProperty(key)) 
                 {
                   var temp = item.properties[key];
+                  // This adds two key/value pairs to each device so we can tell when it is checked for sharing, and also the current state (on or off for example)
                   temp.isChecked = false;
                   temp.value = null;
                   properties.push({"property" : temp});
                 }
               }
+              // Adds the new, updated key/value pairs to the device
               device.newProps = properties;
               devices.push(device);
             });
@@ -163,13 +166,14 @@ export default class HomeScreen extends React.Component {
       });
     }
 
+    // Signs the user out and sends them back to the login screen
     signOut = async () => {
         this.showToast("Signing out!");
         Auth.signOut()
         .then(this.props.navigation.navigate("Auth"));
     }
 
-    // Get list of devices shared to the user
+    // Get list of accounts/devices/properties shared to the user
     getListofSharedDevices = async (hasNextToken = null) => {
       try
       {
@@ -184,6 +188,7 @@ export default class HomeScreen extends React.Component {
         .then(data => {
           if(data.length > 0)
           {
+            // We get the shared information and make a call to get the current values
             this.setState({sharedDevices: data}, this.getCurrentValues);
           }
         });
@@ -221,7 +226,7 @@ export default class HomeScreen extends React.Component {
       }
     }
 
-    // Sets/updates the user's hub info
+    // Creates a new login for a secondary user on the primary stakeholders hub and a new entry into the SharedAccounts tables
     createASharedAccount = async () => {
       const date = new Date();
       const dateISO = date.toISOString();
@@ -236,6 +241,7 @@ export default class HomeScreen extends React.Component {
         // Check if at least one property to share has been selected
         if (this.state.selectedProperties > 0)
         {
+          // Checks if the user we are sharing to has an account/is signed up already
           var userExists;
           await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/checkuserexists', {
             method: 'POST',
@@ -257,19 +263,21 @@ export default class HomeScreen extends React.Component {
                 this.showToast(error);
                 this.setState({error});
             });
-
+          // If the user does exist,
           if(userExists == '1')
           {
             var acc, esc = 0, id;
             for (acc in this.state.sharedAccounts)
             {
               // TODO: Change this to use user input
+              // Checks if the primary user has already created a SharedAccount for the person they are sharing to
               if (this.state.sharedAccounts[acc].hub_email === "test@example.com")
               {
                 id = this.state.sharedAccounts[acc].id;
                 esc = 1;
               }
             }
+            // If a sharedAccount does not already exist, create a new entry
             if (esc !== 1)
             {
               await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/createshareduser', {
@@ -278,6 +286,7 @@ export default class HomeScreen extends React.Component {
               {
                   Authorization: 'Bearer ' + this.state.idToken,
               },
+              // TODO: Change this to user input
               body: JSON.stringify({
                 hub_url: "cop4934.mozilla-iot.org",
                 hub_email: "test@example.com",
@@ -308,6 +317,7 @@ export default class HomeScreen extends React.Component {
                   this.setState({error: error + ""});
               });
             }
+            // If there arlready a sharedAccount for the person we are sharing to, simply add the new device/property to it
             else
             {
               if(id)
@@ -329,6 +339,7 @@ export default class HomeScreen extends React.Component {
       }
     }
 
+    // Creates a new entry to the devices table 
     createADevice = async (id) => {
       try 
       {
@@ -345,8 +356,7 @@ export default class HomeScreen extends React.Component {
           }
           if (properties.length !== 0)
           {
-            console.log("Creating a device... for " + id);
-            const date = new Date();
+            // console.log("Creating a device... for " + id);
             const res = await API.graphql(graphqlOperation(mutations.createDevice, {input: {
               name: this.state.devices[device].title + "",
               description: this.state.devices[device].description + "",
@@ -354,7 +364,6 @@ export default class HomeScreen extends React.Component {
               path: this.state.devices[device].href + "",
               deviceSharedAccountIdId: id
             }}));
-            // console.log("RESPONSE:", res);
             this.createAProperty(res.data.createDevice.id, properties);
           }
           // else
@@ -371,6 +380,7 @@ export default class HomeScreen extends React.Component {
       }
     }
 
+    // Creates a new entry to the properties table
     createAProperty = async (id, properties) => {
       try {
         if (properties)
@@ -378,7 +388,7 @@ export default class HomeScreen extends React.Component {
           var property;
           for (property in properties)
           {
-            console.log("Creating a property... for " + id);
+            // console.log("Creating a property... for " + id);
             console.log(JSON.stringify(properties[property].property),null,2);
             const res = await API.graphql(graphqlOperation(mutations.createProperty, {input: {
               name: properties[property].property.title + "",
@@ -387,7 +397,6 @@ export default class HomeScreen extends React.Component {
               read_only: 0,
               devicePropertiesId: id
             }}))
-            // console.log("RESPONSE:", res);
           }
         }
       }
@@ -403,9 +412,10 @@ export default class HomeScreen extends React.Component {
       }
     }
 
+    // Removes a device and all properties associated with this shared device from the secondary user
     deleteADevice = async (id) => {
       try {
-        console.log("Deleting device " + id + "...");
+        // console.log("Deleting device " + id + "...");
         await API.graphql(graphqlOperation(mutations.deleteDevice, {input: {
           id: id,
         }}))
@@ -418,24 +428,24 @@ export default class HomeScreen extends React.Component {
       }
       catch (err)
       {
-        console.log("Error deleting a device%j",2, err);
+        console.log("Error deleting a device %j",2, err);
         this.setState({error:err.message});
         this.refreshToken();
       }
     }
 
-    deleteASharedAccount = async (id) => {
+    // Removes the sharedAccount entry and removes the login created for the secondary user from the primary user's hub
+    deleteASharedAccount = async (id, hub_email) => {
       try {
-        console.log("Deleting account " + id + "...");
+        // console.log("Deleting account " + id + "...");
         await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/createshareduser', {
           method: 'DELETE',
           headers: 
           {
               Authorization: 'Bearer ' + this.state.idToken,
           },
-          // TODO: Change this to use user input
           body: JSON.stringify({
-            email: "test@example.com",
+            email: hub_email,
             })
           })
           .then(response => response.json())
@@ -444,6 +454,7 @@ export default class HomeScreen extends React.Component {
               API.graphql(graphqlOperation(mutations.deleteSharedAccounts, {input: {
                 id: id,
               }}));
+              // Removes the account from the client
               var currSharedAccounts = this.state.sharedAccounts.filter( el => el.id !== id);
               this.setState({sharedAccounts: currSharedAccounts});
           })
@@ -462,6 +473,7 @@ export default class HomeScreen extends React.Component {
       }
     }
 
+    // Deletes a property from the properties table
     deleteAProperty = async (id) => {
       try {
         console.log("Deleting property " + id + "...");
@@ -481,6 +493,7 @@ export default class HomeScreen extends React.Component {
       }
     }
 
+    // Adds a device/property to share
     toggleCheckbox = (device, property) => {
       // Find the device and the property checked and set the value accordingly
       var list = this.state.devices;
@@ -496,6 +509,7 @@ export default class HomeScreen extends React.Component {
         this.setState({selectedProperties: this.state.selectedProperties-1});
     }
 
+    // Gets the current state for a property from the hub
     getValueForSharedDeviceProperty = async (account, device, property) => {
       // console.log("\n\n%j", 2, property);
       // console.log("Accessing device " + property.property.links[0].href + "...")
@@ -523,6 +537,7 @@ export default class HomeScreen extends React.Component {
             temp = temp[temp.indexOf(device)].properties
             temp = temp[temp.indexOf(property)];
 
+            // Sets the value to the appropiate propertys
             for (var key in data) 
             {
               if (data.hasOwnProperty(key)) 
@@ -545,8 +560,8 @@ export default class HomeScreen extends React.Component {
 
     }
 
+    // Goes through all the devices and properties and gets the current state
     getCurrentValues = async () => {
-      
       this.state.sharedDevices.map((account) => {
         account.devices.map((device) => {
           device.properties.map((property) => {
@@ -556,6 +571,7 @@ export default class HomeScreen extends React.Component {
       });
     }
 
+    // Sends a command to a hub
     useSharedDevice = async (account, device, property) => {
       // console.log(JSON.stringify(property, null, 2));
       const propertyName = property.path.substring(property.path.lastIndexOf("/") + 1, property.path.length);
@@ -597,6 +613,7 @@ export default class HomeScreen extends React.Component {
         });
     }
 
+    // Retrieves all the information on pull down/refresh of the app
     onRefresh = () => {
       if(!this.state.refreshing)
       {
@@ -608,6 +625,7 @@ export default class HomeScreen extends React.Component {
       }
     }
       
+    // This is where all the components are rendered on the screen
     render() 
     {
       return (
@@ -770,7 +788,7 @@ export default class HomeScreen extends React.Component {
                 account.id !== null &&
                 <View key={index}>
                   <View style={{flexDirection: 'row', alignSelf:'flex-start'}}>
-                    <TouchableOpacity style={styles.button4} onPress={this.deleteASharedAccount.bind(this, account.id)}> 
+                    <TouchableOpacity style={styles.button4} onPress={this.deleteASharedAccount.bind(this, account.id, account.hub_email)}> 
                       <Text style={{fontSize:20}}>X</Text>
                     </TouchableOpacity>
                     <Text style={styles.devices}>{account.name}</Text>
@@ -837,6 +855,7 @@ export default class HomeScreen extends React.Component {
     }
   }
   
+  // CSS
   const styles = StyleSheet.create({
     container: {
       flex: 1,
