@@ -256,7 +256,7 @@ export default class HomeScreen extends React.Component {
             })
             .then(response => response.json())
             .then(data => {
-                console.log("User Check: " + data);
+                // console.log("User Check: " + data);
                 userExists = data;
             })
             .catch((error) => {
@@ -264,7 +264,7 @@ export default class HomeScreen extends React.Component {
                 this.showToast(error);
                 this.setState({error});
             });
-          // If the user does exist,
+          // If the user does exist
           if(userExists == '1')
           {
             var acc, esc = 0, id;
@@ -279,6 +279,7 @@ export default class HomeScreen extends React.Component {
               }
             }
             // If a sharedAccount does not already exist, create a new entry
+            // console.log("esc" ,esc);
             if (esc !== 1)
             {
               await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/createshareduser', {
@@ -301,7 +302,7 @@ export default class HomeScreen extends React.Component {
               .then(data => {
                   if (data === "User already ex")
                   {
-                   throw new Error("User already exists");
+                   throw new Error("User already exists on your hub device");
                   }
                   else
                   {
@@ -435,10 +436,10 @@ export default class HomeScreen extends React.Component {
       }
     }
 
-    // Removes the sharedAccount entry and removes the login created for the secondary user from the primary user's hub
-    deleteASharedAccount = async (id, hub_email) => {
+    // Removes the sharedAccount entry and removes the login created for the secondary user from the primary user's hub, alsd deletes all the devices and propertys associated with the account
+    deleteASharedAccount = async (id, hub_email, devices) => {
       try {
-        // console.log("Deleting account " + id + "...");
+        // console.log("Deleting account "  + hub_email + "...");
         await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/createshareduser', {
           method: 'DELETE',
           headers: 
@@ -455,7 +456,17 @@ export default class HomeScreen extends React.Component {
               API.graphql(graphqlOperation(mutations.deleteSharedAccounts, {input: {
                 id: id,
               }}));
-              // Removes the account from the client
+              devices.map((device) => {
+                device.properties.map((property) => {
+                  API.graphql(graphqlOperation(mutations.deleteProperty, {input: {
+                    id: property.id,
+                  }}));
+                });
+                API.graphql(graphqlOperation(mutations.deleteDevice, {input: {
+                  id: device.id,
+                }}));
+              });
+              // Removes the account from the list displayed on the client-side
               var currSharedAccounts = this.state.sharedAccounts.filter( el => el.id !== id);
               this.setState({sharedAccounts: currSharedAccounts});
           })
@@ -528,7 +539,7 @@ export default class HomeScreen extends React.Component {
       })
       .then(response => response.json())
       .then(data => {
-          console.log("%j", 2, data);
+          // console.log("%j", 2, data);
           if(data !== null)
           {
 
@@ -543,8 +554,8 @@ export default class HomeScreen extends React.Component {
             {
               if (data.hasOwnProperty(key)) 
               {
-                temp.value = data[key];
                 // console.log("Changing " + temp.name + " to " + data[key]);
+                temp.value = data[key];
               }
             }
 
@@ -575,7 +586,6 @@ export default class HomeScreen extends React.Component {
     // Sends a command to a hub
     useSharedDevice = async (account, device, property) => {
       // console.log(JSON.stringify(property, null, 2));
-      const propertyName = property.path.substring(property.path.lastIndexOf("/") + 1, property.path.length);
       console.log("Turning " + property.name + " " + !property.value);
       var list = this.state.sharedDevices;
       var temp = list[list.indexOf(account)].devices;
@@ -660,7 +670,7 @@ export default class HomeScreen extends React.Component {
 
             {/* Devices on hub information */}
             {this.state.hub_url !== null && <Text style={styles.greeting}>(Devices on Hub)</Text>}
-            {this.state.hub_url !== null && <ActivityIndicator size="large"/>}
+            {this.state.devices == null && <ActivityIndicator size="large"/>}
             {
             this.state.devices && 
             <ScrollView style={{alignSelf: 'center'}}>
@@ -712,7 +722,7 @@ export default class HomeScreen extends React.Component {
             </ScrollView>
             }
             {this.state.hub_url !== null && <TouchableOpacity style={styles.setUserInfoButton} onPress={this.createASharedAccount}>
-              <Text style={{color: '#FFF', fontWeight: '500'}}>Share Account</Text>
+              <Text style={{color: '#FFF', fontWeight: '500'}}>Share Devices to Jackson@test.com</Text>
             </TouchableOpacity>
             }
 
@@ -749,7 +759,7 @@ export default class HomeScreen extends React.Component {
                               <Text key={property.id} style={styles.devices}>{property.name}</Text>
                               <View style={{flexDirection: 'row', marginLeft: 100}}>
                                 {
-                                  property.value == null && <ActivityIndicator size="small"/>
+                                  (property.value == null || property.value instanceof Promise) && <ActivityIndicator size="small"/>
                                 }
                                 {
                                   property.value !== null && property.type === "boolean" &&
@@ -759,7 +769,7 @@ export default class HomeScreen extends React.Component {
                                   }</Text>
                                 }
                                 {
-                                  property.value !== null && property.type !== "boolean" &&
+                                  (property.value == null || !(property.value instanceof Promise)) && property.value !== "boolean" &&
                                   <Text style={styles.devices}>
                                   {property.value}
                                   </Text>
@@ -789,7 +799,7 @@ export default class HomeScreen extends React.Component {
                 account.id !== null &&
                 <View key={index}>
                   <View style={{flexDirection: 'row', alignSelf:'flex-start'}}>
-                    <TouchableOpacity style={styles.button4} onPress={this.deleteASharedAccount.bind(this, account.id, account.hub_email)}> 
+                    <TouchableOpacity style={styles.button4} onPress={this.deleteASharedAccount.bind(this, account.id, account.hub_email, account.devices)}> 
                       <Text style={{fontSize:20}}>X</Text>
                     </TouchableOpacity>
                     <Text style={styles.devices}>{account.name}</Text>
