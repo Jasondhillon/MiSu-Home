@@ -228,14 +228,6 @@ export default class HomeScreen extends React.Component {
 
     // Creates a new login for a secondary user on the primary stakeholders hub and a new entry into the SharedAccounts tables
     createASharedAccount = async () => {
-      const date = new Date();
-      const dateISO = date.toISOString();
-      var time;
-      if (date > 12)
-        time = date.getHours()%12 + ":" + date.getMinutes() +"pm";
-      else
-        time = date.getHours() + ":" + date.getMinutes() +"am";
-
       try 
       {
         // Check if at least one property to share has been selected
@@ -251,7 +243,7 @@ export default class HomeScreen extends React.Component {
             },
             body: JSON.stringify({
               // TODO: Have the email come from user input
-              email: "test@example.com",
+              email: "jackson@test.com",
               })
             })
             .then(response => response.json())
@@ -272,7 +264,7 @@ export default class HomeScreen extends React.Component {
             {
               // TODO: Change this to use user input
               // Checks if the primary user has already created a SharedAccount for the person they are sharing to
-              if (this.state.sharedAccounts[acc].hub_email === "test@example.com")
+              if (this.state.sharedAccounts[acc].hub_email === "jackson@test.com")
               {
                 id = this.state.sharedAccounts[acc].id;
                 esc = 1;
@@ -290,17 +282,12 @@ export default class HomeScreen extends React.Component {
               },
               // TODO: Change this to user input
               body: JSON.stringify({
-                hub_url: "cop4934.mozilla-iot.org",
-                hub_email: "test@example.com",
-                sharee_id: "7b135dd7-f7fb-4db7-81d5-dcd6bc456f32",
-                name:  time + " Neighbor",
-                createdAt: dateISO,
-                updatedAt: dateISO,
+                email: "jackson@test.com",
                 })
               })
               .then(response => response.json())
               .then(data => {
-                  if (data === "User already ex")
+                  if (data.error === "User already exists on hub")
                   {
                    throw new Error("User already exists on your hub device");
                   }
@@ -670,7 +657,7 @@ export default class HomeScreen extends React.Component {
 
             {/* Devices on hub information */}
             {this.state.hub_url !== null && <Text style={styles.greeting}>(Devices on Hub)</Text>}
-            {this.state.devices == null && <ActivityIndicator size="large"/>}
+            {this.state.devices == null && this.state.hub_url !== null && <ActivityIndicator size="large"/>}
             {
             this.state.devices && 
             <ScrollView style={{alignSelf: 'center'}}>
