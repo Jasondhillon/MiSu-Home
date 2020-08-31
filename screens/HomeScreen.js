@@ -250,6 +250,7 @@ export default class HomeScreen extends React.Component {
                 Authorization: 'Bearer ' + this.state.idToken,
             },
             body: JSON.stringify({
+              // TODO: Have the email come from user input
               email: "test@example.com",
               })
             })
