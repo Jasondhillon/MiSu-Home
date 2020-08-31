@@ -6,7 +6,7 @@ export default class LoginScreen extends React.Component
 {
     state = 
     {
-        email: 'test@example.com',
+        email: 'jackson@test.com',
         password: '123456789',
         errorMessage: null
     }
