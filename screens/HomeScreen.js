@@ -10,7 +10,8 @@ AWS.config.update({ region: "us-east-1"});
 export default class HomeScreen extends React.Component {
 
     // Holds all of our global variables
-    state = {
+    state = 
+    {
       id: null,
       name: null,
       email: null,
