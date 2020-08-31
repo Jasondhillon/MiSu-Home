@@ -2,7 +2,6 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ToastAndroid, ActivityIndicator, RefreshControl} from 'react-native';
 import CheckBox from '@react-native-community/checkbox'; 
 import { Auth, API,  graphqlOperation} from 'aws-amplify';
-import * as queries from '../src/graphql/queries'
 import * as mutations from  '../src/graphql/mutations'
 
 const AWS = require('aws-sdk');
@@ -27,10 +26,12 @@ export default class HomeScreen extends React.Component {
       refreshing: false
     }
 
+    // This creates little popups on the screen for Android phones
     showToast = (text) => {
         ToastAndroid.show(text, ToastAndroid.LONG);
     };
 
+    // Called when when the screen is about to load, grabs all the info to display
     componentDidMount() {
       Auth.currentSession().
       then(data1 => {
@@ -52,6 +53,7 @@ export default class HomeScreen extends React.Component {
 
     }
 
+    // Supposed to refresh the AWS token if it expires, no idea if it actually does
     refreshToken() {
       Auth.currentSession().
       then(data1 => {
@@ -76,10 +78,10 @@ export default class HomeScreen extends React.Component {
         })
         .then(response => response.json())
         .then(data => {
+          // This is just a way to check if the user has a hub listed at all, if not there's no hub linked to this account and therefore no hub information exists to display
           if(data.hub_url !== undefined)
           {
             this.setState({hub_url: data.hub_url, hub_email: data.email, error: null});
-            this.showToast("Data fetched from personal DB!");
             this.getDevices();
           }
         })
@@ -90,14 +92,13 @@ export default class HomeScreen extends React.Component {
         });
     }
 
-    // Sets/updates the user's hub info
+    // Sets/updates the user's hub info, probably won't be used in production but useful for debugging, adds the hardcoded hub information to the user
     setHubInfo = async () => {
         await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/updatehubinfo', {
             method: 'POST',
             headers: 
             {
                 Authorization: 'Bearer ' + this.state.idToken,
-                // CANNOT HAVE https:// in front or b0rk
                 hub_url: 'cop4934.mozilla-iot.org',
                 hub_email: 'test@cop4934test.com',
                 hub_password: '1234'
@@ -105,7 +106,6 @@ export default class HomeScreen extends React.Component {
         })
         .then(response => response.json())
         .then(data => {
-            // console.log("%j",2,data);
             this.setState({error: null});
             this.showToast("Info successfully updated!");
             this.getHubInfo();
