@@ -1,4 +1,5 @@
 # SmartShare
+Check out the Projects tab to see what's been changing and what's still left to do
 
 I recommend to install 
 > https://marketplace.visualstudio.com/items?itemName=wayou.vscode-todo-highlight 
