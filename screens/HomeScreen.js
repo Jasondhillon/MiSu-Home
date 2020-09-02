@@ -244,7 +244,7 @@ export default class HomeScreen extends React.Component {
             },
             body: JSON.stringify({
               // TODO: Have the email come from user input
-              email: "jackson@test.com",
+              email: "jackson@example.com",
               })
             })
             .then(response => response.json())
@@ -265,7 +265,7 @@ export default class HomeScreen extends React.Component {
             {
               // TODO: Change this to use user input
               // Checks if the primary user has already created a SharedAccount for the person they are sharing to
-              if (this.state.sharedAccounts[acc].hub_email === "jackson@test.com")
+              if (this.state.sharedAccounts[acc].hub_email === "jackson@example.com")
               {
                 id = this.state.sharedAccounts[acc].id;
                 esc = 1;
@@ -283,7 +283,7 @@ export default class HomeScreen extends React.Component {
               },
               // TODO: Change this to user input
               body: JSON.stringify({
-                email: "jackson@test.com",
+                email: "jackson@example.com",
                 })
               })
               .then(response => response.json())
@@ -718,7 +718,7 @@ export default class HomeScreen extends React.Component {
             </ScrollView>
             }
             {this.state.hub_url !== null && <TouchableOpacity style={styles.setUserInfoButton} onPress={this.createASharedAccount}>
-              <Text style={{color: '#FFF', fontWeight: '500'}}>Share Devices to Jackson@test.com</Text>
+              <Text style={{color: '#FFF', fontWeight: '500'}}>Share Devices to Jackson@example.com</Text>
             </TouchableOpacity>
             }
 

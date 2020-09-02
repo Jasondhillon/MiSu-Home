@@ -5,11 +5,12 @@ export default class RegisterScreen extends React.Component
 {
     state = 
     {
-        name: 'Jason',
-        username: 'test@example.com',
+        name: 'Jackson',
+        username: 'jackson@example.com',
         password: '123456789',
         userId: null,
         errorMessage: null,
+        message: null,
         signedUp: false
     }
 
@@ -76,6 +77,10 @@ export default class RegisterScreen extends React.Component
                     {this.state.errorMessage && <Text style={styles.errorMessage}>{this.state.errorMessage}</Text>}
                 </View>
 
+                <View style={styles.message}>
+                    {this.state.message && <Text style={styles.message}>{this.state.message}</Text>}
+                </View>
+
                 <View style={styles.form}>
                     <View>
                         <Text style={styles.inputTitle}>Full Name</Text>
@@ -139,68 +144,75 @@ export default class RegisterScreen extends React.Component
 }
 
 const styles = StyleSheet.create({
-   container: {
-       flex: 1,
-   },
-   greeting: {
-       marginTop: 32,
-       fontSize: 18,
-       fontWeight: '400',
-       textAlign: 'center'
-   },
-   errorMessage: {
-       height: 32,
-       color: 'red',
-       alignItems: 'center',
-       justifyContent: 'center',
-       marginHorizontal: 30
-   },
-   error: {
-        color: '#E9446A',
-        fontSize: 13,
-        fontWeight: '600',
+    container: {
+        flex: 1,
+    },
+    greeting: {
+        marginTop: 32,
+        fontSize: 18,
+        fontWeight: '400',
         textAlign: 'center'
-   },
-   form: {
-       marginBottom: 32,
-       marginHorizontal: 30
-   },
-   inputTitle: {
-       color: '#8A8F9E',
-       fontSize: 10,
-       textTransform: 'uppercase'
-   },
-   input: {
-        borderBottomColor: '#8A8F9E',
-        borderBottomWidth: 1,
-        height: 40,
-        fontSize: 15,
-        color: '#161F3D'
-   },
-   button: {
+    },
+    message: {
+        height: 32,
+        color: 'black',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginHorizontal: 30
+    },
+    errorMessage: {
+        height: 32,
+        color: 'red',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginHorizontal: 30
+    },
+    error: {
+            color: '#E9446A',
+            fontSize: 13,
+            fontWeight: '600',
+            textAlign: 'center'
+    },
+    form: {
+        marginBottom: 32,
+        marginHorizontal: 30
+    },
+    inputTitle: {
+        color: '#8A8F9E',
+        fontSize: 10,
+        textTransform: 'uppercase'
+    },
+    input: {
+            borderBottomColor: '#8A8F9E',
+            borderBottomWidth: 1,
+            height: 40,
+            fontSize: 15,
+            color: '#161F3D'
+    },
+    button: {
+            marginHorizontal: 30,
+            backgroundColor: '#E9446A',
+            borderRadius: 4,
+            height: 52,
+            alignItems: 'center',
+            justifyContent: 'center'
+    },
+    button1: {
+        marginTop: 5,
         marginHorizontal: 30,
-        backgroundColor: '#E9446A',
+        backgroundColor: '#00BFA5',
         borderRadius: 4,
         height: 52,
         alignItems: 'center',
         justifyContent: 'center'
-   },
-   button1: {
-    marginTop: 5,
-    marginHorizontal: 30,
-    backgroundColor: '#00BFA5',
-    borderRadius: 4,
-    height: 52,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  button2: {
-    marginTop: 30,
-    marginHorizontal: 30,
-    backgroundColor: '#0336FF',
-    borderRadius: 4,
-    height: 52,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
+    },
+    button2: {
+        marginTop: 30,
+        marginHorizontal: 30,
+        backgroundColor: '#0336FF',
+        borderRadius: 4,
+        height: 52,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
 });

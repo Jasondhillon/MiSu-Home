@@ -9,7 +9,7 @@ export default class LoginScreen extends React.Component
         // test@example is the account with a hub connected/primary
         // jackson@test is the secondary user to whom the hardcoded share button shares devices to
         // password is the same for both
-        email: 'jackson@test.com',
+        email: 'jackson@example.com',
         password: '123456789',
         errorMessage: null
     }
