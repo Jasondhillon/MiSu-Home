@@ -1,11 +1,11 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ToastAndroid, ActivityIndicator, RefreshControl} from 'react-native';
 import CheckBox from '@react-native-community/checkbox'; 
-import { Auth, API,  graphqlOperation} from 'aws-amplify';
-import * as mutations from  '../src/graphql/mutations'
-
+import { Auth } from 'aws-amplify';
 const AWS = require('aws-sdk');
 AWS.config.update({ region: "us-east-1"});
+// 0 for no logs, 1 for basic logs, 2 for verbose
+const debug = 0;
 
 export default class HomeScreen extends React.Component {
 
@@ -27,7 +27,6 @@ export default class HomeScreen extends React.Component {
       selectedProperties: 0,
       refreshing: false
     }
-
     // This creates little popups on the screen for Android phones
     showToast = (text) => {
         ToastAndroid.show(text, ToastAndroid.LONG);
@@ -46,12 +45,15 @@ export default class HomeScreen extends React.Component {
         });
       })
       .then(() => {
+        if (debug > 0)
+          console.log("=====================================================\n");
+        if (debug == 2)
+          console.log(this.state.idToken);
         this.getHubInfo();
       }).then(()=> {
         this.getListofSharedAccounts();
         this.getListofSharedDevices();
       });
-
     }
 
     // Supposed to refresh the AWS token if it expires, no idea if it actually does
@@ -65,7 +67,7 @@ export default class HomeScreen extends React.Component {
               email: data1.getIdToken().payload.email,
               name: data1.getIdToken().payload.name
           });
-      })
+      });
     }
 
     // Gets user's hub information from User's table through ID in idToken
@@ -80,14 +82,14 @@ export default class HomeScreen extends React.Component {
         .then(response => response.json())
         .then(data => {
           // This is just a way to check if the user has a hub listed at all, if not there's no hub linked to this account and therefore no hub information exists to display
-          if(data.hub_url !== undefined)
+          if(data.hub_url !== undefined && data.hub_url !== null && data.hub_url !== "")
           {
             this.setState({hub_url: data.hub_url, hub_email: data.email, error: null});
             this.getDevices();
           }
         })
         .catch((error) => {
-          console.error('Error:', error);
+          console.error('getHubInfo error: %j', error);
           this.showToast(error);
           this.setState({error});
         });
@@ -112,7 +114,7 @@ export default class HomeScreen extends React.Component {
             this.getHubInfo();
         })
         .catch((error) => {
-            console.error('Error:', error);
+            console.error('setHubInfo error: %j', error);
             this.showToast(error);
             this.setState({error});
         });
@@ -120,7 +122,7 @@ export default class HomeScreen extends React.Component {
 
     // Gets user's hub devices from User's table through ID in idToken
     getDevices = async () => {
-      await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/getdevices', {
+      await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/device', {
           method: 'GET',
           headers: 
           {
@@ -130,8 +132,7 @@ export default class HomeScreen extends React.Component {
       .then(response => response.json())
       .then(data => {
           let devices = [];
-          // console.log("%j", 2, data);
-          if(data !== null)
+          if(data !== null || data.length > 0)
           {
             data.forEach(function(item) 
             {
@@ -161,7 +162,7 @@ export default class HomeScreen extends React.Component {
             throw error("Devices empty"); 
       })
       .catch((error) => {
-          console.error('Error:', error);
+          console.log('getDevices error:', error);
           this.showToast(error);
           this.setState({error});
       });
@@ -187,16 +188,17 @@ export default class HomeScreen extends React.Component {
         })
         .then(response => response.json())
         .then(data => {
-          if(data.length > 0)
+          if(data.message.length > 0)
           {
+            console.log("%j", null, data.message);
             // We get the shared information and make a call to get the current values
-            this.setState({sharedDevices: data}, this.getCurrentValues);
+            this.setState({sharedDevices: data.message}, this.getCurrentValues);
           }
         });
       }
       catch (error)
       {
-        console.log("error:%j",1,error);
+        console.log("getListofSharedDevices Error:%j",1,error);
         this.setState({error:error.message});
       }
     }
@@ -214,15 +216,17 @@ export default class HomeScreen extends React.Component {
         })
         .then(response => response.json())
         .then(data => {
-          if(data.length > 0)
+          if(data.message.length > 0)
           {
-            this.setState({sharedAccounts: data});
+            if (debug == 2)
+              console.log("%j", "Accounts you're sharing sharing", data);
+            this.setState({sharedAccounts: data.message});
           }
         });
       }
       catch (error)
       {
-        console.log("error:%j",1,error);
+        console.log("getListofSharedAccounts error: %j",1,error);
         this.setState({error:error.message});
       }
     }
@@ -235,7 +239,7 @@ export default class HomeScreen extends React.Component {
         if (this.state.selectedProperties > 0)
         {
           // Checks if the user we are sharing to has an account/is signed up already
-          var userExists;
+          var userExists = null;
           await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/checkuserexists', {
             method: 'POST',
             headers: 
@@ -249,31 +253,29 @@ export default class HomeScreen extends React.Component {
             })
             .then(response => response.json())
             .then(data => {
-                // console.log("User Check: " + data);
-                userExists = data;
+                userExists = data.message;
             })
             .catch((error) => {
-                console.error("Error:\n", error);
+                console.error("CreateASharedAccount error:\n", error);
                 this.showToast(error);
                 this.setState({error});
             });
           // If the user does exist
-          if(userExists == '1')
+          if(userExists == 1)
           {
-            var acc, esc = 0, id;
+            var acc, isShared = 0, account;
             for (acc in this.state.sharedAccounts)
             {
               // TODO: Change this to use user input
               // Checks if the primary user has already created a SharedAccount for the person they are sharing to
-              if (this.state.sharedAccounts[acc].hub_email === "jackson@example.com")
+              if (this.state.sharedAccounts[acc].guest_email === "jackson@example.com")
               {
-                id = this.state.sharedAccounts[acc].id;
-                esc = 1;
+                account = this.state.sharedAccounts[acc];
+                isShared = 1;
               }
             }
-            // If a sharedAccount does not already exist, create a new entry
-            // console.log("esc" ,esc);
-            if (esc !== 1)
+            // If a guest account/login_credentials entry does not already exist for the user, create a new entry
+            if (isShared === 0)
             {
               await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/createshareduser', {
               method: 'POST',
@@ -288,77 +290,136 @@ export default class HomeScreen extends React.Component {
               })
               .then(response => response.json())
               .then(data => {
-                  if (data.error === "User already exists on hub")
+                  if (data.statusCode === 400)
                   {
-                   throw new Error("User already exists on your hub device");
+                   this.setState({error: "A user with that email already exists on the hub, please remove the user from the hub to try again"});
+                   this.showToast(this.state.error);
                   }
                   else
                   {
-                    id = data;
+                    if (debug > 0)
+                      console.log("%j", null, data);
+                    account = 
+                    {
+                      "login_credentials_id": data.message,
+                      "devices" : []
+                    }
                     this.setState({error: null});
+                    this.showToast("Shared device succesfully!");
+                    this.getListofSharedAccounts();
                   }
               })
+              //Proceed to add the device/properties to the account
               .then(() => {
-                this.createADevice(id);
+                if (debug == 2)
+                  console.log("Prexisting credentials exist for the user we are trying to share to, adding the new devices and properties to that account...");
+                
+                this.createADevice(account);
               })
               .catch((error) => {
-                  console.log("Error:\n", error + "");
+                  console.log("CreateASharedAccount error:\n", error + "");
                   this.showToast(error + "");
                   this.setState({error: error + ""});
               });
             }
-            // If there arlready a sharedAccount for the person we are sharing to, simply add the new device/property to it
+            // If there already is a sharedAccount for the person we are sharing to, simply add the new device/property to it
             else
             {
-              if(id)
-                this.createADevice(id);
+              if(account)
+                this.createADevice(account);
+              else
+                console.log("Error acquiring the account id");
             }
           }
           else
-            this.setState({error: "User doesn't exist, please tell them to setup an account first!"});
+          {
+            this.setState({error: "User by this email address doesn't exist, please tell them to setup an account first"});
+            this.showToast("User by this email address doesn't exist, please tell them to setup an account first");
+          }
         }
         else
           this.setState({error: "You need to have at least a single property selected to share!"});
       }
       catch (err)
       {
-        console.log("Error adding a shared account");
-        console.log("%j",2,err);
+        console.log("Error adding a shared account%j",2,err);
         // this.setState({error:err.message});
-        this.refreshToken();
       }
     }
 
     // Creates a new entry to the devices table 
-    createADevice = async (id) => {
+    createADevice = async (account) => {
       try 
       {
-        var device;
-        for (device in this.state.devices)
+        if (debug > 0)
+          console.log("- - - - - - - - - - - - - - - - - - - - - - - - - - -");
+        // Search through the devices to find which have been selected
+        var deviceSelected;
+        for (deviceSelected in this.state.devices)
         {
           var properties = [];
           var property;
-          for (property in this.state.devices[device].newProps)
+          // Check which device has been selected
+          for (property in this.state.devices[deviceSelected].newProps)
           {
-            // Check which properties were selected from the UI
-            if (this.state.devices[device].newProps[property].property.isChecked)
-              properties.push(this.state.devices[device].newProps[property]);
+            // Check which properties have been selected
+            if (this.state.devices[deviceSelected].newProps[property].property.isChecked)
+              properties.push(this.state.devices[deviceSelected].newProps[property]);
           }
+          // Create device that has properties selected to share
           if (properties.length !== 0)
           {
-            // console.log("Creating a device... for " + id);
-            const res = await API.graphql(graphqlOperation(mutations.createDevice, {input: {
-              name: this.state.devices[device].title + "",
-              description: this.state.devices[device].description + "",
-              rule_set:"Mon/Tue/Wed",
-              path: this.state.devices[device].href + "",
-              deviceSharedAccountIdId: id
-            }}));
-            this.createAProperty(res.data.createDevice.id, properties);
+            // Check if the device is already shared to the user
+            var preexistingDevice, preexisting = 0;
+            for (var device2 in account.devices)
+            {
+              if (this.state.devices[deviceSelected].title === account.devices[device2].name && this.state.devices[deviceSelected].description === account.devices[device2].description)
+              {
+                preexistingDevice = account.devices[device2].shared_device_properties_id;
+                preexisting = 1;
+              }
+            }
+            // If the device has not been previously shared, create a new entry
+            if (preexisting === 0)
+            {
+              await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/device', {
+                method: 'POST',
+                headers: 
+                {
+                  Authorization: 'Bearer ' + this.state.idToken,
+                },
+                body: JSON.stringify({
+                  account: account.login_credentials_id,
+                  name: this.state.devices[deviceSelected].title,
+                  description: this.state.devices[deviceSelected].description
+                })
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (debug > 0)
+                {
+                  console.log("%j", null, data);
+                }
+                if(data.statusCode === 200)
+                  this.createAProperty(account.login_credentials_id, data.message, properties);
+                else if (data.statusCode === 400)
+                {
+                  this.setState({error: data.message});
+                  this.showToast(data.message);
+                }
+              })
+              .catch((error) => {
+                  console.error("CreateASharedDevice error:\n", error);
+                  this.showToast(error);
+                  this.setState({error});
+              });
+            }
+            // If the device already has been shared to the user, move onto creating the properties
+            else if (preexisting == 1)
+            {
+              this.createAProperty(account.login_credentials_id, preexistingDevice, properties);
+            }
           }
-          // else
-          //   this.setState({error: "Couldn't find properties so no new device was made"});
-          //   this.getListofSharedAccounts();
         } 
       }
       catch (err)
@@ -371,30 +432,59 @@ export default class HomeScreen extends React.Component {
     }
 
     // Creates a new entry to the properties table
-    createAProperty = async (id, properties) => {
+    createAProperty = async (accountId, deviceId, properties) => {
       try {
         if (properties)
         {
           var property;
           for (property in properties)
           {
-            // console.log("Creating a property... for " + id);
-            // console.log(JSON.stringify(properties[property].property),null,2);
-            // TODO: Decide whether we want a property to be read only, even if the device can be toggled, can change that here 
-            const res = await API.graphql(graphqlOperation(mutations.createProperty, {input: {
+            if (debug === 2)
+              console.log("Creating a property...");
+            await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/property', {
+            method: 'POST',
+            headers: 
+            {
+                Authorization: 'Bearer ' + this.state.idToken,
+            },
+            body: JSON.stringify({
+              account: accountId,
+              device: deviceId,
               name: properties[property].property.title + "",
               type: properties[property].property.type + "",
               path: properties[property].property.links[0].href + "",
               read_only: properties[property].property.readOnly ? 1:0,
-              devicePropertiesId: id
-            }}))
+              unrestricted: 1,
+              time_range_start: null,
+              time_range_end: null,
+              time_range_reoccuring: null,
+              gps_location: null,
+              gps_location_distance: null
+              })
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (debug > 0)
+              {
+                console.log("%j", null, data);
+              }
+              if(data.statusCode === 200)
+                this.createAProperty(data.message, properties);
+              else if (statusCode === 400)
+                this.setState({error: data.message});
+                this.showToast(data.message);
+            })
+            .catch((error) => {
+                console.error("createAProperty error:\n", error);
+                this.showToast(error);
+                this.setState({error});
+            });
           }
         }
       }
       catch (err)
       {
-        console.log("Error adding a device");
-        console.log("%j", 2, err);
+        console.log("Error adding a property: %j", null, err);
         this.setState({error:err.message});
         this.refreshToken();
       }
@@ -404,24 +494,41 @@ export default class HomeScreen extends React.Component {
     }
 
     // Removes a device and all properties associated with this shared device from the secondary user
-    deleteADevice = async (id, properties) => {
+    deleteADevice = async (account, device) => {
       try {
-        // console.log("Deleting device " + id + "...");
-        await API.graphql(graphqlOperation(mutations.deleteDevice, {input: {
-          id: id,
-        }}))
-        .then(() => {
-          properties.map((property) => {
-            API.graphql(graphqlOperation(mutations.deleteProperty, {input: {
-              id: property.id,
-            }}))
-          });
-        }).then(() => {
-          this.getListofSharedAccounts();
+        await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/device', {
+          method: 'DELETE',
+          headers: 
+          {
+              Authorization: 'Bearer ' + this.state.idToken,
+          },
+          body: JSON.stringify({
+            account: account.login_credentials_id,
+            device: device.shared_device_properties_id
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (debug > 0)
+          {
+            console.log("%j", null, data);
+          }
+          // if(data.statusCode === 200)
+          else if (statusCode === 400)
+            this.setState({error: data.message});
+            this.showToast(data.message);
+        })
+        .catch((error) => {
+            console.error("deleteADevice error:\n", error);
+            this.showToast(error);
+            this.setState({error});
         });
 
-        // var currSharedAccounts = this.state.sharedAccounts.filter( el => el.id !== id);
-        // this.setState({sharedAccounts: currSharedAccounts});
+        var currSharedAccounts = this.state.sharedAccounts;
+        var acc = currSharedAccounts[currSharedAccounts.indexOf(account)];
+        var dev = acc.devices.filter(el => el.shared_device_properties_id !== device.shared_device_properties_id);
+        currSharedAccounts[currSharedAccounts.indexOf(account)].devices = dev;
+        this.setState({sharedAccounts: currSharedAccounts});
 
       }
       catch (err)
@@ -433,41 +540,43 @@ export default class HomeScreen extends React.Component {
     }
 
     // Removes the sharedAccount entry and removes the login created for the secondary user from the primary user's hub, alsd deletes all the devices and propertys associated with the account
-    deleteASharedAccount = async (id, hub_email, devices) => {
+    deleteASharedAccount = async (id, guest_email, devices) => {
       try {
-        // console.log("Deleting account "  + hub_email + "...");
+        if (debug > 0)
+        {
+          console.log("- - - - - - - - - - - - - - - - - - - - - - - - - - -");
+          console.log("Deleting account " + id +"...");
+        }
         await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/createshareduser', {
-          method: 'DELETE',
-          headers: 
-          {
-              Authorization: 'Bearer ' + this.state.idToken,
-          },
-          body: JSON.stringify({
-            email: hub_email,
+            method: 'DELETE',
+            headers: 
+            {
+                Authorization: 'Bearer ' + this.state.idToken,
+            },
+            body: JSON.stringify({
+              id: id,
             })
           })
           .then(response => response.json())
           .then(data => {
               this.setState({error: null});
-              API.graphql(graphqlOperation(mutations.deleteSharedAccounts, {input: {
-                id: id,
-              }}));
-              devices.map((device) => {
-                device.properties.map((property) => {
-                  API.graphql(graphqlOperation(mutations.deleteProperty, {input: {
-                    id: property.id,
-                  }}));
-                });
-                API.graphql(graphqlOperation(mutations.deleteDevice, {input: {
-                  id: device.id,
-                }}));
-              });
-              // Removes the account from the list displayed on the client-side
-              var currSharedAccounts = this.state.sharedAccounts.filter( el => el.id !== id);
-              this.setState({sharedAccounts: currSharedAccounts});
+              if (debug > 0)
+                console.log("%j", null, data);
+              if (data.statusCode === 200)
+              {
+                this.showToast("Removed user from your hub successfully!");
+                  // Removes the account from the list displayed on the client-side
+                var currSharedAccounts = this.state.sharedAccounts.filter( el => el.login_credentials_id !== id);
+                this.setState({sharedAccounts: currSharedAccounts});
+              }
+              else if (data.statusCode === 400)
+              {
+                this.showToast(data.message);
+                this.setState({error: data.message});
+              }
           })
           .catch((error) => {
-              console.error("Error:\n", error);
+              console.error("deleteASharedAccount error:\n", error);
               this.showToast(error);
               this.setState({error});
           });
@@ -475,21 +584,55 @@ export default class HomeScreen extends React.Component {
       }
       catch (err)
       {
-        console.log("Error deleting a device");
+        console.log("Error deleting login_credentials: " + err);
         this.setState({error:err.message});
         this.refreshToken();
       }
     }
 
     // Deletes a property from the properties table
-    deleteAProperty = async (id) => {
+    deleteAProperty = async (account, device, property) => {
+      if (debug > 0)
+      {
+        console.log("- - - - - - - - - - - - - - - - - - - - - - - - - - -");
+      }
       try {
         // console.log("Deleting property " + id + "...");
-        await API.graphql(graphqlOperation(mutations.deleteProperty, {input: {
-          id: id,
-        }}))
-        .then(() => {
-          this.getListofSharedAccounts();
+        await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/property', {
+          method: 'DELETE',
+          headers: 
+          {
+              Authorization: 'Bearer ' + this.state.idToken,
+          },
+          body: JSON.stringify({
+            account: account.login_credentials_id,
+            device: device.shared_device_properties_id,
+            property: property.shared_property_id
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (debug > 0)
+          {
+            console.log("%j", null, data);
+          }
+          if(data.statusCode === 200)
+          {
+            var currProperties = this.state.sharedAccounts;
+            var acc = currProperties[currProperties.indexOf(account)];
+            var dev = acc.devices[acc.devices.indexOf(device)];
+            var props = dev.properties.filter( el => el.shared_property_id !== property.shared_property_id);
+            currProperties[currProperties.indexOf(account)].devices[acc.devices.indexOf(device)].properties = props;
+            this.setState({sharedAccounts: currProperties});
+          }
+          else if (statusCode === 400)
+            this.setState({error: data.message});
+            this.showToast(data.message);
+        })
+        .catch((error) => {
+            console.error("deleteAProperty error:\n", error);
+            this.showToast(error);
+            this.setState({error});
         });
 
       }
@@ -528,30 +671,28 @@ export default class HomeScreen extends React.Component {
               Authorization: 'Bearer ' + this.state.idToken
           },
           body: JSON.stringify({
-            account: account.id,
-            device: device.id,
-            property: property.id
+            account: account.login_credentials_id,
+            device: device.shared_device_properties_id,
+            property: property.shared_property_id
           })
       })
       .then(response => response.json())
       .then(data => {
-          // console.log("%j", 2, data);
-          if(data !== null)
+          if(data.message !== null)
           {
-
             // accounts[x].devices.items[x].properties.items[x]
             var list = this.state.sharedDevices;
             var temp = list[list.indexOf(account)].devices;
             temp = temp[temp.indexOf(device)].properties
             temp = temp[temp.indexOf(property)];
 
-            // Sets the value to the appropiate propertys
-            for (var key in data) 
+            // Sets the value to the appropriate propertys
+            for (var key in data.message) 
             {
-              if (data.hasOwnProperty(key)) 
+              if (data.message.hasOwnProperty(key)) 
               {
                 // console.log("Changing " + temp.name + " to " + data[key]);
-                temp.value = data[key];
+                temp.value = data.message[key];
               }
             }
 
@@ -561,7 +702,7 @@ export default class HomeScreen extends React.Component {
             throw error("Values empty"); 
       })
       .catch((error) => {
-          console.error('Error:', error);
+          console.error('getValueForSharedDeviceProperty error:', error);
           this.showToast(error);
           this.setState({error});
       });
@@ -599,9 +740,9 @@ export default class HomeScreen extends React.Component {
                 Authorization: 'Bearer ' + this.state.idToken
             },
             body: JSON.stringify({
-              account: account.id,
-              device: device.id,
-              property: property.id,
+              account: account.login_credentials_id,
+              device: device.shared_device_properties_id,
+              property: property.shared_property_id,
               value: !property.value
             })
         })
@@ -614,7 +755,7 @@ export default class HomeScreen extends React.Component {
           this.getValueForSharedDeviceProperty(account, device, property);
         })
         .catch((error) => {
-            console.error('Error:', error);
+            console.error('useSharedDevice error:', error);
             this.showToast(error);
             this.setState({error});
         });
@@ -622,11 +763,15 @@ export default class HomeScreen extends React.Component {
 
     // Retrieves all the information on pull down/refresh of the app
     onRefresh = () => {
-      if(!this.state.refreshing)
+      if (!this.state.refreshing)
       {
-        this.setState({refreshing: true});
+        this.setState({refreshing: true, error: null});
+        this.refreshToken();
+        if (debug > 0)
+          console.log("========================================================\n");
         if (this.state.devices !== null)
           this.getDevices();
+        this.getListofSharedAccounts();
         this.getListofSharedDevices();
         this.setState({refreshing: false});
       }
@@ -659,10 +804,10 @@ export default class HomeScreen extends React.Component {
             </TouchableOpacity>} */}
 
             {/* User DB information */}
-            {this.state.hub_url !== null && <Text style={styles.greeting}>(Secured Account Info)</Text>}
+            {/* {this.state.hub_url !== null && <Text style={styles.greeting}>(Secured Account Info)</Text>}
             {this.state.hub_url !== null && <Text style={{alignSelf: 'center'}}>Add your hub information!</Text>}
             {this.state.hub_url && <Text style={{alignSelf: 'center'}}>Hub URL: {this.state.hub_url}</Text>}
-            {this.state.hub_url && <Text style={{alignSelf: 'center'}}>Hub Email: {this.state.hub_email}</Text>}
+            {this.state.hub_url && <Text style={{alignSelf: 'center'}}>Hub Email: {this.state.hub_email}</Text>} */}
 
             {/* Devices on hub information */}
             {this.state.hub_url !== null && <Text style={styles.greeting}>(Devices on Hub)</Text>}
@@ -743,16 +888,28 @@ export default class HomeScreen extends React.Component {
                           {/* <TouchableOpacity style={styles.button4} onPress={this.deleteADevice.bind(this, device.id)}> 
                             <Text style={{fontSize:20}}>X</Text>
                           </TouchableOpacity> */}
-                          <Text style={styles.devices}>{device.name} ({device.description}) ({device.rule_set})</Text>
+                          <Text style={styles.devices}>{device.name} ({device.description})</Text>
                         </View>
                         {
                           device.properties !== undefined &&
                           device.properties.map((property, index) => (
-                            <View key={property.id} style={{flexDirection: 'row', marginLeft: 60}}>
+                            <View key={property.shared_property_id} style={{flexDirection: 'row', marginLeft: 60}}>
                               {/* <TouchableOpacity id={property.id} style={styles.button4} onPress={this.deleteAProperty.bind(this, property.id)}> 
                                 <Text style={{fontSize:10}}>X</Text>
                               </TouchableOpacity> */}
-                              <Text key={property.id} style={styles.devices}>{property.name}</Text>
+                              <Text key={property.id} style={styles.devices}>{property.name}(
+                                {(() => {
+                                  if (property.unrestricted) {
+                                   return "unrestricted";
+                                  }
+                                  else if (property.time_range_start !== undefined)
+                                  {
+                                    return property.time_range_start + "-" + property.time_range_end;
+                                  }
+                                  else
+                                    return property.gps_location;
+                                })()})
+                              </Text>
                               <View style={{flexDirection: 'row', marginLeft: 100}}>
                                 {
                                   (property.value == null || property.value instanceof Promise) && <ActivityIndicator size="small"/>
@@ -795,7 +952,7 @@ export default class HomeScreen extends React.Component {
                 account.id !== null &&
                 <View key={index}>
                   <View style={{flexDirection: 'row', alignSelf:'flex-start'}}>
-                    <TouchableOpacity style={styles.button4} onPress={this.deleteASharedAccount.bind(this, account.id, account.hub_email, account.devices)}> 
+                    <TouchableOpacity style={styles.button4} onPress={this.deleteASharedAccount.bind(this, account.login_credentials_id, account.devices)}> 
                       <Text style={{fontSize:20}}>X</Text>
                     </TouchableOpacity>
                     <Text style={styles.devices}>{account.name}</Text>
@@ -805,19 +962,31 @@ export default class HomeScreen extends React.Component {
                     account.devices.map((device, index) => (
                       <View key={index}>
                         <View style={{flexDirection: 'row', marginLeft: 30}}>
-                          <TouchableOpacity style={styles.button4} onPress={this.deleteADevice.bind(this, device.id, device.properties)}> 
+                          <TouchableOpacity style={styles.button4} onPress={this.deleteADevice.bind(this, account, device, device.properties)}> 
                             <Text style={{fontSize:20}}>X</Text>
                           </TouchableOpacity>
-                          <Text style={styles.devices}>{device.name} ({device.rule_set})</Text>
+                          <Text style={styles.devices}>{device.name} ({device.description})</Text>
                         </View>
                         {
                           device.properties !== undefined &&
                           device.properties.map((property, index) => (
-                            <View key={property.id} style={{flexDirection: 'row', marginLeft: 100}}>
-                              <TouchableOpacity id={property.id} style={styles.button4} onPress={this.deleteAProperty.bind(this, property.id)}> 
+                            <View key={property.shared_property_id} style={{flexDirection: 'row', marginLeft: 100}}>
+                              <TouchableOpacity key={property.id} style={styles.button4} onPress={this.deleteAProperty.bind(this, account, device, property)}> 
                                 <Text style={{fontSize:10}}>X</Text>
                               </TouchableOpacity>
-                              <Text key={property.id} style={styles.devices}>{property.name}</Text>
+                              <Text key={property.id} style={styles.devices}>{property.name} (
+                                {(() => {
+                                  if (property.unrestricted) {
+                                   return "unrestricted";
+                                  }
+                                  else if (property.time_range_start !== undefined)
+                                  {
+                                    return property.time_range_start + "-" + property.time_range_end;
+                                  }
+                                  else
+                                    return property.gps_location;
+                                })()})
+                              </Text>
                               {/* <View style={{flexDirection: 'row', marginLeft: 100}}>
                                 {
                                   property.value == null && <ActivityIndicator size="small"/>
