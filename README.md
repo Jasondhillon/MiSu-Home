@@ -1,4 +1,6 @@
 # MiSu Home
+![logo](https://cdn.discordapp.com/attachments/712319700826324995/763141787447328788/unknown.png "logo")
+
 Check out the Projects tab to see what's been changing and what's still left to do
 
 I recommend to install 
