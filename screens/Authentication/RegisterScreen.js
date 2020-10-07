@@ -62,7 +62,12 @@ export default class RegisterScreen extends React.Component
         this.setState({confirmingCode: false});
 
         // Form validation
-        if(authCode == '')
+        if(username == '')
+        {
+            this.setState({message: 'Please enter the email you\'re verifying' });
+            this.setState({errorMessage: ''});
+        }
+        else if(authCode == '')
         {
             this.setState({message: 'Please enter the code sent to your email'});
             this.setState({errorMessage: ''});
