@@ -1,25 +1,29 @@
 import React from 'react';
-import {View, Text, Image, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
+import {View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator} from 'react-native';
 import { Auth } from 'aws-amplify';
+import appStyle from '../../styles/AppStyle';
 import authStyle from '../../styles/AuthStyle';
-
+import ConfirmCodePopup from '../../components/popup/ConfirmCodePopup'
 export default class RegisterScreen extends React.Component 
 {
     state = 
     {
-        name: 'Jackson',
-        username: 'jackson@example.com',
-        password: '123456789',
+        name: '',
+        username: '',
+        password: '',
         userId: null,
         errorMessage: null,
         message: null,
         signedUp: false,
-        authCode: ''
+        authCode: '',
+        confirmingCode: false,
+        isLoading : false
     }
 
     handleSignUp = async () => {
         this.setState({errorMessage: ''});
         this.setState({message: ''});
+        this.setState({isLoading: true});
         const {username, password, name} = this.state;
         if(this.state.name === '')
             this.setState({errorMessage: 'Missing name'});
@@ -48,13 +52,16 @@ export default class RegisterScreen extends React.Component
                 console.log('Error', error.message);
             });
         }
+        this.setState({isLoading: false});
     }
 
     // Verify sign up code
-    confirmSignUp = async() => {
+    confirmSignUp = async(username, authCode) => {
         this.setState({errorMessage: ''});
         this.setState({message: ''});
-        const { username, authCode } = this.state
+        this.setState({confirmingCode: false});
+        this.setState({isLoading: true});
+
         // Form validation
         if(authCode == '')
         {
@@ -64,19 +71,39 @@ export default class RegisterScreen extends React.Component
         else
         {
             const user = await Auth.confirmSignUp(username, authCode)
-            .then(user => {
+            .then(async user =>  {
                 console.log('confirmed sign up successful!');
-                this.setState({name: user.name, isAuth: true});
+
+                // Now sign in
+                await Auth.signIn(email, password)
+                .then(() => {
+                    this.props.navigation.navigate("App");
+                })
+                .catch((error) => {
+                    this.setState({errorMessage: error.message})
+                });
             })
             .catch((err) => {
                 this.setState({errorMessage: err.message});
                 this.setState({message: ''});
             });
         }
+        this.setState({isLoading: false});
     }
 
     render()
     {
+        // The loading element will restrict input during networked operations
+        let loadingElement = null;
+        if(this.state.isLoading)
+        {
+            loadingElement = (
+                <View style={[appStyle.loadingHolder]}>
+                    <ActivityIndicator size="large" style = {[appStyle.loadingElement]} />
+                </View>
+            )
+        }
+
         // The error element will be set if there is actually an error
         let errorElement = null;
         if(this.state.errorMessage)
@@ -98,8 +125,27 @@ export default class RegisterScreen extends React.Component
             )
         }
 
+        // The confirm code popup will appear if there is actually an error
+        let confirmPopupElement = null;
+        if(this.state.confirmingCode)
+        {
+            confirmPopupElement = (
+            <ConfirmCodePopup 
+                onCancel = { () => this.setState({ confirmingCode : false })}
+                onSubmit = { this.confirmSignUp }
+                username = { this.state.username }
+            />)
+        }
+
         return(
             <View style={authStyle.container}>
+
+                {/* Render the loading element */}
+                { loadingElement }
+
+                {/* Render the Confirm Popup */}
+                { confirmPopupElement }
+
                 {/* Render the app icon */}
                 <View style={authStyle.iconHolder}>
                     <Image
@@ -158,16 +204,30 @@ export default class RegisterScreen extends React.Component
                     </TouchableOpacity>
                 </View>
 
+                {/* Render the confirm code toggle */}
+                <View>
+                    <TouchableOpacity style={{alignSelf: 'center', marginTop: 16}} onPress={() => { this.setState( { confirmingCode : true }); }}>
+                        <Text style={{color: '#414959', fontSize: 13}}Password> 
+                            Have a confirmation code? <Text style={{color: '#71ccf0', fontWeight: '500'}}>Confirm</Text>
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+
                 {/* Render the register toggle */}
                 <View>
-                    <TouchableOpacity style={{alignSelf: 'center', marginTop: 16}} onPress={() => this.props.navigation.navigate("Login")}>
+                    <TouchableOpacity style={{alignSelf: 'center', marginTop: 6}} onPress={() => this.props.navigation.navigate("Login")}>
                         <Text style={{color: '#414959', fontSize: 13}}Password> 
                             Already have an account? <Text style={{color: '#71ccf0', fontWeight: '500'}}>Sign In</Text>
                         </Text>
                     </TouchableOpacity>
                 </View>
 
-                {/* Render the confirmation code form */}
+          </View>  
+        );
+    }
+}
+/*
+                {/* Render the confirmation code form *//*}
                 <View style={authStyle.authForm}>
 
                     <TextInput 
@@ -179,13 +239,9 @@ export default class RegisterScreen extends React.Component
                     </TextInput>
                 </View>
 
-                {/* Render the confirm button */}
+                {/* Render the confirm button *//*}
                 <View style={authStyle.authFormButtonHolder}>
                     <TouchableOpacity style={authStyle.authFormButton} onPress={this.confirmSignUp}>
                         <Text style={{color: '#FFF', fontWeight: '500'}}>Confirm Code</Text>
                     </TouchableOpacity>
-                </View>
-          </View>  
-        );
-    }
-}
+                </View>*/

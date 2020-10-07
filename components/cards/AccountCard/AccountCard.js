@@ -1,31 +1,38 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, ToastAndroid } from 'react-native';
 import appStyle from '../../../styles/AppStyle';
 import AppHeaderText from '../../app/AppHeaderText';
 import AppTitleText from '../../app/AppTitleText';
 import AppText from '../../app/AppText';
+import { Auth } from 'aws-amplify';
 import YourHub from './YourHub';
 import HubsSharedWithYou from './HubsSharedWithYou';
 
 class AccountCard extends Component 
 {
-    // Holds all of our global variables
-    state = 
-    {
-      name: 'Tom Smith'
+
+    // Signs the user out and sends them back to the login screen
+    signOut = async () => {
+        ToastAndroid.show("Signing out!", ToastAndroid.LONG);
+        Auth.signOut()
+        .then(this.props.navigation.navigate("Auth"));
     }
 
     render () 
     {
         return (
             <View style={appStyle.card}>
-                <AppHeaderText style={style.name}>{this.state.name}</AppHeaderText>
+                <AppHeaderText style={style.name}>{this.props.name}</AppHeaderText>
 
-                <YourHub></YourHub>
+                <YourHub 
+                    setHubInfo={this.props.setHubInfo}
+                    hub_url = {this.props.hub_url}
+                    hub_email = {this.props.hub_email}
+                    />
 
                 <HubsSharedWithYou></HubsSharedWithYou>
 
-                <TouchableOpacity style={[{marginHorizontal:50, marginBottom: 10}, appStyle.regularButton]} onPress={this.forgetHub}>
+                <TouchableOpacity style={[{marginHorizontal:50, marginBottom: 10}, appStyle.regularButton]} onPress={this.signOut}>
                     <AppText>Log out</AppText>
                 </TouchableOpacity>
             </View>

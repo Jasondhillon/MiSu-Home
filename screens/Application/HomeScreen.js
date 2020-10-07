@@ -1,13 +1,30 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ToastAndroid, ActivityIndicator, RefreshControl} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl, ToastAndroid} from 'react-native';
+import Icon from 'react-native-vector-icons/Entypo';
 import CheckBox from '@react-native-community/checkbox'; 
 import { Auth } from 'aws-amplify';
+import appStyle from '../../styles/AppStyle';
+import AppTitleText from '../../components/app/AppTitleText';
+import AppText from '../../components/app/AppText';
+import AppHeaderText from '../../components/app/AppHeaderText';
 const AWS = require('aws-sdk');
 AWS.config.update({ region: "us-east-1"});
 // 0 for no logs, 1 for basic logs, 2 for verbose
 const debug = 0;
 
 export default class HomeScreen extends React.Component {
+
+    static navigationOptions = ({ navigate, navigation }) => ({
+      headerTitle: 'Home',
+      headerRight: () => (
+          <View>
+              <TouchableOpacity style={{alignSelf: 'center', marginTop: 16}} onPress={() => navigation.navigate("Account") }>
+                  <Icon name="menu" size={35} style={{ marginRight:16, marginBottom:10 }}/>
+              </TouchableOpacity>
+          </View>
+      ),
+      headerLeft: () => ( <View></View> )
+    });
 
     // Holds all of our global variables
     state = 
@@ -830,11 +847,38 @@ export default class HomeScreen extends React.Component {
     // This is where all the components are rendered on the screen
     render() 
     {
+      // Display this message if there is no hub registered to you and you have no hubs you're added to.
+      let newUserScreen = null;
+      if((this.state.hub_email == '' || this.state.hub_email == null) && (this.state.devices == null))
+      {
+        newUserScreen = (
+          <View style={appStyle.container}>
+            <View style={ {width:240, alignItems: "center"} }>
+                <AppHeaderText style={ { marginTop:20} }>Own a Hub?</AppHeaderText>
+                
+                <TouchableOpacity style={ appStyle.regularButton} onPress={() => this.props.navigation.navigate("Account") }>
+                  <AppText>Register my Hub</AppText>
+                </TouchableOpacity>
+
+                <AppText style= { {marginTop:20, fontSize:16} }>If you own a hub, register above.</AppText>
+                <AppText style= { {marginTop:5, fontSize:15}} >Otherwise, ask a Hub owner to give you access using your User ID.</AppText>
+
+            </View>
+                <AppText style= { {marginTop:5, fontSize:15}}>Your User ID: <AppText style = {{fontWeight: "bold"}}> { this.state.email } </AppText> </AppText>
+          </View>
+        );
+      }
+
+
       return (
         <ScrollView style={styles.container}
           refreshControl={
           <RefreshControl refreshing={this.state.refreshing}  onRefresh={this.onRefresh}/>
         }>
+
+          {/* Screen to show when the screen is empty */}
+          { newUserScreen }
+
           {/* UI Messages */}
           {this.state.error && <Text style={{color: 'red', alignSelf: 'center'}}>{this.state.error}</Text>}
           {this.state.message && <Text style={{color:'black', alignSelf: 'center'}}>{this.state.message}</Text>}
@@ -1118,11 +1162,6 @@ export default class HomeScreen extends React.Component {
                 </View>
               ))
             }
-
-            <TouchableOpacity style={styles.signOutButton} onPress={this.signOut}>
-              <Text style={{color: '#FFF', fontWeight: '500'}}>Sign Out</Text>
-            </TouchableOpacity>
-  
         </ScrollView> 
       );
     }

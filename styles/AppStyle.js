@@ -120,6 +120,32 @@ const appStyle = StyleSheet.create({
         zIndex:-1,
     },
     
+
+    loadingHolder: {
+        position: 'absolute',
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf:'stretch',
+        width:width,
+        height:height-60,
+        borderRadius: 0,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 10,
+        shadowRadius: 20.41,
+        elevation: 4,
+        paddingTop:10,
+        paddingBottom:10,
+        zIndex:1,
+        opacity:0.9,
+    },
+    loadingElement: {
+        
+    },
+    
     scrollView: {
       marginHorizontal: 0,
       paddingRight: 10,
@@ -156,7 +182,7 @@ const appStyle = StyleSheet.create({
         height: 40,
         fontSize: 15,
         paddingLeft: 15,
-        marginTop: 16,
+        marginTop: 10,
         alignItems: 'center',
         justifyContent: 'center',
         alignSelf:'stretch',

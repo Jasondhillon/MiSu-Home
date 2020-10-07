@@ -1,7 +1,8 @@
 import React from 'react';
-import {View, Text, StyleSheet, Image, TextInput, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, Image, TextInput, TouchableOpacity, ActivityIndicator} from 'react-native';
 import { Auth } from 'aws-amplify';
 import authStyle from '../../styles/AuthStyle';
+import appStyle from '../../styles/AppStyle';
 
 export default class LoginScreen extends React.Component 
 {
@@ -10,13 +11,15 @@ export default class LoginScreen extends React.Component
         // test@example is the account with a hub connected/primary
         // jackson@test is the secondary user to whom the hardcoded share button shares devices to
         // password is the same for both
-        email: 'test@example.com',
-        password: '123456789',
-        errorMessage: null
+        email: 'armi.sam99@gmail.com',
+        password: 'ru612hacksam',
+        errorMessage: null,
+        isLoading: false
     }
 
     handleLogin = async () =>
     {
+        this.setState({isLoading: true});
         this.setState({errorMessage: ''});
         const {email, password} = this.state;
 
@@ -34,10 +37,22 @@ export default class LoginScreen extends React.Component
                 this.setState({errorMessage: error.message})
             });
         }
+        this.setState({isLoading: false});
     }
 
     render()
     {
+        // The loading element will restrict input during networked operations
+        let loadingElement = null;
+        if(this.state.isLoading)
+        {
+            loadingElement = (
+                <View style={[appStyle.loadingHolder]}>
+                    <ActivityIndicator size="large" style = {[appStyle.loadingElement]} />
+                </View>
+            )
+        }
+
         // The error element will be set if there is actually an error
         let errorElement = null;
         if(this.state.errorMessage)
@@ -52,60 +67,63 @@ export default class LoginScreen extends React.Component
         return(
             <View style={authStyle.container}>
                 
-            {/* Render the app icon */}
-            <View style={authStyle.iconHolder}>
-                <Image
-                    style={authStyle.icon}
-                    source={require('../../assets/icons/logo.png')}
-                />
-            </View>
-            
-            {/* Render the greeting */}
-            <Text style={authStyle.greeting}>{`Login to`} <Text style={authStyle.appName}> { 'Misu' } </Text></Text>
-            
-            {/* Render the login form */}
-            <View style={authStyle.authForm}>
-                <View>
-                    <TextInput 
-                        style={authStyle.authFormInput} 
-                        autoCapitalize="none" 
-                        onChangeText={email => this.setState({email})} 
-                        value={this.state.email}
-                        placeholder="Email">
-                    </TextInput>
+                {/* Render the loading element */}
+                { loadingElement }
+
+                {/* Render the app icon */}
+                <View style={authStyle.iconHolder}>
+                    <Image
+                        style={authStyle.icon}
+                        source={require('../../assets/icons/logo.png')}
+                    />
+                </View>
+                
+                {/* Render the greeting */}
+                <Text style={authStyle.greeting}>{`Login to`} <Text style={authStyle.appName}> { 'Misu' } </Text></Text>
+                
+                {/* Render the login form */}
+                <View style={authStyle.authForm}>
+                    <View>
+                        <TextInput 
+                            style={authStyle.authFormInput} 
+                            autoCapitalize="none" 
+                            onChangeText={email => this.setState({email})} 
+                            value={this.state.email}
+                            placeholder="Email">
+                        </TextInput>
+                    </View>
+
+                    <View>
+                        <TextInput 
+                            style={authStyle.authFormInput} 
+                            secureTextEntry 
+                            autoCapitalize="none" 
+                            onChangeText={password => this.setState({password})} 
+                            value={this.state.password}
+                            placeholder="Password">
+                        </TextInput>
+                    </View>
+                </View>
+                
+                {/* Render the error message */}
+                { errorElement }
+
+                {/* Render the submit button */}
+                <View style={authStyle.authFormButtonHolder}>
+                    <TouchableOpacity style={authStyle.authFormButton} onPress={this.handleLogin}>
+                        <Text style={{color: '#FFF', fontWeight: '500'}}>Sign in</Text>
+                    </TouchableOpacity>
                 </View>
 
+                {/* Render the register toggle */}
                 <View>
-                    <TextInput 
-                        style={authStyle.authFormInput} 
-                        secureTextEntry 
-                        autoCapitalize="none" 
-                        onChangeText={password => this.setState({password})} 
-                        value={this.state.password}
-                        placeholder="Password">
-                    </TextInput>
+                    <TouchableOpacity style={{alignSelf: 'center', marginTop: 16}} onPress={() => this.props.navigation.navigate("Register")}>
+                        <Text style={{color: '#414959', fontSize: 13}}Password> 
+                            Need an account? <Text style={{color: '#71ccf0', fontWeight: '500'}}>Sign Up</Text>
+                        </Text>
+                    </TouchableOpacity>
                 </View>
-            </View>
-            
-            {/* Render the error message */}
-            { errorElement }
-
-            {/* Render the submit button */}
-            <View style={authStyle.authFormButtonHolder}>
-                <TouchableOpacity style={authStyle.authFormButton} onPress={this.handleLogin}>
-                    <Text style={{color: '#FFF', fontWeight: '500'}}>Sign in</Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* Render the register toggle */}
-            <View>
-                <TouchableOpacity style={{alignSelf: 'center', marginTop: 16}} onPress={() => this.props.navigation.navigate("Register")}>
-                    <Text style={{color: '#414959', fontSize: 13}}Password> 
-                        Need an account? <Text style={{color: '#71ccf0', fontWeight: '500'}}>Sign Up</Text>
-                    </Text>
-                </TouchableOpacity>
-            </View>
-        </View>  
+            </View>  
         );
     }
 }

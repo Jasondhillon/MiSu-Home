@@ -60,7 +60,7 @@ const authStyle = StyleSheet.create({
         height: 40,
         fontSize: 15,
         paddingLeft: 15,
-        marginTop: 16
+        marginTop: 10
     },
     authFormButtonHolder: {
         display: "flex",

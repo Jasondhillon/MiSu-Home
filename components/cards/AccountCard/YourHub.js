@@ -11,38 +11,17 @@ class YourHub extends Component
     constructor(props)
     {
         super(props);
-        this.registeredHub = this.registeredHub.bind(this);
     }
     // Holds all of our global variables
     state = 
     {
-      hub_url: null,
-      hub_email: null,
-      registering: false
+      registering: false,
     }
 
     registerHub = async () => {
         console.log("Registering hub");
         this.setState({
             registering: true
-        });
-    }
-
-    forgetHub = async () => {
-        console.log("Forgetting hub");
-        this.setState({
-            hub_url: null,
-            hub_email: null,
-            registering: false
-        });
-    }
-
-    registeredHub = async () => {
-        console.log("Registered hub");
-        this.setState({
-            hub_url: 'MarkA.mozilla-iot.org',
-            hub_email: 'MarksHome@gmail.com',
-            registering: false
         });
     }
 
@@ -58,8 +37,9 @@ class YourHub extends Component
                   
                 {/* Show RegisterHubPopup when registering */}
                 {this.state.registering == true && 
-                    <RegisterHubPopup Register = {this.registeredHub}>
-                    </RegisterHubPopup>
+                    <RegisterHubPopup 
+                        setHubInfo = {this.props.setHubInfo}
+                        onCancel = { () => this.setState({ registering : false })} />
                 }
 
                 
@@ -77,20 +57,20 @@ class YourHub extends Component
                   ********************************************/}
                 
                 {/* Hub URL Text */}
-                {this.state.hub_url && 
+                {this.props.hub_url && 
                     <View style={appStyle.row}>
                         <AppText style={appStyle.rowLeft}>Hub URL:</AppText>
                         <View style={appStyle.rowRight}>
-                            <AppText>{this.state.hub_url}</AppText>
+                            <AppText>{this.props.hub_url}</AppText>
                         </View>
                     </View>
                 }
                 {/* Hub Email Text */}
-                {this.state.hub_url && 
+                {this.props.hub_url && 
                     <View style={appStyle.row}>
                         <AppText style={appStyle.rowLeft}>Hub Email:</AppText>
                         <View style={appStyle.rowRight}>
-                            <AppText>{this.state.hub_email}</AppText>
+                            <AppText>{this.props.hub_email}</AppText>
                         </View>
                     </View>
                 }
