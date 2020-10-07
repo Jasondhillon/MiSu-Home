@@ -190,9 +190,10 @@ export default class HomeScreen extends React.Component {
         .then(data => {
           if(data.message.length > 0)
           {
-            console.log("%j", null, data.message);
+            if (debug === 2)
+              console.log("%j", null, data.message);
             // We get the shared information and make a call to get the current values
-            this.setState({sharedDevices: data.message}, this.getCurrentValues);
+            this.setState({sharedDevices: data.message}, () => {this.getCurrentValues()});
           }
         });
       }
@@ -227,6 +228,54 @@ export default class HomeScreen extends React.Component {
       catch (error)
       {
         console.log("getListofSharedAccounts error: %j",1,error);
+        this.setState({error:error.message});
+      }
+    }
+
+    // Accepts/declines an invitation sent by a primary user
+    updateInvitation = async (account, value) => {
+      try
+      {
+        await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/invitation', {
+            method: 'POST',
+            headers: 
+            {
+                Authorization: 'Bearer ' + this.state.idToken,
+            },
+            body: JSON.stringify({
+              account: account,
+              accepted: value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if(data.statusCode === 200)
+          {
+            if(value === 0)
+            {
+              this.showToast("Declined invitation");
+              var currSharedDevices = this.state.sharedDevices.filter( el => el.login_credentials_id !== account);
+                this.setState({sharedDevices: currSharedDevices});
+            }
+            else
+            {
+              this.showToast("Accepted invitation");
+            }
+            this.onRefresh();
+            if (debug == 2)
+              console.log("%j", "Updated Invitation", data);
+          }
+          else 
+          {
+            if (debug == 2)
+              console.log("%j", "Error updating Invitation", data);
+            this.setState({error:data.message});
+          }
+        });
+      }
+      catch (error)
+      {
+        console.log("Error updating Invitation: %j",1,error);
         this.setState({error:error.message});
       }
     }
@@ -514,7 +563,7 @@ export default class HomeScreen extends React.Component {
             console.log("%j", null, data);
           }
           // if(data.statusCode === 200)
-          else if (statusCode === 400)
+          else if (data.statusCode === 400)
             this.setState({error: data.message});
             this.showToast(data.message);
         })
@@ -663,7 +712,8 @@ export default class HomeScreen extends React.Component {
     // Gets the current state for a property from the hub
     getValueForSharedDeviceProperty = async (account, device, property) => {
       // console.log("\n\n%j", 2, property);
-      // console.log("Accessing device " + property.property.links[0].href + "...")
+      if (debug == 2)
+        console.log("getting values for:", account, device, property);
       await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/getvalues', {
           method: 'POST',
           headers: 
@@ -868,20 +918,23 @@ export default class HomeScreen extends React.Component {
             }
 
             {/* Accounts Shared to You */}
-            {this.state.sharedDevices !== null && <Text style={styles.greeting}>Accounts Shared to You</Text>}
+            {this.state.sharedDevices !== null && this.state.sharedDevices.length > 0 && <Text style={styles.greeting}>Accounts Shared to You</Text>}
             {
               this.state.sharedDevices &&
               this.state.sharedDevices.map((account, index) => (
-                account.id !== null &&
+                account.login_credentials_id !== null &&
                 <View key={index}>
                   <View style={{flexDirection: 'row', alignSelf:'flex-start', marginLeft: 20}}>
                     {/* <TouchableOpacity style={styles.button4} onPress={this.deleteASharedAccount.bind(this, account.id)}> 
                       <Text style={{fontSize:20}}>X</Text>
                     </TouchableOpacity> */}
-                    <Text style={styles.devices}>{account.sharer_name}'s House</Text>
+                    {
+                      account.accepted !== 0 &&
+                      <Text style={styles.devices}>{account.sharer_name}'s House</Text>
+                    }
                   </View>
                   {
-                    account.devices !== undefined &&
+                    account.devices !== undefined && account.accepted === 1 &&
                     account.devices.map((device, index) => (
                       <View key={index}>
                         <View style={{flexDirection: 'row', marginLeft: 40}}>
@@ -940,7 +993,34 @@ export default class HomeScreen extends React.Component {
                       </View>
                     ))
                   }
+                  {
+                    account.accepted === 0 &&
+                    <View style={{flexDirection: 'row', alignSelf:'flex-start', marginLeft: 20}}>
+                      <Text style={styles.devices}>{account.sharer_name} has invited you to access: </Text>
+                    </View>
+                  }
+                  {
+                    account.accepted === 0 && account.devices.map((device, index) => (
+                    <View key={index}>
+                      <View style={{flexDirection: 'row', marginLeft: 40}}>
+                        <Text style={styles.devices}>{device.name} ({device.description})</Text>
+                      </View>
+                    </View>
+                    ))
+                  }
+                  {
+                      account.accepted === 0 && 
+                      <View style={{flexDirection: 'row', alignSelf:'flex-start', marginLeft: 20}}>
+                        <TouchableOpacity style={styles.button5} onPress={this.updateInvitation.bind(this, account.login_credentials_id, 1)}> 
+                          <Text style={{fontSize:20, color: 'white'}}>Accept</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button4} onPress={this.updateInvitation.bind(this, account.login_credentials_id, 0)}> 
+                          <Text style={{fontSize:20, color: 'white'}}>Decline</Text>
+                        </TouchableOpacity>
+                      </View>
+                  }
                 </View>
+
               ))
             }
 
@@ -958,7 +1038,7 @@ export default class HomeScreen extends React.Component {
                     <Text style={styles.devices}>{account.name}</Text>
                   </View>
                   {
-                    account.devices !== undefined &&
+                    account.devices !== undefined && account.accepted === 1 &&
                     account.devices.map((device, index) => (
                       <View key={index}>
                         <View style={{flexDirection: 'row', marginLeft: 30}}>
@@ -1016,6 +1096,23 @@ export default class HomeScreen extends React.Component {
                           ))
                         }
                       </View>
+                    ))
+                  }
+                  {
+                    account.accepted === 0 &&
+                    <View style={{flexDirection: 'row', alignSelf:'flex-start', marginLeft: 40}}>
+                      <Text style={styles.devices}>Invitation status: </Text>
+                      <Text style={{color: 'green'}}>Pending</Text>
+                    </View>
+                  }
+                  {
+                    account.accepted === 0 &&
+                    account.devices.map((device, index) => (
+                    <View key={index}>
+                      <View style={{flexDirection: 'row', marginLeft: 40}}>
+                        <Text style={styles.devices}>{device.name} ({device.description})</Text>
+                      </View>
+                    </View>
                     ))
                   }
                 </View>

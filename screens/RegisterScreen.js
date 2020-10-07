@@ -31,6 +31,8 @@ export default class RegisterScreen extends React.Component
                 'password': password,
                 attributes: {
                 'name': name,
+                'custom:phone': '4070000000',
+                'custom:address': '0000 Example Way'
                 }
             })
             .then((response) => {
@@ -40,7 +42,7 @@ export default class RegisterScreen extends React.Component
             })
             .catch(error => {
                 this.setState({error: error.message, message: null});
-                console.log('Error', error.message);
+                console.log('Error:', error);
             });
         }
     }
