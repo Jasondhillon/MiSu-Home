@@ -12,14 +12,13 @@ export default class LoginScreen extends React.Component
         // jackson@test is the secondary user to whom the hardcoded share button shares devices to
         // password is the same for both
         email: 'armi.sam99@gmail.com',
-        password: 'ru612hacksam',
+        password: '',
         errorMessage: null,
         isLoading: false
     }
 
     handleLogin = async () =>
     {
-        this.setState({isLoading: true});
         this.setState({errorMessage: ''});
         const {email, password} = this.state;
 
@@ -29,15 +28,16 @@ export default class LoginScreen extends React.Component
             this.setState({errorMessage: 'Missing password'});
         else
         {
+            this.setState({isLoading: true});
             await Auth.signIn(email, password)
             .then(() => {
                 this.props.navigation.navigate("App");
             })
             .catch((error) => {
                 this.setState({errorMessage: error.message})
+                this.setState({isLoading: false});
             });
         }
-        this.setState({isLoading: false});
     }
 
     render()

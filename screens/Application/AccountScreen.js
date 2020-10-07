@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, ScrollView, TouchableOpacity, ActivityIndicator} from 'react-native';
+import {View, Text, ToastAndroid, ScrollView, TouchableOpacity, ActivityIndicator} from 'react-native';
 import appStyle from '../../styles/AppStyle';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AccountCard from '../../components/cards/AccountCard/AccountCard'; 
@@ -130,6 +130,7 @@ export default class AccountScreen extends React.Component
           {
             this.setState({hub_url: data.hub_url, hub_email: data.email, error: null});
           }
+         // console.log('got hub info: ' + JSON.stringify(data));
         })
         .catch((error) => {
           console.error('getHubInfo error: %j', error);
@@ -141,6 +142,7 @@ export default class AccountScreen extends React.Component
 
     // Sets/updates the user's hub info, probably won't be used in production but useful for debugging, adds the hardcoded hub information to the user
     setHubInfo = async (hub_url, hub_email, hub_password) => {
+        //console.log("Sending set hub info for " + hub_url + ', ' + hub_email + ', ' + hub_password);
         this.setState({ isLoading: true});
         await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/updatehubinfo', {
             method: 'POST',

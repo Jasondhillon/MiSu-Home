@@ -84,7 +84,11 @@ class RegisterHubPopup extends Component
                         { errorElement }
 
                         {/* Render the submit button */}
-                        <TouchableOpacity style={appStyle.regularButton} onPress={ () => this.props.setHubInfo(this.state.hub_url, this.state.hub_email, this.state.hub_password) } >
+                        <TouchableOpacity style={appStyle.regularButton} onPress={ () =>
+                             { 
+                                 this.props.onCancel(); 
+                                 this.props.setHubInfo(this.state.hub_url, this.state.hub_email, this.state.hub_password) 
+                             }} >
                             <AppText>Submit</AppText>
                         </TouchableOpacity>
                     </View>

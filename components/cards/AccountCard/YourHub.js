@@ -39,7 +39,7 @@ class YourHub extends Component
                 {this.state.registering == true && 
                     <RegisterHubPopup 
                         setHubInfo = {this.props.setHubInfo}
-                        onCancel = { () => this.setState({ registering : false })} />
+                        onCancel = { () => {this.setState({ registering : false }); }} />
                 }
 
                 

@@ -60,7 +60,6 @@ export default class RegisterScreen extends React.Component
         this.setState({errorMessage: ''});
         this.setState({message: ''});
         this.setState({confirmingCode: false});
-        this.setState({isLoading: true});
 
         // Form validation
         if(authCode == '')
@@ -70,6 +69,7 @@ export default class RegisterScreen extends React.Component
         }
         else
         {
+            this.setState({isLoading: true});
             const user = await Auth.confirmSignUp(username, authCode)
             .then(async user =>  {
                 console.log('confirmed sign up successful!');
@@ -81,14 +81,15 @@ export default class RegisterScreen extends React.Component
                 })
                 .catch((error) => {
                     this.setState({errorMessage: error.message})
+                    this.setState({isLoading: false});
                 });
             })
             .catch((err) => {
                 this.setState({errorMessage: err.message});
                 this.setState({message: ''});
+                this.setState({isLoading: false});
             });
         }
-        this.setState({isLoading: false});
     }
 
     render()
