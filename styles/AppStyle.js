@@ -127,7 +127,9 @@ const appStyle = StyleSheet.create({
         alignItems: 'center',
         alignSelf:'stretch',
         width:width,
-        height:height-60,
+        height:height,
+        top:0,
+        bottom:0,
         borderRadius: 0,
         shadowColor: "#000",
         shadowOffset: {
@@ -137,13 +139,23 @@ const appStyle = StyleSheet.create({
         shadowOpacity: 10,
         shadowRadius: 20.41,
         elevation: 4,
-        paddingTop:10,
-        paddingBottom:10,
-        zIndex:1,
+        zIndex:-5,
         opacity:0.9,
     },
+    loadingHolderNoColor: {
+        position: 'absolute',
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf:'stretch',
+        width:width,
+        height:height,
+        top:0,
+        bottom:0,
+        borderRadius: 0,
+        zIndex:-1,
+    },
     loadingElement: {
-        
+        zIndex:-5,
     },
     
     scrollView: {
@@ -177,6 +189,7 @@ const appStyle = StyleSheet.create({
         backgroundColor: '#f5f5f5',
         borderColor: '#8A8F9E',
         borderWidth: 1,
+        
         height: 40,
         flex: 1,
         height: 40,
@@ -185,6 +198,31 @@ const appStyle = StyleSheet.create({
         marginTop: 10,
         alignItems: 'center',
         justifyContent: 'center',
+        alignSelf:'stretch',
+    },
+
+    formInputClear: {
+        height: 40,
+        flex: 1,
+        height: 40,
+        fontSize: 15,
+        paddingLeft: 15,
+        marginTop: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf:'stretch',
+    },
+
+    formInputContainer: {
+        borderRadius: 25,
+        backgroundColor: '#f5f5f5',
+        borderColor: '#8A8F9E',
+        borderWidth: 1,
+        flex: 1,
+
+        height: 40,
+        flexDirection: 'row',
+        alignItems: 'center',
         alignSelf:'stretch',
     },
  });

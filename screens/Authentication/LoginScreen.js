@@ -11,7 +11,7 @@ export default class LoginScreen extends React.Component
         // test@example is the account with a hub connected/primary
         // jackson@test is the secondary user to whom the hardcoded share button shares devices to
         // password is the same for both
-        email: 'armi.sam99@gmail.com',
+        username: '',
         password: '',
         errorMessage: null,
         isLoading: false
@@ -20,16 +20,16 @@ export default class LoginScreen extends React.Component
     handleLogin = async () =>
     {
         this.setState({errorMessage: ''});
-        const {email, password} = this.state;
+        const {username, password} = this.state;
 
-        if(email === '')
+        if(username === '')
             this.setState({errorMessage: 'Missing email address'});
         else if(password === '')
             this.setState({errorMessage: 'Missing password'});
         else
         {
             this.setState({isLoading: true});
-            await Auth.signIn(email, password)
+            await Auth.signIn(username, password)
             .then(() => {
                 this.props.navigation.navigate("App");
             })
@@ -66,10 +66,6 @@ export default class LoginScreen extends React.Component
 
         return(
             <View style={authStyle.container}>
-                
-                {/* Render the loading element */}
-                { loadingElement }
-
                 {/* Render the app icon */}
                 <View style={authStyle.iconHolder}>
                     <Image
@@ -87,8 +83,8 @@ export default class LoginScreen extends React.Component
                         <TextInput 
                             style={authStyle.authFormInput} 
                             autoCapitalize="none" 
-                            onChangeText={email => this.setState({email})} 
-                            value={this.state.email}
+                            onChangeText={username => this.setState({username})} 
+                            value={this.state.username}
                             placeholder="Email">
                         </TextInput>
                     </View>
@@ -105,15 +101,15 @@ export default class LoginScreen extends React.Component
                     </View>
                 </View>
                 
-                {/* Render the error message */}
-                { errorElement }
-
                 {/* Render the submit button */}
                 <View style={authStyle.authFormButtonHolder}>
                     <TouchableOpacity style={authStyle.authFormButton} onPress={this.handleLogin}>
                         <Text style={{color: '#FFF', fontWeight: '500'}}>Sign in</Text>
                     </TouchableOpacity>
                 </View>
+
+                {/* Render the error message */}
+                { errorElement }
 
                 {/* Render the register toggle */}
                 <View>
@@ -123,6 +119,10 @@ export default class LoginScreen extends React.Component
                         </Text>
                     </TouchableOpacity>
                 </View>
+                
+                {/* Render the loading element */}
+                { loadingElement }
+
             </View>  
         );
     }

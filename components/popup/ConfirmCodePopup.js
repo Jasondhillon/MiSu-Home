@@ -54,8 +54,7 @@ class ConfirmCodePopup extends Component
                             <TextInput 
                                 style={appStyle.formInput} 
                                 autoCapitalize="none" 
-                                autoCompleteType='email'
-                                keyboardType='email-address'
+                                keyboardType='numeric'
                                 onChangeText={authCode => this.setState({authCode})} 
                                 value={this.state.authCode}
                                 placeholder="Confirm Code">

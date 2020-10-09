@@ -101,7 +101,7 @@ export default class HomeScreen extends React.Component {
           // This is just a way to check if the user has a hub listed at all, if not there's no hub linked to this account and therefore no hub information exists to display
           if(data.hub_url !== undefined && data.hub_url !== null && data.hub_url !== "")
           {
-            this.setState({hub_url: data.hub_url, hub_email: data.email, error: null});
+            this.setState({hub_url: data.hub_url, hub_email: data.hub_email, error: null});
             this.getDevices();
           }
         })
@@ -861,10 +861,10 @@ export default class HomeScreen extends React.Component {
                 </TouchableOpacity>
 
                 <AppText style= { {marginTop:20, fontSize:16} }>If you own a hub, register above.</AppText>
-                <AppText style= { {marginTop:5, fontSize:15}} >Otherwise, ask a Hub owner to give you access using your User ID.</AppText>
+                <AppText style= { {marginTop:5, fontSize:15}} >Otherwise, ask a Hub owner to give you access using your User ID,</AppText>
 
             </View>
-                <AppText style= { {marginTop:5, fontSize:15}}>Your User ID: <AppText style = {{fontWeight: "bold"}}> { this.state.email } </AppText> </AppText>
+                <AppText style= { {marginTop:5, fontSize:15}}><AppText style = {{fontWeight: "bold"}}> { this.state.email } </AppText> </AppText>
           </View>
         );
       }

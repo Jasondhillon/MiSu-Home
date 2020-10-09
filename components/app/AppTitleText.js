@@ -7,8 +7,9 @@ class AppTitleText extends Component {
     return (
         <Text style={
             [{
-                fontSize: 20.5,
-                textDecorationLine: 'underline'
+                fontSize: 18.5,
+                fontWeight: 'bold',
+                textDecorationLine: 'none'
             }, this.props.style]}>
             {this.props.children}
         </Text>

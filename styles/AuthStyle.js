@@ -31,8 +31,8 @@ const authStyle = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginHorizontal: 15,
-        marginTop:-5,
-        marginBottom:5
+        marginTop:5,
+        marginBottom:-5
     },
     error: {
         color: '#E9446A',
@@ -45,8 +45,8 @@ const authStyle = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginHorizontal: 15,
-        marginTop:-5,
-        marginBottom:5
+        marginTop:5,
+        marginBottom:-5
     },
     authForm: {
         marginBottom: 24,
@@ -69,6 +69,7 @@ const authStyle = StyleSheet.create({
     },
     authFormButton: {
         marginHorizontal: 30,
+        marginTop:-10,
         backgroundColor: '#71ccf0',
         borderRadius: 25,
         alignItems: 'center',

@@ -18,13 +18,6 @@ class YourHub extends Component
       registering: false,
     }
 
-    registerHub = async () => {
-        console.log("Registering hub");
-        this.setState({
-            registering: true
-        });
-    }
-
     render () 
     {
         return (
@@ -74,32 +67,32 @@ class YourHub extends Component
                         </View>
                     </View>
                 }
-                {/* Forget Button */}
-                {this.state.hub_url && 
-                    <TouchableOpacity style={appStyle.regularButton} onPress={this.forgetHub}>
-                        <AppText>Forget Hub</AppText>
-                    </TouchableOpacity>
-                }
-
-
+                
                 {/********************************************
                   ************** IF No Hub Set ***************
                   ********************************************/}
 
                 {/* No Hub */}
-                {this.state.hub_url == null && 
+                {this.props.hub_url == null && 
                     <View style={appStyle.row}>
                         <AppText style={appStyle.rowLeft}>No device is registered...</AppText>
                     </View>
                 }
                 {/* Register Button */}
-                {this.state.hub_url == null && 
+                {this.props.hub_url == null && 
                     <TouchableOpacity style={appStyle.regularButton} onPress={this.registerHub}>
                         <AppText>Register my Hub</AppText>
                     </TouchableOpacity>
                 }
             </View>
         );
+    }
+
+    registerHub = () => {
+        console.log("Registering hub");
+        this.setState({
+            registering: true
+        });
     }
 }
 

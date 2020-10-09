@@ -60,6 +60,7 @@ export default class RegisterScreen extends React.Component
         this.setState({errorMessage: ''});
         this.setState({message: ''});
         this.setState({confirmingCode: false});
+        const password = this.state.password;
 
         // Form validation
         if(username == '')
@@ -80,7 +81,7 @@ export default class RegisterScreen extends React.Component
                 console.log('confirmed sign up successful!');
 
                 // Now sign in
-                await Auth.signIn(email, password)
+                await Auth.signIn(username, password)
                 .then(() => {
                     this.props.navigation.navigate("App");
                 })
@@ -197,18 +198,18 @@ export default class RegisterScreen extends React.Component
                     </View>
                 </View>
 
-                {/* Render the error message */}
-                { errorElement }
-
-                {/* Render the message */}
-                { messageElement }
-
                 {/* Render the submit button */}
                 <View style={authStyle.authFormButtonHolder}>
                     <TouchableOpacity style={authStyle.authFormButton} onPress={this.handleSignUp}>
                         <Text style={{color: '#FFF', fontWeight: '500'}}>Sign up</Text>
                     </TouchableOpacity>
                 </View>
+
+                {/* Render the error message */}
+                { errorElement }
+
+                {/* Render the message */}
+                { messageElement }
 
                 {/* Render the confirm code toggle */}
                 <View>
@@ -232,22 +233,3 @@ export default class RegisterScreen extends React.Component
         );
     }
 }
-/*
-                {/* Render the confirmation code form *//*}
-                <View style={authStyle.authForm}>
-
-                    <TextInput 
-                            style={authStyle.authFormInput} 
-                            autoCapitalize="none" 
-                            onChangeText={authCode => this.setState({authCode})} 
-                            value={this.state.authCode}
-                            placeholder="Confirm Code">
-                    </TextInput>
-                </View>
-
-                {/* Render the confirm button *//*}
-                <View style={authStyle.authFormButtonHolder}>
-                    <TouchableOpacity style={authStyle.authFormButton} onPress={this.confirmSignUp}>
-                        <Text style={{color: '#FFF', fontWeight: '500'}}>Confirm Code</Text>
-                    </TouchableOpacity>
-                </View>*/

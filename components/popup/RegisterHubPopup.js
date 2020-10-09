@@ -52,13 +52,17 @@ class RegisterHubPopup extends Component
                         
                         {/* Render the login form */}
                         <View style={appStyle.container}>
-                            <TextInput 
-                                style={appStyle.formInput} 
-                                autoCapitalize="none" 
-                                onChangeText={hub_url => this.setState({hub_url})} 
-                                value={this.state.hub_url}
-                                placeholder="Hub URL">
-                            </TextInput>
+                            
+                            <View style={appStyle.formInputContainer} >
+                                <TextInput 
+                                    style={[appStyle.formInputClear, {paddingBottom:20}]}
+                                    autoCapitalize="none" 
+                                    onChangeText={hub_url => this.setState({hub_url})} 
+                                    value={this.state.hub_url}
+                                    placeholder="Hub URL">
+                                </TextInput>
+                                <AppText style={{alignSelf:'flex-end', paddingBottom:10, marginLeft:5, paddingRight:10, color:'grey', fontSize:14}}>.mozilla-iot.org</AppText>
+                            </View>
 
                             <TextInput 
                                 style={appStyle.formInput} 
