@@ -1,10 +1,9 @@
 {
 	"auth": {
-		"smartshareaws4879c3b3": {
+		"MiSuHome": {
 			"service": "Cognito",
 			"providerPlugin": "awscloudformation",
-			"dependsOn": [],
-			"customAuth": false
+			"dependsOn": []
 		}
 	},
 	"api": {

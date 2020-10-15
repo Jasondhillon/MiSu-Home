@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, ActivityIndicator} from 'react-native';
+import {View, Text,Image, StyleSheet, ActivityIndicator} from 'react-native';
 import { Auth } from 'aws-amplify';
 export default class LoadingScreen extends React.Component 
 {
@@ -19,12 +19,27 @@ export default class LoadingScreen extends React.Component
 
     render()
     {
+        // Shows a loading animation
         return(
-          <View style={styles.container}>
-              <Text>Loading...</Text>
-              <ActivityIndicator size="large"/>
-          </View>  
-        );
+            <View style={styles.container}>
+                <View>
+                  <Image
+                      style={{
+                          width:180,
+                          height:180,
+                          marginBottom:90
+                      }}
+                      source={require('../assets/icons/logo.png')}
+                  />
+              </View>
+                <Text
+                  style={{
+                      fontSize:24,
+                      marginBottom:16
+                  }}>Loading...</Text>
+                <ActivityIndicator size="large"/>
+            </View>  
+          );
     }
 }
 
