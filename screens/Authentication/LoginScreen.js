@@ -8,11 +8,9 @@ export default class LoginScreen extends React.Component
 {
     state = 
     {   
-        // test@example is the account with a hub connected/primary
-        // jackson@test is the secondary user to whom the hardcoded share button shares devices to
-        // password is the same for both
-        username: '',
-        password: '',
+        // TODO: Remove this: alt account secondary@example.com
+        username: 'primary@example.com',
+        password: '#Cop4935',
         errorMessage: null,
         isLoading: false
     }
