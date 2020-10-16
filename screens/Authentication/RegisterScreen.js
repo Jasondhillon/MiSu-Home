@@ -38,7 +38,12 @@ export default class RegisterScreen extends React.Component
             const response = await Auth.signUp({username,
                 password,
                 attributes: {
-                    name
+                    name,
+                    'email': username,
+                    'phone_number': "+4070000000",
+                    'address': "1234 Address Way",
+                    'custom:city': "Orlando",
+                    'custom:state': "Florida"
                 }
             })
             .then((response) => {

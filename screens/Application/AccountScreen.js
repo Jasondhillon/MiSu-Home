@@ -47,6 +47,13 @@ export default class AccountScreen extends React.Component
         loaded:false
     }
     
+    // Signs the user out and sends them back to the login screen
+    signOut = async () => {
+        ToastAndroid.show("Signing out!", ToastAndroid.LONG);
+        Auth.signOut()
+        .then(this.props.navigation.navigate("Auth"));
+    }
+
     // Error handler
     onError = (error) =>
     {
@@ -114,6 +121,11 @@ export default class AccountScreen extends React.Component
                             </ScrollView>
                         </View>
                     }
+
+
+                    <TouchableOpacity style={[{marginHorizontal:50, marginBottom: 10}, appStyle.regularButton]} onPress={this.signOut}>
+                        <AppText>Log out</AppText>
+                    </TouchableOpacity>
 
                     {/* Render the loading element */}
                     { this.state.loaded == false && 
