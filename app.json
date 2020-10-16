@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "SmartHomes",
-    "slug": "SmartHomes",
+    "name": "MiSuHome",
+    "slug": "MiSuHome",
     "platforms": [
       "android"
     ],
@@ -23,7 +23,7 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.ucf.smartshare",
+      "package": "com.ucf.MiSuHome",
       "versionCode": 1
     }
   }
