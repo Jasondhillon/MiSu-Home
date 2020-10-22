@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import AppHeaderText from '../../app/AppHeaderText';
-import AppText from '../../app/AppText';
-import appStyle from '../../../styles/AppStyle';
+import AppHeaderText from '../app/AppHeaderText';
+import AppText from '../app/AppText';
+import appStyle from '../../styles/AppStyle';
 
 class DeviceCard extends Component 
 {

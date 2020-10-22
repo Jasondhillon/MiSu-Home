@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { View, TextInput, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import { Modal, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import appStyle from '../../styles/AppStyle';
 import AppHeaderText from '../app/AppHeaderText';
-import AppTitleText from '../app/AppTitleText';
 import AppText from '../app/AppText';
 
 class RegisterHubPopup extends Component 
@@ -91,7 +90,10 @@ class RegisterHubPopup extends Component
                         <TouchableOpacity style={appStyle.regularButton} onPress={ () =>
                              { 
                                  this.props.onCancel(); 
-                                 this.props.setHubInfo(this.state.hub_url, this.state.hub_email, this.state.hub_password) 
+                                 this.props.registerHub({
+                                     hub_url: this.state.hub_url, 
+                                     hub_email:this.state.hub_email,
+                                     hub_password: this.state.hub_password},this.props.idToken) 
                              }} >
                             <AppText>Submit</AppText>
                         </TouchableOpacity>

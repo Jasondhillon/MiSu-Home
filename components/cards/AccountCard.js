@@ -1,17 +1,14 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import appStyle from '../../../styles/AppStyle';
-import AppHeaderText from '../../app/AppHeaderText';
-import AppTitleText from '../../app/AppTitleText';
-import AppText from '../../app/AppText';
-import RegisterHubPopup from '../../popup/RegisterHubPopup';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import appStyle from '../../styles/AppStyle';
+import AppHeaderText from '../app/AppHeaderText';
+import AppText from '../app/AppText';
+import AppTitleText from '../app/AppTitleText';
+import RegisterHubPopup from '../popup/RegisterHubPopup';
 
-class YourHub extends Component 
+class AccountCard extends Component 
 {
-    constructor(props)
-    {
-        super(props);
-    }
+
     // Holds all of our global variables
     state = 
     {
@@ -21,36 +18,35 @@ class YourHub extends Component
     render () 
     {
         return (
-            <View style={appStyle.container}>
-                
+            <View style={[appStyle.card, {paddingHorizontal:20}]}>
 
-                {/********************************************
-                  *************** Show Popups ****************
-                  ********************************************/}
-                  
+                {/* Show user's name */}
+                <AppHeaderText style={style.name}>{this.props.name}</AppHeaderText>
+               
                 {/* Show RegisterHubPopup when registering */}
                 {this.state.registering == true && 
                     <RegisterHubPopup 
+                        idToken={this.props.idToken}
                         setHubInfo = {this.props.setHubInfo}
+                        registerHub={this.props.register}
                         onCancel = { () => {this.setState({ registering : false }); }} />
                 }
 
-                
                 {/********************************************
-                  *************** Show Title *****************
-                  ********************************************/}
-                  
+                 *************** Show Your Hub Title ********
+                ********************************************/}
+                
                 {/* Your Hub Title */}
                 <View style={appStyle.row}>
                     <AppTitleText style={appStyle.rowLeft}>Your Hub</AppTitleText>
                 </View>
                 
                 {/********************************************
-                  *************** IF Has Hub Set *************
-                  ********************************************/}
+                 *************** IF Has Hub Set *************
+                ********************************************/}
                 
                 {/* Hub URL Text */}
-                {this.props.hub_url && 
+                {this.props.hub_url != '' && 
                     <View style={appStyle.row}>
                         <AppText style={appStyle.rowLeft}>Hub URL:</AppText>
                         <View style={appStyle.rowRight}>
@@ -59,7 +55,7 @@ class YourHub extends Component
                     </View>
                 }
                 {/* Hub Email Text */}
-                {this.props.hub_url && 
+                {this.props.hub_url  != '' && 
                     <View style={appStyle.row}>
                         <AppText style={appStyle.rowLeft}>Hub Email:</AppText>
                         <View style={appStyle.rowRight}>
@@ -69,17 +65,17 @@ class YourHub extends Component
                 }
                 
                 {/********************************************
-                  ************** IF No Hub Set ***************
-                  ********************************************/}
+                 ************** IF No Hub Set ***************
+                ********************************************/}
 
                 {/* No Hub */}
-                {this.props.hub_url == null && 
+                {this.props.hub_url == ''  && 
                     <View style={appStyle.row}>
                         <AppText style={appStyle.rowLeft}>No device is registered...</AppText>
                     </View>
                 }
                 {/* Register Button */}
-                {this.props.hub_url == null && 
+                {this.props.hub_url == ''  && 
                     <TouchableOpacity style={appStyle.regularButton} onPress={this.registerHub}>
                         <AppText>Register my Hub</AppText>
                     </TouchableOpacity>
@@ -93,6 +89,7 @@ class YourHub extends Component
         this.setState({
             registering: true
         });
+        //({}, this.props.idToken)
     }
 }
 
@@ -102,4 +99,4 @@ const style = StyleSheet.create({
     }
  });
 
-export default YourHub;
+export default AccountCard;

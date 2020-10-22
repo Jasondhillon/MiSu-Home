@@ -1,62 +1,95 @@
-import React, { Component } from 'react';
-import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import * as React from 'react';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import appStyle from '../../styles/AppStyle';
 import AppHeaderText from '../app/AppHeaderText';
 import AppText from '../app/AppText';
-import appStyle from '../../styles/AppStyle';
-import ExampleModal from '../modals/ExampleModal';
-import { withNavigation } from 'react-navigation';
+import HubCardSharedUsersListEntry from './ListEntries/HubCardSharedUsersListEntry';
 
-class HubCard extends Component 
-{
-    state = 
-    {
-      owned: true
-    }
 
-    render () 
-    {
-        return (
-            <View style={appStyle.card}>
 
-                <TouchableOpacity style={appStyle.container} onPress={() => { this.props.navigation.navigate("Device"); } }>
-                    {/* Render the hub name */}
-                    <AppHeaderText style={style.name}>Home Hub</AppHeaderText>
+
+
+const HubCard = props => {
+    return (
+        <View style={[appStyle.card, { paddingBottom:0 }]}>
+        <View style={[appStyle.container, {paddingBottom:-20}]}>
 
                     {/* Render the hub icon */}
                     <Image
-                        style={style.icon}
+                        style={style.hubIcon}
                         source={require('../../assets/icons/hub.png')}
                     />
-                    
+
+                    {/* Render the hub name */}
+                    <AppHeaderText style={style.name}> {props.name}'s  Home</AppHeaderText>
+
+
                     {/* Start the hub's sharing view */}
                     <View style={appStyle.row}>
                         {/* Render the hub sharing description */}
-                        <AppText style={appStyle.rowLeft}>Sharing with...</AppText>
+                        <AppText style={appStyle.rowLeft, { marginTop: 17.5 }}>Shared Users</AppText>
 
                         <View style={appStyle.rowRight}>
                             {/* Render the hub sharing details */}
-                            <AppText style={appStyle.sharingUser}>Jason</AppText>
+                            <TouchableOpacity onPress={() => props.OpenModal()  }>
+                                {/* Render the hub icon */}
+                                <Image
+                                    style={style.addUserIcon}
+                                    source={require('../../assets/icons/add-user.png')}
+                                />
+                            </TouchableOpacity>
                         </View>
                     </View>
-                    
-                    {/* Render the hub devices */}
 
-                </TouchableOpacity>
+            <View style={ [appStyle.lineSeperatorFull, {marginBottom:10} ]}/>
+                   
+                    {props.sharedAccounts?props.sharedAccounts.map( (sharedAccount,index)=> {
+                        return(
+                           
+                            <HubCardSharedUsersListEntry  
+                            key={index}  
+                            move={() => props.navigation.navigate('User', sharedAccount)}
+                            name={sharedAccount.name}/>
+                            
+                           
+                        )
+                    }
+                   ):null}
             </View>
-        );
-    }
+            </View>
+    )
 }
+
+
+
+
+
 
 const style = StyleSheet.create({
     name: {
         fontSize:24,
         height:30,
+        marginBottom: 5
     },
-    icon: {
+    hubIcon: {
         marginTop:10,
         height:150,
         width: 150,
+    },
+    addUserIcon: {
+        height:35,
+        width: 35,
+        marginTop:10
+    },
+    sharedUsersContainer: {
+        flexDirection: 'row',
+        flex: 1,
+        justifyContent: 'flex-start',
+        alignSelf:'stretch',
+        paddingLeft:10,
+        marginBottom:7.5
     }
  });
 
-export default withNavigation(HubCard);
+
+export default HubCard

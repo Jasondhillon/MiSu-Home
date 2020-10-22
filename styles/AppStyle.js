@@ -19,6 +19,7 @@ const appStyle = StyleSheet.create({
         alignSelf:'stretch',
     },
     rowLeft: {
+        flexDirection:'row',
         alignSelf: 'flex-start'
     },
     rowRight: {
@@ -56,9 +57,6 @@ const appStyle = StyleSheet.create({
     }, 
     
     modal: {
-        position: 'absolute',
-        justifyContent: 'center',
-        alignItems: 'center',
         alignSelf:'stretch',
         
         borderRadius: 15,
@@ -70,16 +68,17 @@ const appStyle = StyleSheet.create({
         shadowOpacity: 10,
         shadowRadius: 20.41,
         borderWidth: 3,
+        borderBottomLeftRadius:0,
+        borderBottomRightRadius:0,
+        borderBottomWidth:0,
         borderColor: "#a8a8a8",
         elevation: 4,
         backgroundColor:'#fcfcfc',
         paddingTop:10,
-        paddingBottom:10,
-        width:width,
-        height:height-60,
-        marginTop:60,
-        zIndex:1,
-        opacity:0.9,
+        width:width-10,
+        marginLeft:5,
+        opacity:1,
+        zIndex:5
     },
 
     popup: {
@@ -171,7 +170,6 @@ const appStyle = StyleSheet.create({
         justifyContent: 'center',
         alignSelf:'stretch',
         height: 40,
-        flex: 1,
         shadowColor: "#000",
         shadowOffset: {
             width: 20,
@@ -224,6 +222,25 @@ const appStyle = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf:'stretch',
+    },
+    lineSeperator: {
+        flex:1,
+        backgroundColor:'#333333',
+        height:2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf:'stretch',
+        
+    },
+    lineSeperatorFull: {
+        flex:1,
+        marginHorizontal:-10,
+        backgroundColor:'#333333',
+        height:2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf:'stretch',
+        
     },
  });
 

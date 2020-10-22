@@ -1,35 +1,62 @@
-import {createAppContainer, createSwitchNavigator} from 'react-navigation';
-import {createStackNavigator} from 'react-navigation-stack';
-
 import Amplify from '@aws-amplify/core';
+import React, { Component } from 'react';
+import { createAppContainer, createSwitchNavigator } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation-stack';
+// ************************************************ */
+// Redux ****************************************** */
+// ************************************************ */
+import { Provider } from 'react-redux';
+import { applyMiddleware, createStore } from 'redux';
+import thunk from 'redux-thunk';
 import config from './aws-exports';
-Amplify.configure(config);
-
-
+import appDataReducer from './redux/AppDataReducer';
+import AccountScreen from './screens/Application/AccountScreen';
+import DeviceScreen from './screens/Application/DeviceScreen';
 //************************************************** */
 // App Stack *************************************** */
 //************************************************** */
 // Main screen holding all the logic essentially
-import HomeScreen from './screens/Application/HomeScreen';
-import AccountScreen from './screens/Application/AccountScreen';
-import DeviceScreen from './screens/Application/DeviceScreen';
-
-const AppStack = createStackNavigator({
-  Home: HomeScreen,
-  Account: AccountScreen,
-  Device: DeviceScreen
-});
-
+import HomeScreen from './screens/index';
+import UserScreen from './screens/Application/UserScreen';
 //************************************************** */
 // Auth Stack ************************************** */
 //************************************************** */
 // Login/Register screens hold the code that mess with the firebase auth(login)
 import LoginScreen from './screens/Authentication/LoginScreen';
 import RegisterScreen from './screens/Authentication/RegisterScreen';
+//************************************************** */
+// Loading Stack *********************************** */
+//************************************************** */
+// Routing container which swaps screens and adds them to the navigation stack(back button function properly on Android)
+import LoadingScreen from './screens/LoadingScreen';
+
+Amplify.configure(config);
+
+const store = createStore(appDataReducer,applyMiddleware(thunk));
+
+
+const AppStack = createStackNavigator({
+  Home: HomeScreen,
+  Account: AccountScreen,
+  Device: DeviceScreen,
+  User: UserScreen,
+},
+{
+  mode: 'card',
+  navigationOptions: params => ({
+    gesturesEnabled: true,
+    gesturesDirection: 'inverted',
+    headerMode: 'float'
+  },
+  {
+    transitionConfig: customAnimationFunc,
+  })
+});
+
 
 const customAnimationFunc = () => ({
   screenInterpolator: sceneProps => {
-    return CardStackStyleInterpolator.forVertical(sceneProps);
+    return CardStackStyleInterpolator.forHorizontal(sceneProps);
   },
 });
 
@@ -42,20 +69,16 @@ const AuthStack = createStackNavigator({
   navigationOptions: params => ({
     gesturesEnabled: true,
     gesturesDirection: 'inverted',
+    headerMode: 'float'
   },
   {
     transitionConfig: customAnimationFunc,
   })
 });
 
-//************************************************** */
-// Loading Stack *********************************** */
-//************************************************** */
-// Routing container which swaps screens and adds them to the navigation stack(back button function properly on Android)
-import LoadingScreen from './screens/LoadingScreen';
 
 // Create App Navigator
-export default createAppContainer(
+const AppContainer = createAppContainer(
   createSwitchNavigator(
     {
       Loading: LoadingScreen,
@@ -68,3 +91,13 @@ export default createAppContainer(
     }
   )
 );
+
+export default class App extends Component {
+  render () {
+    return (
+      <Provider store={store}>
+        <AppContainer />
+      </Provider>
+    )
+  }
+}
