@@ -3,7 +3,6 @@ import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { connect } from 'react-redux';
 import AppTitleText from '../../components/app/AppTitleText';
-import UserCard from '../../components/cards/UserCard';
 import ShareModal from '../../components/modals/ShareModal';
 import SmallIcon from '../../components/SmallIcon';
 import { stopSharingAction } from '../../redux/Action/stopSharing';

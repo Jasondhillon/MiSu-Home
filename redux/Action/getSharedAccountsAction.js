@@ -9,10 +9,11 @@ export  const getSharedAccountsAction = (IdToken) => {
    
     return async (dispatch) =>{
         try {
+            dispatch(setSharedAccounts('SET_SHARED_ACCOUNTS' ,{ sharedAccounts: null ,loading: false},true,))
             const data = await getListofSharedAccounts(null,IdToken)
-            dispatch(setSharedAccounts('SET_SHARED_ACCOUNTS' ,{ sharedAccounts: data.message},true))
+            dispatch(setSharedAccounts('SET_SHARED_ACCOUNTS' ,{ sharedAccounts: data.message ,loading: false},true,))
         } catch (error) {
-            dispatch(setSharedAccounts('SET_SHARED_ACCOUNTS',null,false))
+            dispatch(setSharedAccounts('SET_SHARED_ACCOUNTS',{ sharedAccounts: null ,loading: false },false))
         }
     }
 }
