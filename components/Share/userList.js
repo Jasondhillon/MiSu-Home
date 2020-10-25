@@ -9,7 +9,7 @@ import AppTitleText from '../app/AppTitleText';
 export const UserList = (props) => {
     return (
         <View style={[(appStyle.container)]}>
-            <AppHeaderText style={{textAlign:'center', marginBottom:15}}>Who would you Like to Share With ?</AppHeaderText>
+            <AppHeaderText style={{textAlign:'center', marginBottom:15, marginHorizontal:10}}>Who would you like to share with?</AppHeaderText>
 
             <TextInput  
             placeholder={'Search'} 

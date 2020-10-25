@@ -35,8 +35,6 @@ export const registerHubAction = ({
               };
             const data =  await createHub(hubDat,idToken)
 
-            console.log('*******register Hub**********')
-            console.log({hubDat})
             console.log('*******register Hub response**********')
             console.log({data})
 

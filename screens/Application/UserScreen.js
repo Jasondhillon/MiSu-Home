@@ -1,10 +1,10 @@
 import React from 'react';
-import { Dimensions, StyleSheet, Image, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { connect } from 'react-redux';
+import AppHeaderText from '../../components/app/AppHeaderText';
 import AppText from '../../components/app/AppText';
 import AppTitleText from '../../components/app/AppTitleText';
-import AppHeaderText from '../../components/app/AppHeaderText';
 import ShareModal from '../../components/modals/ShareModal';
 import SmallIcon from '../../components/SmallIcon';
 import { stopSharingAction } from '../../redux/Action/stopSharing';
@@ -44,7 +44,7 @@ const Header = (props) => {
                     <AppHeaderText style={{paddingTop:0, fontWeight:'bold'}}> Shared Devices </AppHeaderText>
                 </View>
                 <View style={[(appStyle.rowRight), {marginTop:-5, marginRight:-5}]}>
-                    <TouchableOpacity onPress={()=> props.open()}>
+                    <TouchableOpacity onPress={()=> props.open(props.guest_email)}>
                     <SmallIcon img={require('../../assets/add.png')} />
                     </TouchableOpacity>
                 </View>
@@ -92,9 +92,11 @@ class UserScreen extends React.Component  {
     }  
 
 
-    openModal () {
-        this.setState({selectedDevice: null});
+    async openModal ( name) {
+      await  this.setState({selectedDevice: null ,selecteduser: name});
+       
         this.ModalRef.current.snapTo(0);
+
     }
 
     selectDevice(device){
@@ -114,7 +116,7 @@ class UserScreen extends React.Component  {
         <View style={{flex:1}}>
             <View style={appStyle.container}>
                 <View style={[appStyle.card, {paddingHorizontal:20}]}>
-                    <Header open={this.openModal.bind(this)} />
+                    <Header open={this.openModal.bind(this)} guest_email={guest_email} />
 
                     <View style={[appStyle.lineSeperatorFullAlt, {marginTop:5}]}/>
 

@@ -110,14 +110,17 @@ class ShareModal extends React.Component {
     }
 
     selectUser (user) {
-       // console.log('**********')
-        //console.log({user})
+        console.log('**********')
+        console.log({user})
         this.setState({
             selecteduser: user
         })
     }
 
     selectDevice (device) {
+        
+         console.log('**********')
+         console.log({device})
         this.setState({
             selecteddevice: device,
         })
@@ -129,7 +132,7 @@ class ShareModal extends React.Component {
             case 0:
                 return <UserList  selecteduser={this.state.selecteduser} sharedAccounts={this.props.sharedAccountsData.sharedAccounts}  setUser={this.selectUser.bind(this)} />
             case 1:
-                return <DeviceList selecteduser={this.state.selecteduser} selecteddevice={this.state.selecteddevice} devices={this.props.devicesData.devices} selectDevice={this.selectDevice.bind(this)}/>
+                return <DeviceList selecteduser={this.state.selecteduser} selecteddevice={this.state.selecteddevice} devices={this.props.devicesData.devices} setDevice={this.selectDevice.bind(this)}/>
             case 2 :
                 return <PermissionList  selecteddevice={this.state.selecteddevice} setPerm={this.selectPermission.bind(this)} properties={this.state.selecteddevice.properties} />
             default: 

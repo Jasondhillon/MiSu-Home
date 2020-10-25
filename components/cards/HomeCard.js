@@ -19,7 +19,6 @@ class HomeCard extends React.Component {
         if(this.props.sharedDevice != null && this.props.sharedDevice.devices != null)
         {
             this.props.sharedDevice.devices.forEach((element, index) => {
-                console.log({element})
                 if(index % 2 == 0)
                     col1.push(element);
                 else
