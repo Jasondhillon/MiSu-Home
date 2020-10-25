@@ -1,4 +1,4 @@
-import { deleteADevice } from '../../services/deleteService'
+import { deleteADevice, deleteASharedAccount } from '../../services/deleteService'
 
 const  stopSharingStart =(payload) =>({
     type: 'STOP_SHARING' ,
@@ -18,18 +18,19 @@ const  stopSharingFailed = (payload) =>({
 
 
 
-export const stopSharingAction = (account ,devices ,idToken) => { 
+export const stopSharingAction = ( login_id ,devices ,idToken) => { 
     return async (dispatch) => {
 
         try {
             dispatch(stopSharingStart())
             //delete the array of devices
-           const data =  await Promise.all( devices.map(
-                device => deleteADevice(account,device ,idToken)
+           const data =  await Promise.allSettled( devices.map(
+                device => deleteADevice( login_id,device ,idToken)
             ))
-
+            //wipe out account if all devices are deleted
+            const dt = await deleteASharedAccount(login_id)
             console.log('******* stop Sharing Hub**********')
-            console.log({account})
+         
             console.log(data)
  
 

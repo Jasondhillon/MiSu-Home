@@ -106,8 +106,7 @@ class HomeScreen extends React.Component {
     {
       // Display this message if there is no hub registered to you and you have no hubs you're added to.
       let newUserScreen = null;
-     // if((this.props.appData.hub_email == '' || this.props.appData.hub_email == null) && this.props.appData.devices == null && this.state.refreshing == false && this.props.appData.name != null && this.props.appData.name != '')
-     if((this.props.hubInfoData.hub_email == null || this.props.hubInfoData.hub_email == '') && this.props.sharedDevicesData == null)
+     if((this.props.hubInfoData.hub_email == null || this.props.hubInfoData.hub_email == '') && this.state.refreshing == false && (this.props.sharedDevicesData == null || this.props.sharedDevicesData.devices == null))
      {
         newUserScreen = (
           <View style={appStyle.container}>
@@ -136,7 +135,7 @@ class HomeScreen extends React.Component {
         }>
          
           {this.state.refreshing == false && 
-            <View style={appStyle.container}>
+            <View style={[appStyle.container]}>
               {/* Display owner hub */}
               {
                 (this.props.hubInfoData.hub_email != null && this.props.hubInfoData.hub_email != '') &&
@@ -148,15 +147,13 @@ class HomeScreen extends React.Component {
               }
               {/* Display shared accounts*/}
               {
-                this.props.sharedDevicesData.devices?
+                this.props.sharedDevicesData.devices && Array.isArray(this.props.sharedDevicesData.devices)?
                 this.props.sharedDevicesData.devices.map((device,index) => { 
                   return  <HomeCard key={index} sharedDevice={device} updateInvite={this.props.updateInvite} /> 
                 })
           : null}
             </View>
           }
-
-
 
           {/* Screen to show when the screen is empty */}
           { newUserScreen }

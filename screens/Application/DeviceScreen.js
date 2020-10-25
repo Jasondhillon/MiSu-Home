@@ -10,7 +10,7 @@ class DeviceScreen extends React.Component
         headerTitle: 'Device',
         headerLeft: () => (
             <View>
-                <TouchableOpacity style={{alignSelf: 'center', marginTop: 16}} onPress={() => navigation.navigate("Home")}>
+                <TouchableOpacity style={{alignSelf: 'center', marginTop: 16}} onPress={() => navigation.navigate("User")}>
                     <Icon name="arrow-back" size={35} style={{ marginLeft:16, marginBottom:10 }}/>
                 </TouchableOpacity>
             </View>
@@ -44,9 +44,6 @@ const mapStateToProps = (state) => {
     const { devicesData} = state
     return { devicesData}
   };
-
-
-
 
 
   const mapDispatchToProps = dispatch =>  {

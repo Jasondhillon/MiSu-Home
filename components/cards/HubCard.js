@@ -44,6 +44,7 @@ const HubCard = props => {
             <View style={ [appStyle.lineSeperatorFull, {marginBottom:10} ]}/>
                    
                     {props.sharedAccounts?props.sharedAccounts.map( (sharedAccount,index)=> {
+                        console.log({ sharedAccount})
                         return(
                            
                             <HubCardSharedUsersListEntry  

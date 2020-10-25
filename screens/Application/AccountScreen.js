@@ -5,7 +5,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { connect } from 'react-redux';
 import AppText from '../../components/app/AppText';
 import AccountCard from '../../components/cards/AccountCard';
-import { unregisterHubAction } from '../../redux/Action/unregisterHubAction';
+import { getHubInfoAction } from '../../redux/Action/getHubInfoAction';
+import { registerHubAction } from '../../redux/Action/registerHubAction';
 import appStyle from '../../styles/AppStyle';
 
 class AccountScreen extends React.Component {
@@ -28,6 +29,12 @@ class AccountScreen extends React.Component {
         .then(this.props.navigation.navigate("Auth"));
     }
 
+
+    componentWillReceiveProps(props){
+        if(props.registerData){
+            this.props.getHub(this.props.sessionData.idToken) 
+        }
+    }
    
    
     render()
@@ -36,7 +43,7 @@ class AccountScreen extends React.Component {
             <View style={{flex:1}}>
                 <View style={appStyle.container}>
                     <AccountCard 
-                        register={this.props.unregister}
+                        register={this.props.register}
                         idToken={this.props.sessionData.idToken}
                         name={this.props.hubInfoData.name}
                         hub_url = {this.props.hubInfoData.hub_url}
@@ -45,7 +52,7 @@ class AccountScreen extends React.Component {
                               
                               
   
-                    <TouchableOpacity style={[{marginHorizontal:50, marginBottom: 10}, appStyle.regularButton]} onPress={this.signOut}>
+                    <TouchableOpacity style={[{marginHorizontal:50, marginBottom: 10}, appStyle.redButton]} onPress={this.signOut}>
                         <AppText>Log out</AppText>
                     </TouchableOpacity> 
 
@@ -59,13 +66,14 @@ class AccountScreen extends React.Component {
 
 
 const mapStateToProps = (state) => {
-    const { hubInfoData ,sessionData ,sharedAccountsData } = state
-    return { hubInfoData  ,sessionData ,sharedAccountsData}
+    const { hubInfoData ,sessionData ,sharedAccountsData  ,registerData} = state
+    return { hubInfoData  ,sessionData ,sharedAccountsData ,registerData}
   };
 
 const mapDispatchToProps = dispatch =>  {
     return {
-        unregister : (data,idToken) => dispatch(unregisterHubAction(data,idToken))
+        register : (data,idToken) => dispatch(registerHubAction(data,idToken)),
+        getHub : (idToken) => dispatch(getHubInfoAction(idToken)),
    }
 }
 

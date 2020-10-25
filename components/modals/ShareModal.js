@@ -4,13 +4,12 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { connect } from 'react-redux';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { shareAction } from '../../redux/Action/shareAction';
+import appStyle from '../../styles/AppStyle';
 import { showToast } from '../../utils/toast';
 import { DeviceList } from '../Share/deviceList';
 import { PermissionList } from '../Share/PermissionList';
 import { UserList } from '../Share/userList';
 import SmallIcon from '../SmallIcon';
-import appStyle from '../../styles/AppStyle';
-import Icon from 'react-native-vector-icons/Entypo';
 
 const liftImg = require('../../assets/left.png')
 const rightImg = require('../../assets/chevron.png')
@@ -130,9 +129,9 @@ class ShareModal extends React.Component {
             case 0:
                 return <UserList  selecteduser={this.state.selecteduser} sharedAccounts={this.props.sharedAccountsData.sharedAccounts}  setUser={this.selectUser.bind(this)} />
             case 1:
-                return <DeviceList selecteddevice={this.state.selecteddevice} devices={this.props.devicesData.devices} selectDevice={this.selectDevice.bind(this)}/>
+                return <DeviceList selecteduser={this.state.selecteduser} selecteddevice={this.state.selecteddevice} devices={this.props.devicesData.devices} selectDevice={this.selectDevice.bind(this)}/>
             case 2 :
-                return <PermissionList  setPerm={this.selectPermission.bind(this)} properties={this.state.selecteddevice.properties} />
+                return <PermissionList  selecteddevice={this.state.selecteddevice} setPerm={this.selectPermission.bind(this)} properties={this.state.selecteddevice.properties} />
             default: 
                 return null
         } 
@@ -145,7 +144,7 @@ class ShareModal extends React.Component {
            <BottomSheet
            initialSnap={1}
            ref={this.props.ModalRef}
-           snapPoints={['75%','0%']}
+           snapPoints={['60%','0%']}
            borderRadius={15}
            onOpenStart={() => {
                 if(this.props.selectedDevice != null)
@@ -171,7 +170,7 @@ class ShareModal extends React.Component {
                return(
                      <View style={[{
                         padding: 20,
-                        height: Dimensions.get("screen").height * 0.705,
+                        height: Dimensions.get("screen").height * 0.564,
                      }, appStyle.modal]}>
                         {this.renderScreen(this.state.pos)}
                          <Footer 

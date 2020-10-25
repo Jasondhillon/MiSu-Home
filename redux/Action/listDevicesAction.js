@@ -13,6 +13,8 @@ export const listDevicesAction = (idToken) => {
         try {   
             const data  = await getDevices(idToken)
             
+            console.log('**********Devices List***********')
+            console.log({data})
            dispatch( setDevices('SET_DEVICES',{devices: data},true))
     
         } catch (error) {

@@ -84,16 +84,10 @@ export default class RegisterScreen extends React.Component
             const user = await Auth.confirmSignUp(username, authCode)
             .then(async user =>  {
                 console.log('confirmed sign up successful!');
-
-                // Now sign in
-                await Auth.signIn(username, password)
-                .then(() => {
-                    this.props.navigation.navigate("App");
-                })
-                .catch((error) => {
-                    this.setState({errorMessage: error.message})
-                    this.setState({isLoading: false});
-                });
+                
+                this.setState({errorMessage: ''});
+                this.setState({message: 'Confirm successful, please sign in.'});
+                this.setState({isLoading: false});
             })
             .catch((err) => {
                 this.setState({errorMessage: err.message});

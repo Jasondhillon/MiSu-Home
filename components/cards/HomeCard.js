@@ -1,50 +1,85 @@
 import * as React from 'react';
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import appStyle from '../../styles/AppStyle';
+import AppHeaderText from '../app/AppHeaderText';
+import AppText from '../app/AppText';
 //import HubCardSharedUsersListEntry from './ListEntries/HubCardSharedUsersListEntry';
 import HomeCardDeviceEntry from './ListEntries/HomeCardDeviceEntry';
 
-const btnwidth =  Dimensions.get('screen').width/2 -30
-
-const HomeCard = props => {
+class HomeCard extends React.Component {
+    constructor(props){
+        super(props)
+    }
     
-    console.log({p: props.sharedDevice})
-   
-    return (
-        <View style={[appStyle.card, { paddingBottom:0 }]}>
-        <View style={[appStyle.container, {paddingBottom:-20}]}>
-            <View style={{ flex:1, flexDirection: 'row'}}>
-                <Text>{`${props.sharedDevice.sharer_name}'s Home`}</Text>
-                
-            </View>
-            
-            <View style={{ flexDirection: 'row' }}>
-                {props.sharedDevice.devices.map((device,index) => {
-                    return  <HomeCardDeviceEntry  key={index} device={device}/>
-                })}
-            </View>
+    render()
+    {
+        // split devices into two columns to be used for rendering
+       // const col1 = [],col2 = [];
 
-            <View style={{ flexDirection: 'row'
-            }}>
-                <TouchableOpacity onPress={()=> props.updateInvite(props.sharedDevice.login_credentials_id,1,props.IdToken)}>
-                    <View style={{ marginBottom:5 ,marginTop:5, padding:10, backgroundColor:'green' , width: btnwidth , borderRadius: 10}}>
-                        <Text style={{ color: 'white' ,textAlign:"center"}}> Accept</Text>
+        if(this.props.sharedDevice != null && this.props.sharedDevice.devices != null)
+        {
+            this.props.sharedDevice.devices.forEach((element, index) => {
+                console.log({element})
+                if(index % 2 == 0)
+                    col1.push(element);
+                else
+                    col2.push(element);
+            });
+        };
+
+        return (
+            <View style={[appStyle.card, { paddingBottom:0 }]}>
+                <View style={[appStyle.container]}>
+                    <View style={[appStyle.row, {marginLeft:10, marginTop:-10, marginBottom:5}]}>
+                        <View style={appStyle.rowLeft}>
+                            <AppHeaderText>{`${this.props.sharedDevice.sharer_name}'s House`}</AppHeaderText>    
+                        </View>
                     </View>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={()=> props.updateInvite(props.sharedDevice.login_credentials_id,0,props.IdToken)}>
-                    <View style={{  marginBottom:5 ,marginTop:5, padding:10, backgroundColor:'red', width: btnwidth ,borderRadius: 10}}> 
-                        <Text style={{ color: 'white',textAlign:"center"}}> Decline</Text>
+                    
+                    <View style={[appStyle.lineSeperatorAlt, {marginHorizontal:-9}]}/>
+
+                        {!this.props.sharedDevice.isShared?(
+                             <View style={[appStyle.row, {marginLeft:-5}]}>
+                             {/* Left Column */ }
+                             <View style={appStyle.columnLeft}>
+                                 {col1.map((device,index) => {
+                                     return  (
+                                         <HomeCardDeviceEntry  key={index} device={device}/>
+                                 )})}
+                             </View>
+     
+                             {/* Right Column */ }
+                             <View style={appStyle.columnRight}>
+                                 {col2.map((device,index) => {
+                                     return  (
+                                         <HomeCardDeviceEntry  key={index} device={device}/>
+                                 )})}
+                             </View>
+                         </View>
+                        ): null}
+                   
+                    
+                    <View style={{paddingTop:10, paddingHorizontal:5, paddingBottom:5}}>
+                        <AppText>You've been given access to devices in this home.</AppText>
                     </View>
-                </TouchableOpacity>
+
+                    <View style={appStyle.row}>
+                        <View style={{flex:1, marginRight:5}}>
+                            <TouchableOpacity style={appStyle.greenButton} onPress={()=> this.props.updateInvite(this.props.sharedDevice.login_credentials_id,1,props.IdToken)}>
+                                    <Text style={{ color: 'white' ,textAlign:"center"}}> Accept</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={{ marginLeft:5, flex:1 }}>
+                            <TouchableOpacity style={appStyle.redButton} onPress={()=> this.props.updateInvite(this.props.sharedDevice.login_credentials_id,0,props.IdToken)}>
+                                    <Text style={{ color: 'white',textAlign:"center"}}> Decline</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
             </View>
-        </View>
-        </View>
-    )
+        )
+    }
 }
-
-const style = StyleSheet.create({
-    
- });
 
 
 export default HomeCard

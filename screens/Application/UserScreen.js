@@ -1,28 +1,36 @@
 import React from 'react';
-import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, StyleSheet, Image, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { connect } from 'react-redux';
+import AppText from '../../components/app/AppText';
 import AppTitleText from '../../components/app/AppTitleText';
+import AppHeaderText from '../../components/app/AppHeaderText';
 import ShareModal from '../../components/modals/ShareModal';
 import SmallIcon from '../../components/SmallIcon';
 import { stopSharingAction } from '../../redux/Action/stopSharing';
 import appStyle from '../../styles/AppStyle';
 
+
 const DeviceItem = (props) => {
-  
+   
     return (
-        <TouchableOpacity onPress={() => {props.selected(props.device)}}>
-        <View style={styles.item}>
-            <SmallIcon img={require('../../assets/wifi.png')} />
-    <Text> {props.device.name}</Text>
-            <Switch
-                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                    thumbColor={"#f5dd4b"}
-                    ios_backgroundColor="#3e3e3e"
-                    value={true}
-      />
-            <SmallIcon img={require('../../assets/right.png')} />
-        </View>
+        <TouchableOpacity style={ {flex:1, marginTop:5} } onPress={() => {props.selected(props.device)}}>
+            <View style={appStyle.row}>
+                <View style={appStyle.rowLeft}>
+                    <Image style={{width:35, height:35}} source={require('../../assets/icons/nest_icon.png')} />
+                    <AppText style={{marginTop:5, marginLeft:10}}> {props.device.name}</AppText>
+                </View>
+                <View style={appStyle.rowRight}>
+                {/**  <Switch
+                            trackColor={{ false: "#767577", true: "#81b0ff" }}
+                            thumbColor={"#f5dd4b"}
+                            ios_backgroundColor="#3e3e3e"
+                            value={true}
+            />*/} 
+                <Image style={{width:30, height:30, marginTop:3}} source={require('../../assets/right.png')} />
+                </View>
+            </View>
+            <View style={[(appStyle.lineSeperatorAlt), {marginTop:5}]}/>
         </TouchableOpacity>
     )
 }
@@ -30,20 +38,26 @@ const DeviceItem = (props) => {
 
 const Header = (props) => {
     return (
-        <View style={styles.header}>
-            <Text> Shared Devices </Text>
-            <TouchableOpacity onPress={()=> props.open()}>
-            <SmallIcon img={require('../../assets/add.png')} />
-            </TouchableOpacity>
+        <View style={appStyle.column}>
+            <View style={appStyle.row}>
+                <View style={appStyle.rowLeft}>
+                    <AppHeaderText style={{paddingTop:0, fontWeight:'bold'}}> Shared Devices </AppHeaderText>
+                </View>
+                <View style={[(appStyle.rowRight), {marginTop:-5, marginRight:-5}]}>
+                    <TouchableOpacity onPress={()=> props.open()}>
+                    <SmallIcon img={require('../../assets/add.png')} />
+                    </TouchableOpacity>
+                </View>
+            </View>
         </View>
-    )
+            )
 }
 
 const Footer = (props) => {
     return(
         <TouchableOpacity onPress={() => props.endSharing()}>
-            <View style={styles.enbtn}>
-                <Text style={{ color:'white'}}>End All Sharing</Text>
+            <View style={appStyle.redButton}>
+                <AppText style={{color:'white'}}>End All Sharing</AppText>
             </View>
         </TouchableOpacity>
    )
@@ -93,22 +107,25 @@ class UserScreen extends React.Component  {
     render () {
         const { navigation } = this.props;
         const devices =  navigation.getParam('devices',[])
-        const email =  navigation.getParam('email',[])
+        const login_id=  navigation.getParam('login_credentials_id','')
+        const guest_email=  navigation.getParam('guest_email','')
+
     return (
         <View style={{flex:1}}>
             <View style={appStyle.container}>
                 <View style={[appStyle.card, {paddingHorizontal:20}]}>
                     <Header open={this.openModal.bind(this)} />
 
-                    <View >
+                    <View style={[appStyle.lineSeperatorFullAlt, {marginTop:5}]}/>
+
+                    <View style={[appStyle.row]}>
                         {devices.map((device,index)=> <DeviceItem key={index} device={device} navigation={navigation} selected={this.selectDevice.bind(this)} />)}
                     </View>
-
-                    <Footer endSharing={()=> this.props.stopSharing(email,devices,this.props.sessionData.idToken)}/>
+                    <Footer endSharing={()=> this.props.stopSharing(login_id,devices,this.props.sessionData.idToken)}/>
                 </View>
             </View>
             <View style={{ elevation:5, flex:1 }}>
-                <ShareModal ModalRef={this.ModalRef} canEditUser={false} user={{guest_email : email}}  selectedDevice={this.state.selectedDevice}  />
+                <ShareModal ModalRef={this.ModalRef} canEditUser={false} user={{guest_email}}  selectedDevice={this.state.selectedDevice}  />
             </View>
         </View>
     )
@@ -119,28 +136,9 @@ const styles  = StyleSheet.create({
     container: {
         flex:1,
    },
-   cardcont:{ 
-    margin: 10,
-    padding: 40 
-   }, 
    header : {
        flexDirection:'row',
        justifyContent: 'space-between'
-   },
-   item :{
-       flexDirection: 'row',
-       justifyContent: 'space-between',
-        marginBottom: 10 , 
-        marginTop:10
-   },
-   enbtn: {
-        padding:5,
-        backgroundColor: 'red',
-        borderRadius: 10,
-        width: 200,
-        justifyContent: 'center',
-        alignItems: 'center',
-        alignSelf:"center"
    },
   
 })
@@ -152,7 +150,7 @@ const mapStateToProps = (state) => {
 
   const mapDispatchToProps = dispatch =>  {
     return {
-        stopSharing : (account ,devices ,idToken) => {dispatch(stopSharingAction(account ,devices ,idToken))}
+        stopSharing : ( login_id ,devices ,idToken) => {dispatch(stopSharingAction( login_id ,devices ,idToken))}
    }
 }
 

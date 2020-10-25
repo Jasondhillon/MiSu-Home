@@ -1,5 +1,5 @@
 
-export const  deleteADevice = async (idToken,account, device) => {
+export const  deleteADevice = async ( login_id, device,idToken) => {
     const response = await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/device', {
         method: 'DELETE',
         headers: 
@@ -7,7 +7,7 @@ export const  deleteADevice = async (idToken,account, device) => {
             Authorization: 'Bearer ' + idToken,
         },
         body: JSON.stringify({
-          account: account.login_credentials_id,
+          account:  login_id,
           device: device.shared_device_properties_id
           })
       })
@@ -15,12 +15,12 @@ export const  deleteADevice = async (idToken,account, device) => {
       return response.json()
 }
 
-export const   deleteASharedAccount = async (id, guest_email, devices) => {
+export const  deleteASharedAccount = async (id, idToken) => {
  const response =    await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/createshareduser', {
         method: 'DELETE',
         headers: 
         {
-            Authorization: 'Bearer ' + this.props.appData.idToken,
+            Authorization: 'Bearer ' + idToken,
         },
         body: JSON.stringify({
           id: id,

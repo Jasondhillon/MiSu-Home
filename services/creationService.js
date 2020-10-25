@@ -62,10 +62,12 @@ export const createHub = async ({
     headers: 
     {
         Authorization: 'Bearer ' + idToken,
-        hub_url,
-        hub_email,
-        hub_password
-    }
+    },
+    body: JSON.stringify({
+      hub_url: hub_url,
+      hub_email: hub_email,
+      hub_password: hub_password
+  })
 })
   return  response.json()
 }

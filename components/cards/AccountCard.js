@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { connect } from 'react-redux';
 import appStyle from '../../styles/AppStyle';
 import AppHeaderText from '../app/AppHeaderText';
 import AppText from '../app/AppText';
@@ -15,10 +16,33 @@ class AccountCard extends Component
       registering: false,
     }
 
+
+    componentWillReceiveProps(props){
+        if(props.registerData.loading){
+            //show loading
+        }
+
+        if(props.registerData.error){
+            //show error 
+        }
+
+        if(props.registerData.success){
+            //close bar and show success
+            this.setState({registering:false});
+        }
+    }
+
+
+
     render () 
     {
         return (
             <View style={[appStyle.card, {paddingHorizontal:20}]}>
+
+                <Image
+                        style={[style.icon, {marginBottom:0}]}
+                        source={require('../../assets/icons/user.png')}
+                />
 
                 {/* Show user's name */}
                 <AppHeaderText style={style.name}>{this.props.name}</AppHeaderText>
@@ -75,7 +99,7 @@ class AccountCard extends Component
                     </View>
                 }
                 {/* Register Button */}
-                {this.props.hub_url == ''  && 
+                { /* this.props.hub_url == '' */ true  && 
                     <TouchableOpacity style={appStyle.regularButton} onPress={this.registerHub}>
                         <AppText>Register my Hub</AppText>
                     </TouchableOpacity>
@@ -96,7 +120,27 @@ class AccountCard extends Component
 const style = StyleSheet.create({
     name: {
         fontWeight: 'bold'
+    },
+    icon: {
+        marginTop:10,
+        height:100,
+        width: 100,
     }
  });
 
-export default AccountCard;
+
+//here is  enters the state : loading : successfful etc
+
+ const mapStateToProps = (state) => {
+    const { registerData} = state
+    return {registerData}
+  };
+
+
+  const mapDispatchToProps = dispatch =>  {
+    return {
+       
+   }
+}
+  //this inject the redux state into the class components
+export default connect(mapStateToProps,mapDispatchToProps)(AccountCard);

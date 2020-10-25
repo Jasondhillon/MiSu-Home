@@ -46,7 +46,7 @@ export const PermissionList = props => {
 
     return (
         <View>
-            <Text style={{ fontSize:25 , fontWeight:'700'}}>What Permission Would you like to Share ? </Text>
+            <Text style={{ fontSize:25 , fontWeight:'700'}}>`What Permission in ${props.selecteddevice.title} Would you like to Share ? `</Text>
           
             {properties.map((props,index)=> <PermView key={index}property={props} updatePerm={updatePerm} />)}
 

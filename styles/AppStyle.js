@@ -12,6 +12,26 @@ const appStyle = StyleSheet.create({
         alignSelf:'stretch',
     },
 
+    column: {
+        margin:2,
+        paddingBottom:0,
+        flexDirection: 'column',
+        alignSelf:'stretch',
+    },
+    columnLeft: {
+        margin:2,
+        paddingBottom:0,
+        width:'50%',
+        flexDirection: 'column',
+        alignSelf:'stretch',
+    },
+    columnRight: {
+        margin:2,
+        paddingBottom:0,
+        width:'50%',
+        flexDirection: 'column',
+        alignSelf:'stretch',
+    },
     row: {
         margin:2,
         paddingBottom:0,
@@ -33,7 +53,21 @@ const appStyle = StyleSheet.create({
         alignSelf:'stretch',
         marginRight:-7.5,
     },
-
+    deviceItem: {
+        flex:1, 
+        justifyContent:"center",
+        alignItems:"center", 
+        padding:5,
+        marginTop:10,
+        paddingTop:20,
+        borderRadius:10,
+        shadowOpacity: 10,
+        shadowRadius: 20.41,
+        borderBottomWidth: 3,
+        borderBottomColor: "#a8a8a8",
+        
+        elevation: 4, 
+    },
     card: {
         justifyContent: 'center',
         alignItems: 'center',
@@ -108,7 +142,12 @@ const appStyle = StyleSheet.create({
         alignItems: 'center',
         zIndex:1,
     },
-
+    deviceSlider: {
+        alignSelf:'stretch',
+        alignItems:'flex-start',
+        flex:1,
+        marginLeft:50
+    },
     modalOverlay: {
         alignSelf:'stretch',
         top:0,
@@ -118,8 +157,42 @@ const appStyle = StyleSheet.create({
         opacity:0.45,
         zIndex:-1,
     },
-    
+    shareDeviceTitle: {
+        alignItems: 'center',
+    },
+    textInput: {
+        alignSelf:'stretch',
 
+        borderRadius: 30,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 10,
+        shadowRadius: 20.41,
+        borderWidth: 3,
+        borderColor: "#a8a8a8",
+        elevation: 3,
+        backgroundColor:'#fcfcfc',
+        maxHeight:40,
+        padding: 5,
+        paddingLeft:15
+    },
+    userListEntry:{
+        flex:1,
+        paddingHorizontal:20,
+        paddingTop:5,
+        height:37,
+    },
+    userListEntrySelected:{
+        flex:1,
+        paddingHorizontal:20,
+        paddingTop:5,
+        borderRadius:15,
+        height:37,
+        backgroundColor:'#71ccf1',
+    },
     loadingHolder: {
         position: 'absolute',
         justifyContent: 'center',
@@ -181,6 +254,46 @@ const appStyle = StyleSheet.create({
         borderColor:'#cccccc',
         elevation: 6
     },
+    redButton: {
+        backgroundColor: '#ea5f5f',
+        marginTop:10,
+        borderRadius: 25,
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf:'stretch',
+        height: 40,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 20,
+            height: 5,
+        },
+        shadowOpacity: 0.9,
+        shadowRadius: 2.62,
+        borderWidth:1.4,
+        borderColor:'#cc9797',
+        paddingHorizontal:20,
+        elevation: 6
+    },
+    greenButton: {
+        backgroundColor: '#72cd45',
+        marginTop:10,
+        borderRadius: 25,
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf:'stretch',
+        height: 40,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 20,
+            height: 5,
+        },
+        shadowOpacity: 0.9,
+        shadowRadius: 2.62,
+        borderWidth:1.4,
+        borderColor:'#9bcc83',
+        paddingHorizontal:20,
+        elevation: 6
+    },
 
     formInput: {
         borderRadius: 25,
@@ -230,7 +343,21 @@ const appStyle = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         alignSelf:'stretch',
-        
+    },
+    lineSeperatorAlt: {
+        backgroundColor:'#333333',
+        height:2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf:'stretch',
+    },
+    lineSeperatorFullAlt: {
+        backgroundColor:'#333333',
+        height:2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginHorizontal:-16,
+        alignSelf:'stretch',
     },
     lineSeperatorFull: {
         flex:1,

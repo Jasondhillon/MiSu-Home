@@ -12,15 +12,13 @@ export const getListofSharedDevices = async (hasNextToken = null,idToken) => {
 
 
 export const getDevices = async (idToken) => {
- 
-    const response  =await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/device', {
+    const response = await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/device', {
         method: 'GET',
         headers: 
         {
             Authorization: 'Bearer ' + idToken
         }
     })
-
     return response.json()
   }
 

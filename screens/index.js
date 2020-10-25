@@ -1,5 +1,6 @@
 // Redux imports
 import { connect } from 'react-redux';
+import { exitHubAction } from '../redux/Action/exitHubAction';
 import { getHubInfoAction } from '../redux/Action/getHubInfoAction';
 import { getSharedAccountsAction } from '../redux/Action/getSharedAccountsAction';
 import { getSharedDevicesAction } from '../redux/Action/getSharedDevicesAction';
@@ -16,6 +17,7 @@ const mapStateToProps = (state) => {
 
   const mapDispatchToProps = dispatch =>  {
         return {
+        exitHub: (id, idToken) => dispatch(exitHubAction(id, idToken)), 
         getHub : (idToken) => dispatch(getHubInfoAction(idToken)),
         getDevices: (idToken) => dispatch(listDevicesAction(idToken)),
         getAccounts: (idToken) => dispatch(getSharedAccountsAction(idToken)),
