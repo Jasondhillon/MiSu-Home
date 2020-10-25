@@ -1,6 +1,7 @@
 //import { Picker } from 'expo';
 import * as React from 'react';
 import { Picker, Text, View } from 'react-native';
+import appStyle from '../../styles/AppStyle';
 
 
 const PermView = (props) => {
@@ -15,8 +16,7 @@ const PermView = (props) => {
                 onValueChange={(itemValue, itemIndex) =>{
                     setSelectedValue(itemValue)
                     props.updatePerm({...pr ,readOnly:itemValue })
-                }}
-              >
+                }}>
                 <Picker.Item label="Allow" value={2} />
                 <Picker.Item label="Read Only" value={1} />
                 <Picker.Item label="No Access" value={0} />
@@ -24,10 +24,6 @@ const PermView = (props) => {
         </View>
     )
 }
-
-
-
-
 
 export const PermissionList = props => {
     const  properties  =[]
@@ -45,11 +41,10 @@ export const PermissionList = props => {
     }
 
     return (
-        <View>
-            <Text style={{ fontSize:25 , fontWeight:'700'}}>`What Permission in ${props.selecteddevice.title} Would you like to Share ? `</Text>
-          
-            {properties.map((props,index)=> <PermView key={index}property={props} updatePerm={updatePerm} />)}
+        <View style={appStyle.container}>
+            <AppHeaderText style={{textAlign:'center', marginBottom:0}}>What Permission in ${props.selecteddevice.title} Would you like to Share?</AppHeaderText>
 
+            {properties.map((props,index)=> <PermView key={index}property={props} updatePerm={updatePerm} />)}
             
         </View>
     )
