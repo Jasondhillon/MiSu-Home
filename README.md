@@ -33,3 +33,84 @@ https://reactnative.dev/docs/environment-setup
 > In the root directory, "yarn install"
 
 > To run the code,  "npm run android"
+
+## Accessing and Modifying redux state
+
+> Create a file In the redux /Action directory
+> in your action file dispatch your Action to modify state accordingly
+> i.e : calling a server request
+
+1. first dispatch the loading to true
+2. call request then dispatch loading to false with either the error or result
+
+```js
+export const yourAction = () => 
+    return async (dispatch) =>{
+        try {
+            //your async network requesr
+        const data =   await yournetworkrequest ()
+
+        //dispatch your action to add the result and
+        dispatch(setCurrentSession('SET_SESSION',data,true))
+
+        } catch (error) {
+            //dispatch your action to add the error in the state incase the network request failed
+        dispatch( setCurrentSession('UNSET_SESSION', null,false))
+        }
+    }
+}
+```
+
+> Create a file In the redux /Redux : to create the corresponding reducer
+```js
+export const yourReducer = (state = INITIAL_STATE, action) => {
+
+    switch (action.type) {
+      case 'SET_SESSION':
+       //receive the new update and add it to store : result or error
+       return { ...state,...action.payload};
+
+        default:
+          return  state
+    }
+
+}
+```
+
+> Combine the the reducer in redux: AppDataReducer.js
+```js
+export default combineReducers({
+// yourreducerstate:yourReducer,
+devicesData:listDevicesReducer,
+....
+
+});
+```
+
+> you can now access this in two ways
+> 1.for class based components you can use mapdispatchtoprops to dispatch functions & mapStateToProps
+```js
+const mapStateToProps = (state) => {
+const { yourreducerstate } = state
+return { yourreducerstate}
+};
+//can now access the reduxstate inn props i.e this.props.yourreducerstate.result || this.props.yourreducerstate.error || this.props.yourreducerstate.loading
+
+const mapDispatchToProps = dispatch => {
+return {
+yourfunction : (params) => dispatch( yourAction(params))
+}
+}
+
+//you can now call it this.props.yourfunction()
+```
+> 2.  for functional components you can use useSelector hook
+```js
+const yourstate = useSelector(state => state.yourreducerstate)
+
+& call your action useDispatchhook
+
+const dispatch = useDispatch()
+
+dispatch( yourAction())
+```
