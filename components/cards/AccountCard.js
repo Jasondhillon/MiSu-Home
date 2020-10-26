@@ -17,7 +17,7 @@ class AccountCard extends Component
     }
 
 
-    componentWillReceiveProps(props){
+    UNSAFE_componentWillReceiveProps(props){
         if(props.registerData.loading){
             //show loading
         }
@@ -99,7 +99,7 @@ class AccountCard extends Component
                     </View>
                 }
                 {/* Register Button */}
-                { /* this.props.hub_url == '' */ true  && 
+                {this.props.hub_url == ''  && 
                     <TouchableOpacity style={appStyle.regularButton} onPress={this.registerHub}>
                         <AppText>Register my Hub</AppText>
                     </TouchableOpacity>

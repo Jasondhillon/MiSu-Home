@@ -7,8 +7,7 @@ const  HomeCardDeviceEntry = (props) => {
     return (
     <TouchableOpacity style={appStyle.deviceItem}>
          <SmallIcon img={require('../../../assets/home.png')} />
-            <Text style={{ fontSize:25 , fontWeight:'700'}}>{props.device.name}</Text>
-            <Text style={{ fontSize:15 , fontWeight:'500'}}>{props.device.description}</Text>
+            <Text style={{ fontSize:18 , fontWeight:'700', marginTop:20}}>{props.device.name}</Text>
     </TouchableOpacity>)
 }
 

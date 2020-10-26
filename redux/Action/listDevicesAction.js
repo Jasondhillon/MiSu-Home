@@ -11,13 +11,10 @@ const setDevices =  (type, data, success) => ({
 export const listDevicesAction = (idToken) => { 
   return async (dispatch) => {
         try {   
-            console.log('**********Devices ***********')
-            console.log(idToken)
-
             const data  = await getDevices(idToken)
             dispatch( setDevices('SET_DEVICES',{devices: data},true))
-            console.log('**********Devices ***********')
-            console.log({data})
+            //console.log('**********Devices***********')
+            //console.log({data})
         } catch (error) {
             //console.log('**********Devices Error ***********')
             //console.log({data})

@@ -3,6 +3,7 @@ import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-
 import Icon from 'react-native-vector-icons/Entypo';
 import AppHeaderText from '../../components/app/AppHeaderText';
 import AppText from '../../components/app/AppText';
+import AppTitleText from '../../components/app/AppTitleText';
 import HomeCard from '../../components/cards/HomeCard';
 import HubCard from '../../components/cards/HubCard';
 import ShareModal from '../../components/modals/ShareModal';
@@ -149,12 +150,15 @@ class HomeScreen extends React.Component {
               {
                 this.props.sharedDevicesData.devices && Array.isArray(this.props.sharedDevicesData.devices)?
                 this.props.sharedDevicesData.devices.map((device,index) => { 
-                  return  <HomeCard key={index} sharedDevice={device} updateInvite={this.props.updateInvite} /> 
+                  return  <HomeCard 
+                    key={index} 
+                    sharedDevice={device} 
+                    updateInvite={this.props.updateInvite}
+                    IdToken={this.props.sessionData.idToken} /> 
                 })
           : null}
             </View>
           }
-
           {/* Screen to show when the screen is empty */}
           { newUserScreen }
 
@@ -167,9 +171,6 @@ class HomeScreen extends React.Component {
         <ShareModal ModalRef={this.ModalRef} canEditUser={true}/>
         </View> );
     }
-
-  
-  
 }
   
 export default HomeScreen

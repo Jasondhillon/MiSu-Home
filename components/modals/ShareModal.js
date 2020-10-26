@@ -3,9 +3,10 @@ import { Dimensions, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { connect } from 'react-redux';
 import BottomSheet from 'reanimated-bottom-sheet';
-import { shareAction } from '../../redux/Action/shareAction';
+import { shareAction, shareFailed, ShareSuccess } from '../../redux/Action/shareAction';
 import appStyle from '../../styles/AppStyle';
 import { showToast } from '../../utils/toast';
+import AppTitleText from '../app/AppTitleText';
 import { DeviceList } from '../Share/deviceList';
 import { PermissionList } from '../Share/PermissionList';
 import { UserList } from '../Share/userList';
@@ -13,6 +14,7 @@ import SmallIcon from '../SmallIcon';
 
 const liftImg = require('../../assets/left.png')
 const rightImg = require('../../assets/chevron.png')
+const shareImg = require('../../assets/share.png')
 
 const Footer = (props) => {
 
@@ -30,9 +32,11 @@ const Footer = (props) => {
             {
                 props.pos == 2 ?
                 ( 
-                    <TouchableOpacity onPress={()=> props.Share(props.IdToken, props.selecteduser.guest_email, props.selecteddevice,props.sharedAccounts,props.selectedprops)}>
-                        <Text>Share</Text>
-                    </TouchableOpacity >  
+                    <TouchableOpacity onPress={()=> props.Share(props.IdToken, props.selecteduser, props.selecteddevice,props.sharedAccounts,props.selectedprops)}>
+                        <View>
+                            <SmallIcon img={shareImg} />
+                        </View>
+                    </TouchableOpacity>
                 ):(  
                     <TouchableOpacity onPress={()=> props.next()}>
                         <View>
@@ -100,6 +104,7 @@ class ShareModal extends React.Component {
         this.setState({
             refresh : !this.state.refresh
         })
+
     }
 
 
@@ -110,17 +115,12 @@ class ShareModal extends React.Component {
     }
 
     selectUser (user) {
-        console.log('**********')
-        console.log({user})
         this.setState({
             selecteduser: user
         })
     }
 
     selectDevice (device) {
-        
-         console.log('**********')
-         console.log({device})
         this.setState({
             selecteddevice: device,
         })
@@ -140,7 +140,10 @@ class ShareModal extends React.Component {
         } 
     }
   
-    
+    share(idToken, guest_email, selectedDevice, sharedAccounts, selectedProps){
+        this.props.Share(idToken, guest_email, selectedDevice, sharedAccounts, selectedProps);
+        this.props.ModalRef.current.snapTo(1);
+    }
 
     render ()   {
         return (
@@ -187,7 +190,7 @@ class ShareModal extends React.Component {
                             prev={this.previous.bind(this)} 
                             IdToken={this.props.sessionData.idToken}
                             submit={this.submit} 
-                            Share={this.props.Share}
+                            Share={this.share.bind(this)}
                          />
                      </View>)
            }}
@@ -200,10 +203,9 @@ const mapStateToProps = (state) => {
     return { devicesData ,sharedAccountsData,sessionData}
   };
 
-
   const mapDispatchToProps = dispatch =>  {
     return {
-        Share : (idToken,email,device, accounts,properties) => {dispatch(shareAction(idToken,email,device, accounts,properties))}
+        Share : (idToken,email,device, accounts,properties) => {dispatch(shareAction(idToken,email,device, accounts,properties))},
    }
 }
   

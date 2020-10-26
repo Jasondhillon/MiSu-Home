@@ -9,7 +9,7 @@ import AppTitleText from '../app/AppTitleText';
 export const UserList = (props) => {
     return (
         <View style={[(appStyle.container)]}>
-            <AppHeaderText style={{textAlign:'center', marginBottom:15, marginHorizontal:10}}>Who would you like to share with?</AppHeaderText>
+            <AppHeaderText style={{textAlign:'center', marginBottom:15, marginHorizontal:10, marginTop:-15}}>Who would you like to share with?</AppHeaderText>
 
             <TextInput  
             placeholder={'Search'} 
@@ -19,19 +19,17 @@ export const UserList = (props) => {
             
             <View style={appStyle.row}>
                 <View style={appStyle.rowLeft}>
-                    <AppTitleText style={{marginTop:10}}>Recently shared with</AppTitleText>
+                    <AppTitleText style={{marginTop:10}}>Currently sharing with...</AppTitleText>
                 </View>
             </View>
             <View style={[(appStyle.container), {marginTop:-10, marginHorizontal:-20}]}>
-                {props.sharedAccounts?props.sharedAccounts.map((Account,index) =>{
-                
+                 { props.sharedAccounts?props.sharedAccounts.map((Account,index) =>{
                     return(
-                    <TouchableOpacity key={index} onPress={()=> props.setUser(Account.name)}>
-                        
+                    <TouchableOpacity key={index} onPress={()=> props.setUser(Account.guest_email)}>
                         <View style={appStyle.row}>
                             <View style={appStyle.rowLeft}>
-                                <View style={props.selecteduser && props.selecteduser== Account.name? appStyle.userListEntrySelected:appStyle.userListEntry}>
-                                    <AppText style={props.selecteduser && props.selecteduser == Account.name?{ color: 'white'}: { color: 'black'}}>{Account.name}</AppText>
+                                <View style={props.selecteduser && props.selecteduser== Account.guest_email? appStyle.userListEntrySelected:appStyle.userListEntry}>
+                                    <AppText style={props.selecteduser && props.selecteduser == Account.guest_email?{ color: 'white'}: { color: 'black'}}>{Account.name}</AppText>
                                 </View>
                             </View>
                         </View>

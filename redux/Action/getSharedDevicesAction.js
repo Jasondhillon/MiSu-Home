@@ -13,8 +13,8 @@ export  const getSharedDevicesAction = (idToken) => {
         try {
             const data  = await getListofSharedDevices(null,idToken )
 
-           // console.log('********** Shared Devices ***********')
-            //console.log({d: data.message.length})
+            //console.log('********** Shared Devices ***********');
+            //console.log(data.message);
             dispatch(setDevices("SET_SHARED_DEVICES",{devices: data.message}, true))
             
         } catch (error) {

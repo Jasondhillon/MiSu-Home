@@ -30,7 +30,7 @@ class AccountScreen extends React.Component {
     }
 
 
-    componentWillReceiveProps(props){
+    UNSAFE_componentWillReceiveProps(props){
         if(props.registerData){
             this.props.getHub(this.props.sessionData.idToken) 
         }
@@ -61,9 +61,6 @@ class AccountScreen extends React.Component {
         );
     }
 }
-
-
-
 
 const mapStateToProps = (state) => {
     const { hubInfoData ,sessionData ,sharedAccountsData  ,registerData} = state

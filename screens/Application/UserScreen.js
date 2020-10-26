@@ -14,8 +14,7 @@ import appStyle from '../../styles/AppStyle';
 const DeviceItem = (props) => {
    
     return (
-        <TouchableOpacity style={ {flex:1, marginTop:5} } onPress={() => {props.selected(props.device)}}>
-            <View style={appStyle.row}>
+        <TouchableOpacity style={[appStyle.row, {flex:1, marginTop:5} ]} onPress={() => {props.selected(props.device)}}>
                 <View style={appStyle.rowLeft}>
                     <Image style={{width:35, height:35}} source={require('../../assets/icons/nest_icon.png')} />
                     <AppText style={{marginTop:5, marginLeft:10}}> {props.device.name}</AppText>
@@ -29,7 +28,6 @@ const DeviceItem = (props) => {
             />*/} 
                 <Image style={{width:30, height:30, marginTop:3}} source={require('../../assets/right.png')} />
                 </View>
-            </View>
             <View style={[(appStyle.lineSeperatorAlt), {marginTop:5}]}/>
         </TouchableOpacity>
     )
@@ -104,7 +102,10 @@ class UserScreen extends React.Component  {
         this.ModalRef.current.snapTo(0);
     }
 
-
+    endAllSharing(login_id,devices,idToken){
+        this.props.navigation.navigate("Home");
+        this.props.stopSharing(login_id,devices,idToken);
+    }
 
     render () {
         const { navigation } = this.props;
@@ -120,10 +121,15 @@ class UserScreen extends React.Component  {
 
                     <View style={[appStyle.lineSeperatorFullAlt, {marginTop:5}]}/>
 
-                    <View style={[appStyle.row]}>
-                        {devices.map((device,index)=> <DeviceItem key={index} device={device} navigation={navigation} selected={this.selectDevice.bind(this)} />)}
+                    <View style={appStyle.column}>
+                        {devices.map((device,index)=>
+                        <View key={index} style={{height:50}}>
+                            
+                            <DeviceItem key={index} device={device} navigation={navigation} selected={this.selectDevice.bind(this)} />
+                        <View style={[appStyle.lineSeperatorAlt]}/>
+                        </View>)}
                     </View>
-                    <Footer endSharing={()=> this.props.stopSharing(login_id,devices,this.props.sessionData.idToken)}/>
+                    <Footer endSharing={()=> this.endAllSharing(login_id,devices,this.props.sessionData.idToken)}/>
                 </View>
             </View>
             <View style={{ elevation:5, flex:1 }}>

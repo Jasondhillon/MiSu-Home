@@ -24,14 +24,15 @@ export const stopSharingAction = ( login_id ,devices ,idToken) => {
         try {
             dispatch(stopSharingStart())
             //delete the array of devices
-           const data =  await Promise.allSettled( devices.map(
-                device => deleteADevice( login_id,device ,idToken)
-            ))
+            //const data =  await Promise.allSettled( devices.map(
+            //    device => deleteADevice( login_id,device ,idToken)
+            //))
             //wipe out account if all devices are deleted
-            const dt = await deleteASharedAccount(login_id)
+            const dt = await deleteASharedAccount(login_id, idToken)
             console.log('******* stop Sharing Hub**********')
          
-            console.log(data)
+            console.log({dt})
+            console.log('******* stop Sharing Hub')
  
 
             dispatch(stopSharingSucess())

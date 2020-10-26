@@ -65,7 +65,7 @@ const appStyle = StyleSheet.create({
         shadowRadius: 20.41,
         borderBottomWidth: 3,
         borderBottomColor: "#a8a8a8",
-        
+        height:150,
         elevation: 4, 
     },
     card: {
