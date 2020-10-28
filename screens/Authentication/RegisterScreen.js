@@ -40,7 +40,7 @@ export default class RegisterScreen extends React.Component
                 attributes: {
                     name,
                     'email': username,
-                    'phone_number': "+4070000000",
+                    'phone_number': "+14070000000",
                     'address': "1234 Address Way",
                     'custom:city': "Orlando",
                     'custom:state': "Florida"
