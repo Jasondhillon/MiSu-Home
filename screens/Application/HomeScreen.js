@@ -192,7 +192,7 @@ export default class HomeScreen extends React.Component {
         .then(data => {
           if(data.message.length > 0)
           {
-            if (debug === 2)
+            if (debug === 3)
               console.log("%j", null, data.message);
             // We get the shared information and make a call to get the current values
             this.setState({sharedDevices: data.message}, () => {this.getCurrentValues()});
@@ -201,7 +201,7 @@ export default class HomeScreen extends React.Component {
       }
       catch (error)
       {
-        console.log("getListofSharedDevices Error:%j",1,error);
+        console.log("getListofSharedDevices Error:%j", 2, error);
         this.setState({error:error.message});
       }
     }
@@ -861,8 +861,8 @@ export default class HomeScreen extends React.Component {
             {this.state.hub_url && <Text style={{alignSelf: 'center'}}>Hub URL: {this.state.hub_url}</Text>}
             {this.state.hub_url && <Text style={{alignSelf: 'center'}}>Hub Email: {this.state.hub_email}</Text>} */}
 
-            {/* Devices on hub information */}
-            {this.state.hub_url !== null && <Text style={styles.greeting}>(Devices on Hub)</Text>}
+            {/* Devices on hub: information */}
+            {this.state.hub_url !== null && <Text style={styles.greeting}>Devices In Your Smart Home</Text>}
             {this.state.devices == null && this.state.hub_url !== null && <ActivityIndicator size="large"/>}
             {
             this.state.devices && 
@@ -870,7 +870,8 @@ export default class HomeScreen extends React.Component {
               {
                 this.state.devices.map((device, index) => (
                   <View key={index}>
-                    <Text style={styles.devices}>{device.title}</Text>
+                    <Text>{"\n"}</Text>
+                    <Text style={styles.title}>{device.title}</Text>
                     <View>
                     {
                       device.newProps.map((property, index2) => (
@@ -882,29 +883,9 @@ export default class HomeScreen extends React.Component {
                           <View>
                             <Text style={styles.devices}>{property.property.title}</Text>
                             {
-                              property.property.value == null && <Text style={styles.devices}>   {property.property.type}</Text>
+                              property.property.value == null && <Text style={styles.devices}>&#9656; {property.property.type}</Text>
                             }
-                            {/* {
-                              property.property.value !== null && property.property.type === "boolean" &&
-                              <Text style={styles.devices}> 
-                              {
-                                property.property.value ? "True" : "False"
-                              }</Text>
-                            }
-                            {
-                              property.property.value !== null && property.property.type !== "boolean" &&
-                              <Text style={styles.devices}>
-                              {property.property.value}
-                              </Text>
-                            } */}
                           </View>
-                          {
-                            !property.property.readOnly && property.property.value !== null &&
-                            <TouchableOpacity style={styles.button5} onPress={() => this.useDevice(device, property)}> 
-                              <Text style={{fontSize:15, color: '#FFF'}}>o</Text>
-                            </TouchableOpacity>
-                          }
-
                         </View>
                       ))
                     }
@@ -915,24 +896,23 @@ export default class HomeScreen extends React.Component {
             </ScrollView>
             }
             {this.state.hub_url !== null && <TouchableOpacity style={styles.setUserInfoButton} onPress={this.createASharedAccount}>
-              <Text style={{color: '#FFF', fontWeight: '500'}}>Share Devices to secondary@example.com</Text>
+              <Text style={{color: '#FFF', fontWeight: '500', fontSize: 18, paddingHorizontal: 10, alignContent: 'center', textAlign: 'center'}}>Share Devices to           secondary@example.com    </Text>
+              <Text style={{color: '#FFF', fontWeight: '500', paddingHorizontal: 10, alignContent: 'center', textAlign: 'center'}}>(Only for easy testing, this is dynamic)</Text>
             </TouchableOpacity>
             }
 
             {/* Accounts Shared to You */}
-            {this.state.sharedDevices !== null && this.state.sharedDevices.length > 0 && <Text style={styles.greeting}>Accounts Shared to You</Text>}
+            {this.state.sharedDevices !== null && this.state.sharedDevices.length > 0 && <Text style={styles.greeting}>Devices Shared to You</Text>}
             {
               this.state.sharedDevices &&
               this.state.sharedDevices.map((account, index) => (
                 account.login_credentials_id !== null &&
                 <View key={index}>
+                  <Text>{"\n"}</Text>
                   <View style={{flexDirection: 'row', alignSelf:'flex-start', marginLeft: 20}}>
-                    {/* <TouchableOpacity style={styles.button4} onPress={this.deleteASharedAccount.bind(this, account.id)}> 
-                      <Text style={{fontSize:20}}>X</Text>
-                    </TouchableOpacity> */}
                     {
                       account.accepted !== 0 &&
-                      <Text style={styles.devices}>{account.sharer_name}'s House</Text>
+                      <Text style={styles.title}>{account.sharer_name}'s House</Text>
                     }
                   </View>
                   {
@@ -940,22 +920,16 @@ export default class HomeScreen extends React.Component {
                     account.devices.map((device, index) => (
                       <View key={index}>
                         <View style={{flexDirection: 'row', marginLeft: 40}}>
-                          {/* <TouchableOpacity style={styles.button4} onPress={this.deleteADevice.bind(this, device.id)}> 
-                            <Text style={{fontSize:20}}>X</Text>
-                          </TouchableOpacity> */}
-                          <Text style={styles.devices}>{device.name} ({device.description})</Text>
+                          <Text style={styles.devices}>&rarr;{device.name} ({device.description})</Text>
                         </View>
                         {
                           device.properties !== undefined &&
                           device.properties.map((property, index) => (
-                            <View key={property.shared_property_id} style={{flexDirection: 'row', marginLeft: 60}}>
-                              {/* <TouchableOpacity id={property.id} style={styles.button4} onPress={this.deleteAProperty.bind(this, property.id)}> 
-                                <Text style={{fontSize:10}}>X</Text>
-                              </TouchableOpacity> */}
-                              <Text key={property.id} style={styles.devices}>{property.name}(
+                            <View key={property.shared_property_id} style={{flexDirection: 'row', marginLeft: 70, justifyContent:"space-between", marginRight: 15}}>
+                              <Text key={property.id} style={styles.devices}>&#8618;{property.name}{" "}(
                                 {(() => {
                                   if (property.unrestricted) {
-                                   return "unrestricted";
+                                   return <Text style={{fontStyle: "italic"}}>unrestricted</Text>;
                                   }
                                   else if (property.time_range_start !== undefined)
                                   {
@@ -965,12 +939,19 @@ export default class HomeScreen extends React.Component {
                                     return property.gps_location;
                                 })()})
                               </Text>
-                              <View style={{flexDirection: 'row', marginLeft: 100}}>
+                              <View style={{flexDirection: 'row', justifyContent : 'flex-end'}}>
+                                {
+                                  !property.read_only && property.value !== null && property.type === "boolean" && property.value instanceof Promise == false &&
+                                  <TouchableOpacity onPress={() => this.useSharedDevice(account, device, property)}> 
+                                    {property.value ? <Text style={{fontSize: 20}}>&#9899;</Text>:
+                                    <Text style={{fontSize: 20, backgroundColor: 'black', borderRadius: 20}}>&#9898;</Text>}
+                                  </TouchableOpacity>
+                                }
                                 {
                                   (property.value == null || property.value instanceof Promise) && <ActivityIndicator size="small"/>
                                 }
                                 {
-                                  property.value !== null && property.type === "boolean" &&
+                                  (property.value !== null && property.value instanceof Promise == false) && property.type === "boolean" &&
                                   <Text style={styles.devices}> 
                                   {
                                     property.value ? "On" : "Off"
@@ -983,12 +964,6 @@ export default class HomeScreen extends React.Component {
                                   </Text>
                                 }
                               </View>
-                              {
-                                !property.read_only && property.value !== null &&
-                                <TouchableOpacity style={styles.button5} onPress={() => this.useSharedDevice(account, device, property)}> 
-                                  <Text style={{fontSize:15, color: '#FFF'}}>o</Text>
-                                </TouchableOpacity>
-                              }
                             </View>
                           ))
                         }
@@ -1011,8 +986,8 @@ export default class HomeScreen extends React.Component {
                     ))
                   }
                   {
-                      account.accepted === 0 && 
-                      <View style={{flexDirection: 'row', alignSelf:'flex-start', marginLeft: 20}}>
+                    account.accepted === 0 && 
+                    <View style={{flexDirection: 'row', alignSelf:'flex-start', marginLeft: 20}}>
                         <TouchableOpacity style={styles.button5} onPress={this.updateInvitation.bind(this, account.login_credentials_id, 1)}> 
                           <Text style={{fontSize:20, color: 'white'}}>Accept</Text>
                         </TouchableOpacity>
@@ -1027,7 +1002,10 @@ export default class HomeScreen extends React.Component {
             }
 
             {/* Accounts You're Sharing */}
-            {this.state.sharedAccounts !== null && <Text style={styles.greeting}>Accounts You're Sharing </Text>}
+            <Text>{"\n"}</Text>
+            {this.state.sharedAccounts !== null ? <View style={{ borderBottomColor: 'black', borderBottomWidth: 3}}/> : null}
+            {this.state.sharedAccounts !== null && <Text style={styles.greeting}>People You're Sharing to</Text>}
+            <Text>{"\n"}</Text>
             {
               this.state.sharedAccounts &&
               this.state.sharedAccounts.map((account, index) => (
@@ -1035,7 +1013,7 @@ export default class HomeScreen extends React.Component {
                 <View key={index}>
                   <View style={{flexDirection: 'row', alignSelf:'flex-start'}}>
                     <TouchableOpacity style={styles.button4} onPress={this.deleteASharedAccount.bind(this, account.login_credentials_id, account.devices)}> 
-                      <Text style={{fontSize:20}}>X</Text>
+                      <Text style={{fontSize:20, color: '#FFF'}}>X</Text>
                     </TouchableOpacity>
                     <Text style={styles.devices}>{account.name}</Text>
                   </View>
@@ -1045,7 +1023,7 @@ export default class HomeScreen extends React.Component {
                       <View key={index}>
                         <View style={{flexDirection: 'row', marginLeft: 30}}>
                           <TouchableOpacity style={styles.button4} onPress={this.deleteADevice.bind(this, account, device, device.properties)}> 
-                            <Text style={{fontSize:20}}>X</Text>
+                            <Text style={{fontSize:20, color: '#FFF'}}>X</Text>
                           </TouchableOpacity>
                           <Text style={styles.devices}>{device.name} ({device.description})</Text>
                         </View>
@@ -1054,7 +1032,7 @@ export default class HomeScreen extends React.Component {
                           device.properties.map((property, index) => (
                             <View key={property.shared_property_id} style={{flexDirection: 'row', marginLeft: 100}}>
                               <TouchableOpacity key={property.id} style={styles.button4} onPress={this.deleteAProperty.bind(this, account, device, property)}> 
-                                <Text style={{fontSize:10}}>X</Text>
+                                <Text style={{fontSize:20, color: '#FFF'}}>X</Text>
                               </TouchableOpacity>
                               <Text key={property.id} style={styles.devices}>{property.name} (
                                 {(() => {
@@ -1069,32 +1047,7 @@ export default class HomeScreen extends React.Component {
                                     return property.gps_location;
                                 })()})
                               </Text>
-                              {/* <View style={{flexDirection: 'row', marginLeft: 100}}>
-                                {
-                                  property.value == null && <ActivityIndicator size="small"/>
-                                }
-                                {
-                                  property.value !== null && property.type === "boolean" &&
-                                  <Text style={styles.devices}> 
-                                  {
-                                    property.value ? "On" : "Off"
-                                  }</Text>
-                                }
-                                {
-                                  property.value !== null && property.type !== "boolean" &&
-                                  <Text style={styles.devices}>
-                                  {property.value}
-                                  </Text>
-                                }
-                              </View> */}
-                              {/* {
-                                !property.read_only && property.value !== null &&
-                                <TouchableOpacity style={styles.button5} onPress={() => this.useSharedDevice(account, device, property)}> 
-                                  <Text style={{fontSize:15, color: '#FFF'}}>o</Text>
-                                </TouchableOpacity>
-                              } */}
                             </View>
-                            
                           ))
                         }
                       </View>
@@ -1122,7 +1075,7 @@ export default class HomeScreen extends React.Component {
             }
 
             <TouchableOpacity style={styles.signOutButton} onPress={this.signOut}>
-              <Text style={{color: '#FFF', fontWeight: '500'}}>Sign Out</Text>
+              <Text style={{color: '#FFF', fontWeight: '500', fontSize: 20}}>Sign Out</Text>
             </TouchableOpacity>
   
         </ScrollView> 
@@ -1137,15 +1090,16 @@ export default class HomeScreen extends React.Component {
     },
     greeting: {
         marginTop: 32,
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: '400',
         textAlign: 'center'
     },
     devices: {
-      fontSize: 15,
+      fontSize: 18,
       fontWeight: '400',
-      justifyContent: 'center'
-  },
+      justifyContent: 'center',
+      textTransform: 'capitalize'
+    },
     signOutButton: {
       marginTop: 30,
       marginBottom: 30,
@@ -1170,15 +1124,15 @@ export default class HomeScreen extends React.Component {
       marginHorizontal: 30,
       backgroundColor: '#00B0FF',
       borderRadius: 4,
-      height: 52,
-      alignItems: 'center',
+      height: 72,
+      textAlign: 'center',
       justifyContent: 'center'
     },
     button4: {
       marginHorizontal: 10,
       backgroundColor: '#E9446A',
       borderRadius: 4,
-      paddingHorizontal: 15,
+      paddingHorizontal: 10,
       justifyContent: 'center'
     },  
     button5: {
@@ -1186,7 +1140,7 @@ export default class HomeScreen extends React.Component {
       backgroundColor: '#00B0FF',
       borderRadius: 4,
       paddingHorizontal: 10,
-      justifyContent: 'center'
+      justifyContent: 'center',
     }, 
     errorMessage: {
       alignItems: 'center',
@@ -1215,5 +1169,11 @@ export default class HomeScreen extends React.Component {
     form: {
       marginBottom: 48,
       marginHorizontal: 30
-    }
+    },
+    title: {
+      fontSize: 15,
+      fontWeight: 'bold',
+      textDecorationLine: 'underline',
+      justifyContent: 'center'
+    },
   });
