@@ -25,6 +25,8 @@ export default class HomeScreen extends React.Component {
       sharedDevices: null,
       sharedAccounts: null,
       selectedProperties: 0,
+      accessLogs: null,
+      usageLogs: null,
       refreshing: false
     }
     // This creates little popups on the screen for Android phones
@@ -53,6 +55,8 @@ export default class HomeScreen extends React.Component {
       }).then(()=> {
         this.getListofSharedAccounts();
         this.getListofSharedDevices();
+        this.getAccessLogs();
+        this.getUsageLogs();
       });
     }
 
@@ -120,6 +124,56 @@ export default class HomeScreen extends React.Component {
             this.showToast(error);
             this.setState({error});
         });
+    }
+
+    // Gets the logs for the devices the user has shared
+    getUsageLogs = async () => {
+      await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/getusagelogs', {
+        method: 'GET',
+        headers: 
+        {
+            Authorization: 'Bearer ' + this.state.idToken
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+          // console.log("%j", "Usage Logs", data.message);
+          if (data.message.length > 0)
+          {
+            var sortedLogs = data.message.sort((a,b) => (a.date < b.date) ? 1 : (a.date === b.date) ? ((a.time < b.time) ? 1 : -1) : -1);
+            this.setState({usageLogs: sortedLogs});
+          }
+      })
+      .catch((error) => {
+        // console.error('getUsageLogs error:', error);
+        this.showToast(error);
+        this.setState({error});
+      });
+    }
+
+    // Gets the logs for the access which may have been granted or revoked to the user
+    getAccessLogs = async () => {
+      await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/getaccesslogs', {
+        method: 'GET',
+        headers: 
+        {
+            Authorization: 'Bearer ' + this.state.idToken
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        // console.log("%j", "Access Logs", data.message);
+        if (data.message.length > 0)
+        {
+          var sortedLogs = data.message.sort((a,b) => (a.date < b.date) ? 1 : (a.date === b.date) ? ((a.time < b.time) ? 1 : -1) : -1);
+          this.setState({accessLogs: sortedLogs});
+        }
+      })
+      .catch((error) => {
+        console.error('getAccessLogs error:', error);
+        this.showToast(error);
+        this.setState({error});
+      });
     }
 
     // Gets user's hub devices from User's table through ID in idToken
@@ -841,27 +895,7 @@ export default class HomeScreen extends React.Component {
           {this.state.error && <Text style={{color: 'red', alignSelf: 'center'}}>{this.state.error}</Text>}
           {this.state.message && <Text style={{color:'black', alignSelf: 'center'}}>{this.state.message}</Text>}
 
-          {/* Cognito information */}
-          {/* <Text style={styles.greeting}>(Cognito Info)</Text>
-          {this.state.name && <Text style={{alignSelf: 'center'}}>Hello {this.state.name}!</Text>}
-          {this.state.id && <Text style={{alignSelf: 'center'}}>UID: {this.state.id}</Text>}
-          {this.state.email && <Text style={{alignSelf: 'center'}}>Email: {this.state.email}</Text>} */}
-
-            {/* Buttons */}
-            {/* {this.state.hub_url === null && <TouchableOpacity style={styles.getUserInfoButton} onPress={this.getHubInfo}>
-              <Text style={{color: '#FFF', fontWeight: '500'}}>Get User Information</Text>
-            </TouchableOpacity>} */}
-            {/* {this.state.hub_url === null && <TouchableOpacity style={styles.setUserInfoButton} onPress={this.setHubInfo}>
-              <Text style={{color: '#FFF', fontWeight: '500'}}>Update Hub Information(Hard Coded)</Text>
-            </TouchableOpacity>} */}
-
-            {/* User DB information */}
-            {/* {this.state.hub_url !== null && <Text style={styles.greeting}>(Secured Account Info)</Text>}
-            {this.state.hub_url !== null && <Text style={{alignSelf: 'center'}}>Add your hub information!</Text>}
-            {this.state.hub_url && <Text style={{alignSelf: 'center'}}>Hub URL: {this.state.hub_url}</Text>}
-            {this.state.hub_url && <Text style={{alignSelf: 'center'}}>Hub Email: {this.state.hub_email}</Text>} */}
-
-            {/* Devices on hub: information */}
+            {/* Devices on hub */}
             {this.state.hub_url !== null && <Text style={styles.greeting}>Devices In Your Smart Home</Text>}
             {this.state.devices == null && this.state.hub_url !== null && <ActivityIndicator size="large"/>}
             {
@@ -901,7 +935,7 @@ export default class HomeScreen extends React.Component {
             </TouchableOpacity>
             }
 
-            {/* Accounts Shared to You */}
+            {/* Devices Shared to You */}
             {this.state.sharedDevices !== null && this.state.sharedDevices.length > 0 && <Text style={styles.greeting}>Devices Shared to You</Text>}
             {
               this.state.sharedDevices &&
@@ -1001,7 +1035,7 @@ export default class HomeScreen extends React.Component {
               ))
             }
 
-            {/* Accounts You're Sharing */}
+            {/* People You're Sharing to */}
             <Text>{"\n"}</Text>
             {this.state.sharedAccounts !== null ? <View style={{ borderBottomColor: 'black', borderBottomWidth: 3}}/> : null}
             {this.state.sharedAccounts !== null && <Text style={styles.greeting}>People You're Sharing to</Text>}
@@ -1021,7 +1055,7 @@ export default class HomeScreen extends React.Component {
                     account.devices !== undefined && account.accepted === 1 &&
                     account.devices.map((device, index) => (
                       <View key={index}>
-                        <View style={{flexDirection: 'row', marginLeft: 30}}>
+                        <View style={{flexDirection: 'row', marginLeft: 40}}>
                           <TouchableOpacity style={styles.button4} onPress={this.deleteADevice.bind(this, account, device, device.properties)}> 
                             <Text style={{fontSize:20, color: '#FFF'}}>X</Text>
                           </TouchableOpacity>
@@ -1030,7 +1064,7 @@ export default class HomeScreen extends React.Component {
                         {
                           device.properties !== undefined &&
                           device.properties.map((property, index) => (
-                            <View key={property.shared_property_id} style={{flexDirection: 'row', marginLeft: 100}}>
+                            <View key={property.shared_property_id} style={{flexDirection: 'row', marginLeft: 80}}>
                               <TouchableOpacity key={property.id} style={styles.button4} onPress={this.deleteAProperty.bind(this, account, device, property)}> 
                                 <Text style={{fontSize:20, color: '#FFF'}}>X</Text>
                               </TouchableOpacity>
@@ -1074,10 +1108,52 @@ export default class HomeScreen extends React.Component {
               ))
             }
 
+            {/* Sign out button */}
             <TouchableOpacity style={styles.signOutButton} onPress={this.signOut}>
               <Text style={{color: '#FFF', fontWeight: '500', fontSize: 20}}>Sign Out</Text>
             </TouchableOpacity>
-  
+            
+            {/* Usage Logs */}
+            {this.state.usageLogs !== null ? <Text>{"\n"}</Text> : null}
+            {this.state.usageLogs !== null ? <View style={{borderBottomColor: 'black', borderBottomWidth: 3}}/> : null}
+            {this.state.usageLogs !== null && <Text style={styles.greeting}>Usage Logs</Text>}
+            <Text>{"\n"}</Text>
+            {
+              this.state.usageLogs !== null && this.state.usageLogs.map((log, index) => (
+              <View key={index}>
+                <Text style={{marginLeft: 20, fontSize: 18,}}>{log.date} - {log.time}</Text>
+                <Text style={styles.logs}>&rarr;User: {log.secondary_user}</Text>
+                <Text style={styles.logs}>&rarr;Device: {log.device_name} ({log.device_description})</Text>
+                <Text style={styles.logs}>&rarr;Property: {log.property_name}</Text>
+                <Text style={styles.logs}>&rarr;Value: {log.value ? "On" : "Off"}</Text>
+                <Text>{"\n"}</Text>
+              </View>
+              ))
+            }
+
+            {/* Access Logs */}
+            {this.state.accessLogs !== null ? <Text>{"\n"}</Text> : null}
+            {this.state.accessLogs !== null ? <View style={{borderBottomColor: 'black', borderBottomWidth: 3}}/> : null}
+            {this.state.accessLogs !== null && <Text style={styles.greeting}>Access Logs</Text>}
+            <Text>{"\n"}</Text>
+            {
+              this.state.accessLogs !== null && this.state.accessLogs.map((log, index) => (
+              <View key={index}>
+                <Text style={{marginLeft: 20, fontSize: 18,}}>{log.date} - {log.time}</Text>
+                <Text style={styles.logs}>&rarr;Homeowner: {log.primary_user}</Text>
+                <Text style={styles.logs}>&rarr;Operation: 
+                {(() => {
+                  if (log.operation === "Create")
+                    return " Gave you access";
+                  else if (log.operation === "Delete")
+                    return " Revoked your access";
+                  else 
+                    return " You accepted access";
+                })()}</Text>
+                <Text>{"\n"}</Text>
+              </View>
+              ))
+            }
         </ScrollView> 
       );
     }
@@ -1099,6 +1175,12 @@ export default class HomeScreen extends React.Component {
       fontWeight: '400',
       justifyContent: 'center',
       textTransform: 'capitalize'
+    },
+    logs: {
+      marginLeft: 40,
+      fontSize: 18,
+      fontWeight: '400',
+      justifyContent: 'center',
     },
     signOutButton: {
       marginTop: 30,
