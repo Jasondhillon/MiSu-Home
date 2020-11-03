@@ -537,6 +537,7 @@ export default class HomeScreen extends React.Component {
     }
 
     // Creates a new entry to the properties table
+    // Please note that the time range must be in HH:MM 24hour format
     createAProperty = async (accountId, deviceId, properties) => {
       try {
         if (properties)
@@ -559,10 +560,10 @@ export default class HomeScreen extends React.Component {
               type: properties[property].property.type + "",
               path: properties[property].property.links[0].href + "",
               read_only: properties[property].property.readOnly ? 1:0,
-              unrestricted: 1,
-              time_range_start: null,
-              time_range_end: null,
-              time_range_reoccuring: null,
+              unrestricted: 0,
+              time_range_start: '00:00',
+              time_range_end: '02:00',
+              time_range_reoccuring: 'Tue',
               gps_location: null,
               gps_location_distance: null
               })
@@ -855,10 +856,12 @@ export default class HomeScreen extends React.Component {
         .then(response => response.json())
         .then(data => {
           temp.value = !temp.value;
-          // Retoggles the button on the UI allowing the device to be toggled again
-          temp.read_only = false;
-          this.setState({sharedDevices: list});
-          this.getValueForSharedDeviceProperty(account, device, property);
+            if(data.statusCode === 400)
+              console.log("%j", data.message);
+            // Retoggles the button on the UI allowing the device to be toggled again
+            temp.read_only = false;
+            this.setState({sharedDevices: list});
+            this.getValueForSharedDeviceProperty(account, device, property);
         })
         .catch((error) => {
             console.error('useSharedDevice error:', error);
@@ -967,7 +970,7 @@ export default class HomeScreen extends React.Component {
                                   }
                                   else if (property.time_range_start !== undefined)
                                   {
-                                    return property.time_range_start + "-" + property.time_range_end;
+                                    return property.time_range_start + "-" + property.time_range_end + " " + property.time_range_reoccuring;
                                   }
                                   else
                                     return property.gps_location;
@@ -1075,7 +1078,7 @@ export default class HomeScreen extends React.Component {
                                   }
                                   else if (property.time_range_start !== undefined)
                                   {
-                                    return property.time_range_start + "-" + property.time_range_end;
+                                    return property.time_range_start + "-" + property.time_range_end + " " + property.time_range_reoccuring;
                                   }
                                   else
                                     return property.gps_location;
