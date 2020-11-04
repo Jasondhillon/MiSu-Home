@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, Image, TouchableOpacity, View, Alert } from 'react-native';
 import appStyle from '../../styles/AppStyle';
 import AppHeaderText from '../app/AppHeaderText';
 import AppText from '../app/AppText';
@@ -10,7 +10,20 @@ class HomeCard extends React.Component {
     constructor(props){
         super(props)
     }
-    
+
+    createTwoButtonAlert = (user) =>
+    Alert.alert(
+      "Leave " + user + "'s House?",
+      "Are you sure? " + user + " will need to invite you again for access.",
+      [
+        {
+          text: "Cancel",
+        },
+        { text: "Leave", onPress: () => this.props.exitHub(this.props.sharedDevice.login_credentials_id,this.props.IdToken)}
+      ],
+      { cancelable: false }
+    );
+
     render()
     {
         // split devices into two columns to be used for rendering
@@ -30,8 +43,13 @@ class HomeCard extends React.Component {
             <View style={[appStyle.card, { paddingBottom:0 }]}>
                 <View style={[appStyle.container]}>
                     <View style={[appStyle.row, {marginLeft:10, marginTop:-10, marginBottom:5}]}>
-                        <View style={appStyle.rowLeft}>
+                    <View style={appStyle.rowLeft}>
                             <AppHeaderText>{`${this.props.sharedDevice.sharer_name}'s House`}</AppHeaderText>    
+                        </View>
+                        <View style={appStyle.rowRight}>
+                            <TouchableOpacity onPress={()=> this.createTwoButtonAlert(this.props.sharedDevice.sharer_name)}>
+                                <Image style={{width:30, height:30}} source={require('../../assets/exitHouse.png')} />
+                            </TouchableOpacity>
                         </View>
                     </View>
                     
@@ -43,7 +61,7 @@ class HomeCard extends React.Component {
                                 <View style={appStyle.columnLeft}>
                                     {col1.map((device,index) => {
                                         return  (
-                                            <HomeCardDeviceEntry  key={index} device={device}/>
+                                            <HomeCardDeviceEntry navigation={this.props.navigation} key={index} device={device}/>
                                     )})}
                                 </View>
 
@@ -51,7 +69,7 @@ class HomeCard extends React.Component {
                                 <View style={appStyle.columnRight}>
                                     {col2.map((device,index) => {
                                         return  (
-                                            <HomeCardDeviceEntry  key={index} device={device}/>
+                                            <HomeCardDeviceEntry navigation={this.props.navigation}  key={index} device={device}/>
                                     )})}
                                 </View>
                             </View>

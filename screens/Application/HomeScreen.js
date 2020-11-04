@@ -153,6 +153,8 @@ class HomeScreen extends React.Component {
                   return  <HomeCard 
                     key={index} 
                     sharedDevice={device} 
+                    navigation={this.props.navigation}
+                    exitHub={this.props.exitHub}
                     updateInvite={this.props.updateInvite}
                     IdToken={this.props.sessionData.idToken} /> 
                 })

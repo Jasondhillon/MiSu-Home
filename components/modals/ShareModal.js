@@ -124,6 +124,13 @@ class ShareModal extends React.Component {
         this.setState({
             selecteddevice: device,
         })
+
+        if(this.state.selecteddevice != null)
+        {
+            //console.log(this.state.selecteddevice.properties);
+            //if(this.state.selecteddevice.selecteduser != null)
+            //    console.log(this.state.selecteddevice.selecteduser);
+        }
     }
 
 
@@ -141,8 +148,9 @@ class ShareModal extends React.Component {
     }
   
     share(idToken, guest_email, selectedDevice, sharedAccounts, selectedProps){
-        this.props.Share(idToken, guest_email, selectedDevice, sharedAccounts, selectedProps);
+        //this.props.Share(idToken, guest_email, selectedDevice, sharedAccounts, selectedProps);
         this.props.ModalRef.current.snapTo(1);
+        console.log({selectedProps});
     }
 
     render ()   {

@@ -11,6 +11,8 @@ class DeviceCard extends Component
       owned: true
     }
 
+    
+
     render () 
     {
         return (
@@ -25,23 +27,32 @@ class DeviceCard extends Component
                     />
                     
                     {/* Render the hub name */}
-                    <AppHeaderText style={style.name}>Nest Home</AppHeaderText>
+                    <AppHeaderText style={style.name}>{this.props.device.name}</AppHeaderText>
                     
-                    {/* Example Boolean */}
-                    <View style={appStyle.row}>
-                        <AppText style={appStyle.rowLeft}>On/Off</AppText>
-                        <View style={appStyle.rowRight}>
-                            <Switch/>
-                        </View>
-                    </View>
+                    {
+                        this.props.device.properties.map((prop,index) => { 
+                        return  <View key={index} style={appStyle.row}>
+                                        <View style={{flex:1, flexDirection:'row'}}>
+                                            <View style={appStyle.rowLeft}>
+                                                <AppText> {prop.name} </AppText>
+                                                { prop.read_only == 1 && <AppText> Read Only</AppText>}
+                                            </View>
 
-                    {/* Example Float */}
-                    <View style={appStyle.row}>
-                        <AppText style={appStyle.rowLeft}>Brightness</AppText>
-                        <View style={appStyle.rowRight}>
-                            <Slider style={appStyle.deviceSlider}/>
-                        </View>
-                    </View>
+                                            <View style={appStyle.rowRight}>
+                                                { prop.type == 'boolean' && 
+                                                    <View style={{flex:1, flexDirection:'row'}}>
+                                                        <Switch/>
+                                                    </View> 
+                                                }
+                                                { prop.type == 'float' && 
+                                                    <View style={{flex:1, flexDirection:'row'}}>
+                                                        <Slider style={appStyle.deviceSlider}/>
+                                                    </View> 
+                                                }
+                                            </View> 
+                                        </View> 
+                                </View> 
+                    })}
                 </View>
             </View>
         );
