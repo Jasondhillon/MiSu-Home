@@ -137,7 +137,7 @@ export default class HomeScreen extends React.Component {
       })
       .then(response => response.json())
       .then(data => {
-          // console.log("%j", "Usage Logs", data.message);
+          console.log("%j", "Usage Logs", data.message);
           if (data.message.length > 0)
           {
             var sortedLogs = data.message.sort((a,b) => (a.date < b.date) ? 1 : (a.date === b.date) ? ((a.time < b.time) ? 1 : -1) : -1);
@@ -646,7 +646,7 @@ export default class HomeScreen extends React.Component {
     }
 
     // Removes the sharedAccount entry and removes the login created for the secondary user from the primary user's hub, alsd deletes all the devices and propertys associated with the account
-    deleteASharedAccount = async (id, guest_email, devices) => {
+    deleteASharedAccount = async (id) => {
       try {
         if (debug > 0)
         {
