@@ -45,8 +45,10 @@ class AccountCard extends Component
                 />
 
                 {/* Show user's name */}
-                <AppHeaderText style={style.name}>{this.props.name}</AppHeaderText>
-               
+                <AppHeaderText style={style.name}>{this.props.user.name}</AppHeaderText>
+               <AppText>{this.props.user.phone}</AppText>
+               <AppText>{this.props.user.address}</AppText>
+               <AppText>{this.props.user.city}, {this.props.user.state}</AppText>
                 {/* Show RegisterHubPopup when registering */}
                 {this.state.registering == true && 
                     <RegisterHubPopup 

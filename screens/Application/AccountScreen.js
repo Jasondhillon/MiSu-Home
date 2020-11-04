@@ -45,7 +45,7 @@ class AccountScreen extends React.Component {
                     <AccountCard 
                         register={this.props.register}
                         idToken={this.props.sessionData.idToken}
-                        name={this.props.hubInfoData.name}
+                        user={this.props.hubInfoData}
                         hub_url = {this.props.hubInfoData.hub_url}
                         hub_email = {this.props.hubInfoData.hub_email}
                         navigation= {this.props.navigation } />
