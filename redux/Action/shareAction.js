@@ -1,4 +1,5 @@
 import { checkUserExists, createADevice, createProperty, createSharedUser } from '../../services/creationService'
+import { deleteAProperty } from '../../services/deleteService'
 
 export const  shareStart =(payload) =>({
     type: 'SHARING' ,
@@ -20,18 +21,22 @@ export const  shareFailed = (payload) =>({
 
 export const shareAction = (idToken, email,device, accounts, properties) => { 
     return async (dispatch) => {
+        if(properties == null)
+        {
+            console.log('Not Property Changes ********');
+            return;   
+        }
         console.log('**********device********')
-        console.log({device})
+        //console.log({device})
         console.log('**********device********')
 
         console.log('**********accounts********')
-        console.log({accounts})
+        //console.log({accounts})
         console.log('**********accounts********')
 
         console.log('*******properties*****')
-        console.log({properties})
+        //console.log({properties})
         console.log('*******properties*****')
-
         try {
 
            
@@ -41,23 +46,13 @@ export const shareAction = (idToken, email,device, accounts, properties) => {
 
             //check  if email exist 
 
-            console.log('*******email exists for*****')
-            console.log({idToken})
-            console.log({email})
-            console.log('*******email exists for*****')
+            console.log('*******email exists for ' + email + '*****')
             const { message} = await checkUserExists(idToken,email)
-
-           
-            console.log('*******email exists??*****')
-            console.log({message})
-            console.log('*******email exists??*****')
 
            if (message == 1) {
               
                 const  account = accounts.find( account => account.guest_email == email)
 
-                console.log('*******account found*****')
-                console.log({account})
                 console.log('*******account found*****')
                     
                 if(!account){
@@ -89,7 +84,8 @@ export const shareAction = (idToken, email,device, accounts, properties) => {
                     {
                         if (device.title === account.devices[device2].name && device.description === account.devices[device2].description)
                         {
-                            device = account.devices[device2].shared_device_properties_id;
+
+                            device.id = account.devices[device2].shared_device_properties_id;
                             preexisting = 1;
                         }
                     }
@@ -97,18 +93,45 @@ export const shareAction = (idToken, email,device, accounts, properties) => {
                     if (preexisting === 0)
                     {
                         const des = await createADevice(account,idToken,{ title: device.title, description: device.description})
-                        console.log('***************create device***')
-                        console.log(des)
-                        console.log('***************create device***')
                         device.id = des.message;
+                        console.log('* Creating new device');
+                        console.log('------------------------------------------------------------');
                     }
 
-
-                    //if !exist create a device 
-                    const ret = await Promise.all(properties.map(prop => createProperty(idToken,account.login_credentials_id,device.id,prop)))
-                    console.log('***************ret device***')
-                    console.log(ret)
-                    console.log('***************ret device***')
+                    console.log('---')
+                    console.log(properties);
+                    console.log('---')
+    
+                    //if !exist create a property
+                    const ret = await Promise.all(properties.map(async prop => 
+                    {
+                        // check if the property exist 
+                        // Check if the device is already shared to the user
+                        for(var dvc = 0; dvc < account.devices.length; dvc++) 
+                        {
+                            console.log(' -- checking device');
+                            const foundDev = 0;
+                            for(var p = 0; p < account.devices[dvc].properties.length; p++) 
+                            {
+                                console.log("checking " + account.devices[dvc].properties[p].name + ", " + prop.title);
+                                if(account.devices[dvc].properties[p].name == prop.title)
+                                {
+                                    const responseDel = await deleteAProperty(account,idToken,device.id,account.devices[dvc].properties[p])
+                                    console.log('* Deleting existing property');
+                                    foundDev = 1;
+                                    console.log('------------------------------------------------------------');
+                                    break;
+                                }
+                            }
+                            if(foundDev)
+                                break;
+                        }
+                        
+                        const responseProps = await createProperty(idToken,account.login_credentials_id,device.id,prop)
+                        console.log('* Creating new property');
+                        console.log(prop);
+                        console.log('------------------------------------------------------------');
+                    }))
                     //property
                 }
             }
@@ -124,6 +147,5 @@ export const shareAction = (idToken, email,device, accounts, properties) => {
             console.log({error })
             dispatch(shareFailed())
         }
-
     }
 }

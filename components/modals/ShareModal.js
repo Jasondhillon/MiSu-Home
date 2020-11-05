@@ -114,7 +114,7 @@ class ShareModal extends React.Component {
 
     selectPermission( permissions) {
         this.setState({
-            updatedproperties: permissions
+            updatedproperties: permissions,
         })
     }
 
@@ -124,16 +124,19 @@ class ShareModal extends React.Component {
         })
     }
 
-    selectDevice (device) {
-        this.setState({
-            selecteddevice: device,
-        })
+    async selectDevice (device) {
 
         // check if the property exists on the device we've selected
         Object.keys(device.properties).map((item,index) => {
             device.properties[item].access = 0
         });
 
+        await this.setState({
+            selecteddevice: device,
+            selectedprops: device.properties,
+            updatedproperties: device.properties
+        })
+        
         // Initialize the properties with the already set property settings
         if(this.props.sharedAccountsData.sharedAccounts != null && this.state.selecteduser != null && this.state.selecteddevice != null && this.state.selecteddevice.properties != null)
         {
@@ -150,12 +153,18 @@ class ShareModal extends React.Component {
                             {
                                 // check if the property exists on the device we've selected
                                 Object.keys(device.properties).map((item,index) => {
+                                    var found = 0;
                                     if(device.properties[item].title == this.props.sharedAccountsData.sharedAccounts[i].devices[x].properties[p].name)
                                     {    
+                                        found = 1;
                                         device.properties[item].access = 2;
-                                        if(this.props.sharedAccountsData.sharedAccounts[i].devices[x].properties[p].ready_only == 1)
+                                        if(this.props.sharedAccountsData.sharedAccounts[i].devices[x].properties[p].read_only == 1)
+                                        {
                                             device.properties[item].access = 1;
+                                        }
                                     }
+                                    if(found == 0)
+                                        device.properties[item].access = 0;
                                 });
                             }
                         }
@@ -163,6 +172,12 @@ class ShareModal extends React.Component {
                 }
             }
         }
+
+        await this.setState({
+            selecteddevice: device,
+            selectedprops: device.properties,
+            updatedproperties: device.properties
+        })
     }
 
 
@@ -180,6 +195,7 @@ class ShareModal extends React.Component {
     }
   
     share(idToken, selectedAccount, selecteddevice, sharedAccounts, selectedProps){
+
         this.props.Share(idToken, selectedAccount.guest_email, selecteddevice, sharedAccounts, selectedProps);
         this.props.ModalRef.current.snapTo(1);
     }
@@ -191,12 +207,12 @@ class ShareModal extends React.Component {
            ref={this.props.ModalRef}
            snapPoints={['60%','0%']}
            borderRadius={15}
-           onOpenStart={() => {
+           // Initialize the modal
+           onOpenStart={async () => {
                 if(this.props.selecteddevice != null && this.props.selecteduser != null)
                 {
-                    this.selectUser(this.props.selecteduser);
+                    await this.setState({selecteduser: this.props.selecteduser, selecteddevice: this.props.selecteddevice, pos:2, updatedproperties:null,});
                     this.selectDevice(this.props.selecteddevice);
-                    this.setState({selecteduser: this.props.selecteduser, selecteddevice: this.props.selecteddevice, pos:2});
                 }
                 else if(this.props.canEditUser == false)
                         this.setState({

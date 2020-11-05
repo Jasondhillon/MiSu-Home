@@ -31,12 +31,12 @@ export const  deleteASharedAccount = async (id, idToken) => {
 }
 
 
-export const  deleteAProperty = async (account, device, property) => {
+export const  deleteAProperty = async (account, idToken, device, property) => {
     const response = await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/property', {
         method: 'DELETE',
         headers: 
         {
-            Authorization: 'Bearer ' + this.props.appData.idToken,
+            Authorization: 'Bearer ' +  idToken,
         },
         body: JSON.stringify({
           account: account.login_credentials_id,
@@ -44,6 +44,6 @@ export const  deleteAProperty = async (account, device, property) => {
           property: property.shared_property_id
           })
       })
-
+      console.log('* Deleted existing property');
       return response.json()
 }

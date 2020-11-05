@@ -95,6 +95,11 @@ export const useSharedDevice = async (account, device, property) => {
 
 
 export const createProperty = async (idToken,accountId,deviceId, property) => {
+
+  // Check if marked as No Access
+  if(property.access == 0)
+    return "Cant create not allow property " + property.access;
+
   console.log('*******propertyyy*****')
   console.log({property})
   const response = await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/property', {
@@ -109,7 +114,7 @@ export const createProperty = async (idToken,accountId,deviceId, property) => {
       name: property.title + "",
       type: property.type + "",
       path:property.links[0].href + "",
-      read_only: property.access ? 1:0,
+      read_only: property.access == 1 ? 1:0,
       unrestricted: 0,
       time_range_start: null,
       time_range_end: null,

@@ -101,7 +101,7 @@ class AccountCard extends Component
                     </View>
                 }
                 {/* Register Button */}
-                {
+                {this.props.hub_url == ''  && 
                     <TouchableOpacity style={appStyle.regularButton} onPress={this.registerHub}>
                         <AppText>Register my Hub</AppText>
                     </TouchableOpacity>
