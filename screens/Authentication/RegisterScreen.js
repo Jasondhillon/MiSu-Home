@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator} from 'react-native';
+import {View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, ScrollView} from 'react-native';
 import { Auth } from 'aws-amplify';
 import appStyle from '../../styles/AppStyle';
 import authStyle from '../../styles/AuthStyle';
@@ -11,6 +11,10 @@ export default class RegisterScreen extends React.Component
         name: '',
         username: '',
         password: '',
+        phone: '',
+        street: '',
+        city: '',
+        state: '',
         userId: null,
         errorMessage: null,
         message: null,
@@ -24,7 +28,7 @@ export default class RegisterScreen extends React.Component
         this.setState({errorMessage: ''});
         this.setState({message: ''});
         this.setState({isLoading: true});
-        const {username, password, name} = this.state;
+        const {username, password, name, phone, street, city, state} = this.state;
         if(this.state.name === '')
             this.setState({errorMessage: 'Missing name'});
         else if(this.state.username === '')
@@ -40,10 +44,10 @@ export default class RegisterScreen extends React.Component
                 attributes: {
                     name,
                     'email': username,
-                    'phone_number': "+14070000000",
-                    'address': "1234 Address Way",
-                    'custom:city': "Orlando",
-                    'custom:state': "Florida"
+                    'phone_number': '+' + phone,
+                    'address': street,
+                    'custom:city': city,
+                    'custom:state': state
                 }
             })
             .then((response) => {
@@ -144,91 +148,138 @@ export default class RegisterScreen extends React.Component
         }
 
         return(
-            <View style={authStyle.container}>
+            <KeyboardAvoidingView enabled={true} behavior='height' style={authStyle.container}>
+                <ScrollView style={authStyle.container} bounces={false}>
 
-                {/* Render the loading element */}
-                { loadingElement }
+                    {/* Render the loading element */}
+                    { loadingElement }
 
-                {/* Render the Confirm Popup */}
-                { confirmPopupElement }
+                    {/* Render the Confirm Popup */}
+                    { confirmPopupElement }
 
-                {/* Render the app icon */}
-                <View style={authStyle.iconHolder}>
-                    <Image
-                        style={authStyle.icon}
-                        source={require('../../assets/icons/logo.png')}
-                    />
-                </View>
-               
-                {/* Render the greeting */}
-                <Text style={authStyle.greeting}>{`Sign up to`} <Text style={authStyle.appName}> { 'Misu' } </Text></Text>
+                    {/* Render the app icon */}
+                    <View style={authStyle.iconHolder}>
+                        <Image
+                            style={authStyle.icon}
+                            source={require('../../assets/icons/logo.png')}
+                        />
+                    </View>
+                
+                    {/* Render the greeting */}
+                    <Text style={authStyle.greeting}>{`Sign up to`} <Text style={authStyle.appName}> { 'Misu' } </Text></Text>
 
-                {/* Render the register form */}
-                <View style={authStyle.authForm}>
-                    <View>
-                        <TextInput 
-                            style={authStyle.authFormInput} 
-                            autoCapitalize="none" 
-                            onChangeText={name => this.setState({name})} 
-                            value={this.state.name}
-                            placeholder="Name">
-                        </TextInput>
+                    {/* Render the register form */}
+                    <View style={authStyle.authForm}>
+                        <View>
+                            <TextInput 
+                                style={authStyle.authFormInput} 
+                                autoCapitalize="none" 
+                                onChangeText={name => this.setState({name})} 
+                                value={this.state.name}
+                                placeholder="Name">
+                            </TextInput>
+                        </View>
+
+                        <View>
+                            <TextInput 
+                                style={authStyle.authFormInput} 
+                                autoCapitalize="none" 
+                                keyboardType="email-address"
+                                onChangeText={username => this.setState({username})} 
+                                value={this.state.username}
+                                placeholder="Email">
+                            </TextInput>
+                        </View>
+
+                        <View>
+                            <TextInput 
+                                style={authStyle.authFormInput} 
+                                secureTextEntry 
+                                autoCapitalize="none" 
+                                onChangeText={password => this.setState({password})} 
+                                value={this.state.password}
+                                placeholder="Password">
+                            </TextInput>
+                        </View>
+
+                        <View>
+                            <TextInput 
+                                style={authStyle.authFormInput} 
+                                autoCapitalize="none"
+                                keyboardType='phone-pad'
+                                onChangeText={phone => this.setState({phone})} 
+                                value={this.state.phone}
+                                placeholder="Phone">
+                            </TextInput>
+                        </View>
+
+                        <View>
+                            <TextInput 
+                                style={authStyle.authFormInput} 
+                                autoCapitalize="words" 
+                                onChangeText={street=> this.setState({street})} 
+                                value={this.state.street}
+                                placeholder="Street Address">
+                            </TextInput>
+                        </View>
+
+                        <View style={{flex: 1, flexDirection: "row", justifyContent: "space-evenly"}}>
+                            <View style={{flex: 1, paddingRight: 5}}>
+                                <TextInput 
+                                    style={authStyle.authFormInput} 
+                                    autoCapitalize="words" 
+                                    onChangeText={city => this.setState({city})} 
+                                    value={this.state.city}
+                                    placeholder="City">
+                                </TextInput>
+                            </View>
+
+                            <View style={{flex: 1, paddingLeft: 5}}>
+                                <TextInput 
+                                    style={authStyle.authFormInput} 
+                                    autoCapitalize="words"
+                                    onChangeText={state => this.setState({state})} 
+                                    value={this.state.state}
+                                    placeholder="State">
+                                </TextInput>
+                            </View>
+                        </View>
+
                     </View>
 
-                    <View>
-                        <TextInput 
-                            style={authStyle.authFormInput} 
-                            autoCapitalize="none" 
-                            onChangeText={username => this.setState({username})} 
-                            value={this.state.username}
-                            placeholder="Email">
-                        </TextInput>
+                    {/* Render the submit button */}
+                    <View style={authStyle.authFormButtonHolder}>
+                        <TouchableOpacity style={authStyle.authFormButton} onPress={this.handleSignUp}>
+                            <Text style={{color: '#FFF', fontWeight: '500'}}>Sign up</Text>
+                        </TouchableOpacity>
                     </View>
 
+                    {/* Render the error message */}
+                    { errorElement }
+
+                    {/* Render the message */}
+                    { messageElement }
+
+                    {/* Render the confirm code toggle */}
                     <View>
-                        <TextInput 
-                            style={authStyle.authFormInput} 
-                            secureTextEntry 
-                            autoCapitalize="none" 
-                            onChangeText={password => this.setState({password})} 
-                            value={this.state.password}
-                            placeholder="Password">
-                        </TextInput>
+                        <TouchableOpacity style={{alignSelf: 'center', marginTop: 16}} onPress={() => { this.setState( { confirmingCode : true }); }}>
+                            <Text style={{color: '#414959', fontSize: 13}}Password> 
+                                Have a confirmation code? <Text style={{color: '#71ccf0', fontWeight: '500'}}>Confirm</Text>
+                            </Text>
+                        </TouchableOpacity>
                     </View>
-                </View>
 
-                {/* Render the submit button */}
-                <View style={authStyle.authFormButtonHolder}>
-                    <TouchableOpacity style={authStyle.authFormButton} onPress={this.handleSignUp}>
-                        <Text style={{color: '#FFF', fontWeight: '500'}}>Sign up</Text>
-                    </TouchableOpacity>
-                </View>
+                    {/* Render the register toggle */}
+                    <View>
+                        <TouchableOpacity style={{alignSelf: 'center', marginTop: 6}} onPress={() => this.props.navigation.navigate("Login")}>
+                            <Text style={{color: '#414959', fontSize: 13}}Password> 
+                                Already have an account? <Text style={{color: '#71ccf0', fontWeight: '500'}}>Sign In</Text>
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
 
-                {/* Render the error message */}
-                { errorElement }
-
-                {/* Render the message */}
-                { messageElement }
-
-                {/* Render the confirm code toggle */}
-                <View>
-                    <TouchableOpacity style={{alignSelf: 'center', marginTop: 16}} onPress={() => { this.setState( { confirmingCode : true }); }}>
-                        <Text style={{color: '#414959', fontSize: 13}}Password> 
-                            Have a confirmation code? <Text style={{color: '#71ccf0', fontWeight: '500'}}>Confirm</Text>
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-
-                {/* Render the register toggle */}
-                <View>
-                    <TouchableOpacity style={{alignSelf: 'center', marginTop: 6}} onPress={() => this.props.navigation.navigate("Login")}>
-                        <Text style={{color: '#414959', fontSize: 13}}Password> 
-                            Already have an account? <Text style={{color: '#71ccf0', fontWeight: '500'}}>Sign In</Text>
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-
-          </View>  
+                </ScrollView>  
+            </KeyboardAvoidingView>
         );
     }
 }
