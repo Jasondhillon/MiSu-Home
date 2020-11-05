@@ -51,7 +51,7 @@ const Footer = (props) => {
 
 class ShareModal extends React.Component {
     
-    constructor(props){
+    constructor (props) {
         super(props)
 
         this.state={
@@ -65,15 +65,19 @@ class ShareModal extends React.Component {
     }
 
     next () {
-
-
         let pos =  this.state.pos +1
         switch (pos) {
             case  1:
-                this.state.selecteduser ?   this.setState({ pos }):  showToast('Select a user!')
+                this.state.selecteduser ? this.setState({ pos }) : showToast('Select a user!')
                 break;
             case 2:
-                this.state.selecteddevice ?   this.setState({ pos }):  showToast('Select a Device!')
+                if(this.state.selecteddevice != null)
+                {
+                    this.selectDevice(this.state.selecteddevice);
+                    this.setState({ pos });  
+                }
+                else
+                    showToast('Select a Device!') 
                 break;
             default:
                 break;
@@ -125,11 +129,39 @@ class ShareModal extends React.Component {
             selecteddevice: device,
         })
 
-        if(this.state.selecteddevice != null)
+        // check if the property exists on the device we've selected
+        Object.keys(device.properties).map((item,index) => {
+            device.properties[item].access = 0
+        });
+
+        // Initialize the properties with the already set property settings
+        if(this.props.sharedAccountsData.sharedAccounts != null && this.state.selecteduser != null && this.state.selecteddevice != null && this.state.selecteddevice.properties != null)
         {
-            //console.log(this.state.selecteddevice.properties);
-            //if(this.state.selecteddevice.selecteduser != null)
-            //    console.log(this.state.selecteddevice.selecteduser);
+            for(var i = 0; i < this.props.sharedAccountsData.sharedAccounts.length; i++)
+            {
+                if(this.props.sharedAccountsData.sharedAccounts[i].devices != null)
+                {
+                    for(var x = 0; x < this.props.sharedAccountsData.sharedAccounts[i].devices.length; x++)
+                    {
+                        if(this.props.sharedAccountsData.sharedAccounts[i].devices[x].properties != null)
+                        {
+                            // Iterate through every property already granted to the user
+                            for(var p = 0; p < this.props.sharedAccountsData.sharedAccounts[i].devices[x].properties.length; p++)
+                            {
+                                // check if the property exists on the device we've selected
+                                Object.keys(device.properties).map((item,index) => {
+                                    if(device.properties[item].title == this.props.sharedAccountsData.sharedAccounts[i].devices[x].properties[p].name)
+                                    {    
+                                        device.properties[item].access = 2;
+                                        if(this.props.sharedAccountsData.sharedAccounts[i].devices[x].properties[p].ready_only == 1)
+                                            device.properties[item].access = 1;
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -141,16 +173,15 @@ class ShareModal extends React.Component {
             case 1:
                 return <DeviceList selecteduser={this.state.selecteduser} selecteddevice={this.state.selecteddevice} devices={this.props.devicesData.devices} setDevice={this.selectDevice.bind(this)}/>
             case 2 :
-                return <PermissionList  selecteddevice={this.state.selecteddevice} setPerm={this.selectPermission.bind(this)} properties={this.state.selecteddevice.properties} />
+                return <PermissionList selecteduser={this.state.selecteduser}  selecteddevice={this.state.selecteddevice} setPerm={this.selectPermission.bind(this)} properties={this.state.selecteddevice.properties} />
             default: 
                 return null
         } 
     }
   
-    share(idToken, guest_email, selectedDevice, sharedAccounts, selectedProps){
-        //this.props.Share(idToken, guest_email, selectedDevice, sharedAccounts, selectedProps);
+    share(idToken, selectedAccount, selecteddevice, sharedAccounts, selectedProps){
+        this.props.Share(idToken, selectedAccount.guest_email, selecteddevice, sharedAccounts, selectedProps);
         this.props.ModalRef.current.snapTo(1);
-        console.log({selectedProps});
     }
 
     render ()   {
@@ -161,16 +192,18 @@ class ShareModal extends React.Component {
            snapPoints={['60%','0%']}
            borderRadius={15}
            onOpenStart={() => {
-                if(this.props.selectedDevice != null)
+                if(this.props.selecteddevice != null && this.props.selecteduser != null)
                 {
-                        this.selectDevice(this.props.selectedDevice);
-                        this.setState({pos:2})
+                    this.selectUser(this.props.selecteduser);
+                    this.selectDevice(this.props.selecteddevice);
+                    this.setState({selecteduser: this.props.selecteduser, selecteddevice: this.props.selecteddevice, pos:2});
                 }
                 else if(this.props.canEditUser == false)
                         this.setState({
-                            pos:1,
                             selecteddevice:null,
-                            updatedproperties:null
+                            updatedproperties:null,
+                            selecteduser:this.props.selecteduser,
+                            pos:1
                     })
                 else 
                     this.setState({

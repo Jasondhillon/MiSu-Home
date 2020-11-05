@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Modal, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import authStyle from '../../styles/AuthStyle';
 import appStyle from '../../styles/AppStyle';
 import AppHeaderText from '../app/AppHeaderText';
 import AppText from '../app/AppText';
@@ -25,7 +26,7 @@ class RegisterHubPopup extends Component
         {
             errorElement = (
             <View style={authStyle.errorMessage}>
-                {this.state.errorMessage && <Text style={authStyle.errorMessage}>{this.state.errorMessage}</Text>}
+                {this.state.errorMessage && <AppText style={[authStyle.errorMessage, {fontSize:14, marginBottom:10}]}>{this.state.errorMessage}</AppText>}
             </View>
             )
         }
@@ -89,6 +90,11 @@ class RegisterHubPopup extends Component
                         {/* Render the submit button */}
                         <TouchableOpacity style={appStyle.regularButton} onPress={ () =>
                              { 
+                                 if(this.state.hub_url == '' || this.state.hub_url == null || this.state.hub_email == '' || this.state.hub_email == null || this.state.hub_password == ''|| this.state.hub_password == null)
+                                 {
+                                     this.setState({errorMessage: 'Some fields have not been completed'});
+                                     return;
+                                 }
                                 const state = this.props.registerHub({
                                      hub_url: this.state.hub_url, 
                                      hub_email:this.state.hub_email,

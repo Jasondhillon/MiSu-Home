@@ -34,7 +34,7 @@ const DeviceItem = (props) => {
         <TouchableOpacity onPress={() => props.navigation.navigate('Device')}>
         <View style={styles.item}>
             <SmallIcon img={require('../../assets/wifi.png')} />
-    <Text> {props.device.name}</Text>
+            <Text> {props.device.name}</Text>
             <Switch
                     trackColor={{ false: "#767577", true: "#81b0ff" }}
                     thumbColor={"#f5dd4b"}
@@ -44,18 +44,6 @@ const DeviceItem = (props) => {
             <SmallIcon img={require('../../assets/right.png')} />
         </View>
         </TouchableOpacity>
-    )
-}
-
-
-const Header = (props) => {
-    return (
-        <View style={{}}>
-            <Text> Shared Devices </Text>
-            <TouchableOpacity onPress={()=> props.open()}>
-            <SmallIcon img={require('../../assets/add.png')} />
-            </TouchableOpacity>
-        </View>
     )
 }
 

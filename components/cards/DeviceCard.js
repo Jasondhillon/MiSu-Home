@@ -23,7 +23,7 @@ class DeviceCard extends Component
                     {/* Render the device icon */}
                     <Image
                         style={[style.icon, {marginBottom:0}]}
-                        source={require('../../assets/icons/nest_icon.png')}
+                        source={require('../../assets/device.png')}
                     />
                     
                     {/* Render the hub name */}

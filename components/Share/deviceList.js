@@ -11,8 +11,7 @@ export const DeviceList = (props) => {
     //console.log({
     //   dec: props.devices
     //})
-
-    const titleString = `${props.selecteduser.guest_email?props.selecteduser.guest_email:props.selecteduser}`
+    const titleString = `${props.selecteduser.guest_email}`
     return (
         <View style={appStyle.container}>
             <AppHeaderText style={{textAlign:'center', marginBottom:0, marginTop:-15}}>What device would you like to Share with</AppHeaderText>

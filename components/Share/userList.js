@@ -25,11 +25,11 @@ export const UserList = (props) => {
             <View style={[(appStyle.container), {marginTop:-10, marginHorizontal:-20}]}>
                  { props.sharedAccounts?props.sharedAccounts.map((Account,index) =>{
                     return(
-                    <TouchableOpacity key={index} onPress={()=> props.setUser(Account.guest_email)}>
+                    <TouchableOpacity key={index} onPress={()=> props.setUser(Account)}>
                         <View style={appStyle.row}>
                             <View style={appStyle.rowLeft}>
-                                <View style={props.selecteduser && props.selecteduser== Account.guest_email? appStyle.userListEntrySelected:appStyle.userListEntry}>
-                                    <AppText style={props.selecteduser && props.selecteduser == Account.guest_email?{ color: 'white'}: { color: 'black'}}>{Account.name}</AppText>
+                                <View style={props.selecteduser && props.selecteduser.guest_email == Account.guest_email? appStyle.userListEntrySelected:appStyle.userListEntry}>
+                                    <AppText style={props.selecteduser && props.selecteduser.guest_email == Account.guest_email?{ color: 'white'}: { color: 'black'}}>{Account.name}</AppText>
                                 </View>
                             </View>
                         </View>

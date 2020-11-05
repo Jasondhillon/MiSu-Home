@@ -6,7 +6,7 @@ import AppTitleText from '../app/AppTitleText';
 import AppText from '../app/AppText';
 
 const PermView = (props) => {
-    const [selectedValue, setSelectedValue] = React.useState(0);
+    const [selectedValue, setSelectedValue] = React.useState(props.access);
     const pr = props.property
     return (
         <View style={[appStyle.row, {marginTop:10}]}>
@@ -17,10 +17,10 @@ const PermView = (props) => {
                 <Picker    
                     selectedValue={selectedValue}
                     style={{ height: 30, width: 150 }}
-                    onValueChange={(itemValue, itemIndex) =>{
+                    onValueChange={(itemValue, itemIndex) => {
                         setSelectedValue(itemValue)
-                        props.updatePerm({...pr ,readOnly:itemValue })
-                }}>
+                        props.updatePerm({...pr ,access:itemValue })
+                    }}>
                     <Picker.Item label="Allow" value={2} />
                     <Picker.Item label="Read Only" value={1} />
                     <Picker.Item label="No Access" value={0} />
@@ -51,10 +51,8 @@ export const PermissionList = props => {
             <AppTitleText> {props.selecteddevice.title}</AppTitleText>
 
             {properties.map((props,index)=> 
-            <PermView key={index}property={props} updatePerm={updatePerm} />)}
+            <PermView key={index}property={props} updatePerm={updatePerm} access={props.access}/>)}
             
         </View>
     )
 }
-
-

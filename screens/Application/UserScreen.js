@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { connect } from 'react-redux';
 import AppHeaderText from '../../components/app/AppHeaderText';
@@ -16,17 +16,11 @@ const DeviceItem = (props) => {
     return (
         <TouchableOpacity style={[appStyle.row, {flex:1, marginTop:5} ]} onPress={() => {props.selected(props.device)}}>
                 <View style={appStyle.rowLeft}>
-                    <Image style={{width:35, height:35}} source={require('../../assets/icons/nest_icon.png')} />
+                    <Image style={{width:35, height:35}} source={require('../../assets/device.png')} />
                     <AppText style={{marginTop:5, marginLeft:10}}> {props.device.name}</AppText>
                 </View>
                 <View style={appStyle.rowRight}>
-                {/**  <Switch
-                            trackColor={{ false: "#767577", true: "#81b0ff" }}
-                            thumbColor={"#f5dd4b"}
-                            ios_backgroundColor="#3e3e3e"
-                            value={true}
-            />*/} 
-                <Image style={{width:30, height:30, marginTop:3}} source={require('../../assets/right.png')} />
+                    <Image style={{width:30, height:30, marginTop:3}} source={require('../../assets/right.png')} />
                 </View>
             <View style={[(appStyle.lineSeperatorAlt), {marginTop:5}]}/>
         </TouchableOpacity>
@@ -39,11 +33,11 @@ const Header = (props) => {
         <View style={appStyle.column}>
             <View style={appStyle.row}>
                 <View style={appStyle.rowLeft}>
-                    <AppHeaderText style={{paddingTop:0, fontWeight:'bold'}}> Shared Devices </AppHeaderText>
+                    <AppHeaderText style={{paddingTop:0, fontWeight:'bold'}}>Shared Devices</AppHeaderText>
                 </View>
-                <View style={[(appStyle.rowRight), {marginTop:-5, marginRight:-5}]}>
-                    <TouchableOpacity onPress={()=> props.open(props.guest_email)}>
-                    <SmallIcon img={require('../../assets/add.png')} />
+                <View style={[(appStyle.rowRight), { marginTop: -5, marginRight: -5 }]}>
+                    <TouchableOpacity onPress={()=> props.open()}>
+                    <SmallIcon img={require('../../assets/deviceAdd.png')} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -52,8 +46,22 @@ const Header = (props) => {
 }
 
 const Footer = (props) => {
+    
+    var createTwoButtonAlert = (user) =>
+    Alert.alert(
+      "End sharing with " + props.name,
+      "Are you sure? You will need to invite " + props.name + " again.",
+      [
+        {
+          text: "Cancel",
+        },
+        { text: "End", onPress: () => props.endSharing()}
+      ],
+      { cancelable: false }
+    )
+
     return(
-        <TouchableOpacity onPress={() => props.endSharing()}>
+        <TouchableOpacity onPress={() => createTwoButtonAlert()}>
             <View style={appStyle.redButton}>
                 <AppText style={{color:'white'}}>End All Sharing</AppText>
             </View>
@@ -65,7 +73,7 @@ const Footer = (props) => {
 class UserScreen extends React.Component  {
 
     static navigationOptions = ({ navigate, navigation }) => ({
-        headerTitle: '',
+        headerTitle: navigation.getParam('sharedAccount').sharedAccount.name,
         headerLeft: () => (
             <View>
                 <TouchableOpacity style={{alignSelf: 'center', marginTop: 16}} onPress={() => navigation.navigate("Home")}>
@@ -75,7 +83,6 @@ class UserScreen extends React.Component  {
         ),
         headerRight: () => (
             <View>
-                <AppTitleText style={{fontWeight: '600', marginRight: 40}}>{navigation.getParam('name')}</AppTitleText>
             </View>
         )
     });
@@ -90,15 +97,20 @@ class UserScreen extends React.Component  {
     }  
 
 
-    async openModal ( name) {
-      await  this.setState({selectedDevice: null ,selecteduser: name});
-       
+    async openModal ( ) {
+        await this.setState({selecteddevice: null});
         this.ModalRef.current.snapTo(0);
-
     }
-
-    selectDevice(device){
-        this.setState({selectedDevice: device});
+    
+    async selectDevice(device){
+        // You have to map the devices into another layout for the ShareModal to read it
+        await Object.keys(this.props.devicesData.devices).map(async (item,index) => {
+            //console.log('founddd' + this.props.devicesData[item].title + ", " + device.name)
+            if(this.props.devicesData.devices[item].title == device.name)
+            {
+                await this.setState({selecteddevice: this.props.devicesData.devices[item]});
+            }
+        })
         this.ModalRef.current.snapTo(0);
     }
 
@@ -109,35 +121,35 @@ class UserScreen extends React.Component  {
 
     render () {
         const { navigation } = this.props;
-        const devices =  navigation.getParam('devices',[])
-        const login_id=  navigation.getParam('login_credentials_id','')
-        const guest_email=  navigation.getParam('guest_email','')
+        const sharedAcc = navigation.getParam('sharedAccount').sharedAccount
+        const devices = sharedAcc.devices
+        const login_id=  sharedAcc.login_credentials_id
+        const guest_email=  sharedAcc.guest_email
+        const name = sharedAcc.name
+        return (
+            <View style={{flex:1}}>
+                <View style={appStyle.container}>
+                    <View style={[appStyle.card, {paddingHorizontal:20}]}>
+                        <Header open={this.openModal.bind(this)} guest_email={guest_email} />
 
-    return (
-        <View style={{flex:1}}>
-            <View style={appStyle.container}>
-                <View style={[appStyle.card, {paddingHorizontal:20}]}>
-                    <Header open={this.openModal.bind(this)} guest_email={guest_email} />
+                        <View style={[appStyle.lineSeperatorFullAlt, {marginTop:5}]}/>
 
-                    <View style={[appStyle.lineSeperatorFullAlt, {marginTop:5}]}/>
-
-                    <View style={appStyle.column}>
-                        {devices.map((device,index)=>
-                        <View key={index} style={{height:50}}>
-                            
-                            <DeviceItem key={index} device={device} navigation={navigation} selected={this.selectDevice.bind(this)} />
-                        <View style={[appStyle.lineSeperatorAlt]}/>
-                        </View>)}
+                        <View style={appStyle.column}>
+                            {devices.map((device,index)=>
+                            <View key={index} style={{height:50}}>
+                                <DeviceItem key={index} device={device} navigation={navigation} selected={this.selectDevice.bind(this)} />
+                            <View style={[appStyle.lineSeperatorAlt]}/>
+                            </View>)}
+                        </View>
+                        <Footer name={name} endSharing={()=> this.endAllSharing(login_id,devices,this.props.sessionData.idToken)}/>
                     </View>
-                    <Footer endSharing={()=> this.endAllSharing(login_id,devices,this.props.sessionData.idToken)}/>
+                </View>
+                <View style={{ elevation:5, flex:1 }}>
+                    <ShareModal ModalRef={this.ModalRef} canEditUser={false} selecteduser={sharedAcc}  selecteddevice={this.state.selecteddevice}  />
                 </View>
             </View>
-            <View style={{ elevation:5, flex:1 }}>
-                <ShareModal ModalRef={this.ModalRef} canEditUser={false} user={{guest_email}}  selectedDevice={this.state.selectedDevice}  />
-            </View>
-        </View>
-    )
-}
+        )
+    }
 }
 
 const styles  = StyleSheet.create({
@@ -152,8 +164,8 @@ const styles  = StyleSheet.create({
 })
 
 const mapStateToProps = (state) => {
-    const { hubInfoData ,sessionData ,sharedAccountsData } = state
-    return { hubInfoData  ,sessionData ,sharedAccountsData ,}
+    const { devicesData, hubInfoData, sessionData, sharedAccountsData } = state
+    return {devicesData, hubInfoData, sessionData, sharedAccountsData}
   };
 
   const mapDispatchToProps = dispatch =>  {

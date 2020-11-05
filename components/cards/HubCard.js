@@ -44,11 +44,11 @@ const HubCard = props => {
             <View style={ [appStyle.lineSeperatorFull, {marginBottom:10} ]}/>
                    
                     {props.sharedAccounts?props.sharedAccounts.map( (sharedAccount,index)=> {
-                        return(
+                            return(
                            
                             <HubCardSharedUsersListEntry  
                             key={index}  
-                            move={() => props.navigation.navigate('User', sharedAccount)}
+                            move={() => props.navigation.navigate('User', {sharedAccount: {sharedAccount}})}
                             name={sharedAccount.name}/>
                             
                            
