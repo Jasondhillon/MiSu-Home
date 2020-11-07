@@ -321,6 +321,8 @@ export default class HomeScreen extends React.Component {
             this.getListofSharedDevices();
             if (debug == 2)
               console.log("%j", "Updated Invitation", data);
+
+            this.getAccessLogs();
           }
           else 
           {
@@ -701,6 +703,52 @@ export default class HomeScreen extends React.Component {
       }
     }
 
+    // Ends hub access early, by choice of the secondary user
+    endSharingSecondary = async (id) => {
+      try {
+        await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/endsharing', {
+            method: 'DELETE',
+            headers: 
+            {
+                Authorization: 'Bearer ' + this.state.idToken,
+            },
+            body: JSON.stringify({
+              id: id,
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+              this.setState({error: null});
+              if (data.statusCode === 200)
+              {
+                this.showToast(data.message);
+                  // Removes the account from the list displayed on the client-side
+                var currSharedDevices = this.state.sharedDevices.filter( el => el.login_credentials_id !== id);
+                if (currSharedDevices.length < 1)
+                  currSharedDevices = null;
+                this.setState({sharedDevices: currSharedDevices});
+                this.getAccessLogs();
+              }
+              else
+              {
+                this.showToast(data.message);
+                this.setState({error: data.message});
+              }
+          })
+          .catch((error) => {
+              console.error("endSharingSecondary error:\n", error);
+              this.showToast(error);
+              this.setState({error});
+          });
+
+      }
+      catch (err)
+      {
+        console.log("Error ending sharing early: " + err);
+        this.setState({error:err.message});
+        this.refreshToken();
+      }
+    }
     // Deletes a property from the properties table
     deleteAProperty = async (account, device, property) => {
       if (debug > 0)
@@ -1182,6 +1230,12 @@ export default class HomeScreen extends React.Component {
                   <View style={{flexDirection: 'row', alignSelf:'flex-start', marginLeft: 20}}>
                     {
                       account.accepted !== 0 &&
+                      <TouchableOpacity style={styles.button4} onPress={this.endSharingSecondary.bind(this, account.login_credentials_id)}> 
+                        <Text style={{fontSize:20, color: '#FFF'}}>X</Text>
+                      </TouchableOpacity>
+                    }
+                    {
+                      account.accepted !== 0 &&
                       <Text style={styles.title}>{account.sharer_name}'s House</Text>
                     }
                   </View>
@@ -1286,7 +1340,7 @@ export default class HomeScreen extends React.Component {
                 account.id !== null &&
                 <View key={index}>
                   <View style={{flexDirection: 'row', alignSelf:'flex-start'}}>
-                    <TouchableOpacity style={styles.button4} onPress={this.deleteASharedAccount.bind(this, account.login_credentials_id, account.devices)}> 
+                    <TouchableOpacity style={styles.button4} onPress={this.deleteASharedAccount.bind(this, account.login_credentials_id)}> 
                       <Text style={{fontSize:20, color: '#FFF'}}>X</Text>
                     </TouchableOpacity>
                     <Text style={styles.devices}>{account.name}</Text>
@@ -1391,6 +1445,8 @@ export default class HomeScreen extends React.Component {
                     return " Gave you access";
                   else if (log.operation === "Delete")
                     return " Revoked your access";
+                  else if (log.operation === "Ended sharing early")
+                    return " You ended sharing early";
                   else 
                     return " You accepted access";
                 })()}</Text>
