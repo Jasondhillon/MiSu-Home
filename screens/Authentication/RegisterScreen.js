@@ -7,8 +7,8 @@ export default class RegisterScreen extends React.Component
 {
     state = 
     {
-        name: 'Bob',
-        username: 'primary@example.com',
+        name: '',
+        username: '',
         password: '#Cop4935',
         userId: null,
         errorMessage: null,
@@ -31,20 +31,20 @@ export default class RegisterScreen extends React.Component
         {
 
             console.log(username, password, name);
-            const response = await Auth.signUp({username,
+            await Auth.signUp({username,
                 password,
                 attributes: {
                     name,
                     email: username,
-                    phone_number: "+4070000000",
-                    address: "1234 Address Way"
+                    phone_number: "+14070000000",
+                    address: "1234 Address Way",
+                    "custom:city": "Orlando",
+                    "custom:state": "Florida"
                 }
             })
             .then((response) => {
                 this.setState({error: null, userId: response.userSub, signedUp:true, message:'A verification code was sent to your email! '});
                 this.setState({errorMessage: ''});
-                console.log('sign up successful!');
-                console.log(response.userSub);
             })
             .catch(error => {
                 this.setState({errorMessage: error.message});
@@ -112,7 +112,7 @@ export default class RegisterScreen extends React.Component
                 </View>
                
                 {/* Render the greeting */}
-                <Text style={authStyle.greeting}>{`Sign up to`} <Text style={authStyle.appName}> { 'Misu' } </Text></Text>
+                <Text style={authStyle.greeting}>Sign up for BASIC-UI BUILD</Text>
 
                 {/* Render the register form */}
                 <View style={authStyle.authForm}>

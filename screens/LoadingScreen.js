@@ -29,7 +29,7 @@ export default class LoadingScreen extends React.Component
                           height:180,
                           marginBottom:90
                       }}
-                      source={require('../assets/icons/logo.png')}
+                      source={require('../assets/splash.png')}
                   />
               </View>
                 <Text

@@ -11,19 +11,15 @@ Amplify.configure(config);
 //************************************************** */
 // Main screen holding all the logic essentially
 import HomeScreen from './screens/Application/HomeScreen';
-import AccountScreen from './screens/Application/AccountScreen';
-import DeviceScreen from './screens/Application/DeviceScreen';
 
 const AppStack = createStackNavigator({
   Home: HomeScreen,
-  Account: AccountScreen,
-  Device: DeviceScreen
 });
 
 //************************************************** */
 // Auth Stack ************************************** */
 //************************************************** */
-// Login/Register screens hold the code that mess with the firebase auth(login)
+// Login/Register screens hold the code for logging in and registering for cognito accounts
 import LoginScreen from './screens/Authentication/LoginScreen';
 import RegisterScreen from './screens/Authentication/RegisterScreen';
 

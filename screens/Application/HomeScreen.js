@@ -6,6 +6,7 @@ const AWS = require('aws-sdk');
 AWS.config.update({ region: "us-east-1"});
 // 0 for no logs, 1 for basic logs, 2 for verbose
 const debug = 0;
+const shareEmail = "secondary@example.com"
 
 export default class HomeScreen extends React.Component {
 
@@ -352,8 +353,7 @@ export default class HomeScreen extends React.Component {
                 Authorization: 'Bearer ' + this.state.idToken,
             },
             body: JSON.stringify({
-              // TODO: Have the email come from user input
-              email: "secondary@example.com",
+              email: shareEmail,
               })
             })
             .then(response => response.json())
@@ -371,9 +371,8 @@ export default class HomeScreen extends React.Component {
             var acc, isShared = 0, account;
             for (acc in this.state.sharedAccounts)
             {
-              // TODO: Change this to use user input
               // Checks if the primary user has already created a SharedAccount for the person they are sharing to
-              if (this.state.sharedAccounts[acc].guest_email === "secondary@example.com")
+              if (this.state.sharedAccounts[acc].guest_email === shareEmail)
               {
                 account = this.state.sharedAccounts[acc];
                 isShared = 1;
@@ -388,9 +387,8 @@ export default class HomeScreen extends React.Component {
               {
                   Authorization: 'Bearer ' + this.state.idToken,
               },
-              // TODO: Change this to user input
               body: JSON.stringify({
-                email: "secondary@example.com",
+                email: shareEmail,
                 })
               })
               .then(response => response.json())
@@ -540,13 +538,13 @@ export default class HomeScreen extends React.Component {
     // Please note that the time range must be in HH:MM 24hour format
     createAProperty = async (accountId, deviceId, properties) => {
       try {
+        const dateTime = new Date;
+        const date = dateTime.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit',timeZone: 'America/New_York'});
         if (properties)
         {
           var property;
           for (property in properties)
           {
-            if (debug === 2)
-              console.log("Creating a property...");
             await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/property', {
             method: 'POST',
             headers: 
@@ -561,21 +559,26 @@ export default class HomeScreen extends React.Component {
               path: properties[property].property.links[0].href + "",
               read_only: properties[property].property.readOnly ? 1:0,
               unrestricted: 0,
-              // Make sure to follow HH:MM format for the time range
-              time_range_start: '00:00',
-              time_range_end: '02:00',
-              // Make sure to set the days of the week as follows DDD format: MonTueWedThuFriSatSun
-              time_range_reoccuring: 'Tue',
+              temporary: 1,
+              // Make sure to follow HH:MM 24-hour format for the time range
+              temp_time_range_start:"16:00",
+              temp_time_range_end:"17:00",
+              // Dates should be of format MM/DD/YY
+              temp_date: date,
+              // 1 for time_range aka schedule
+              time_range:"0",
+              time_range_start: '09:00',
+              time_range_end: '12:00',
+              // Days of the week follow format ddd, so the full week would be: MonTueWedThuFriSatSun
+              time_range_reoccuring: 'MonFri',
+              time_range_start_date:"11/06/20",
+              time_range_end_date:"11/20/20",
               gps_location: null,
               gps_location_distance: null
               })
             })
             .then(response => response.json())
             .then(data => {
-              if (debug > 0)
-              {
-                console.log("%j", null, data);
-              }
               if(data.statusCode === 200)
                 this.createAProperty(data.message, properties);
               else if (statusCode === 400)
@@ -831,8 +834,6 @@ export default class HomeScreen extends React.Component {
 
     // Sends a command to a hub
     useSharedDevice = async (account, device, property) => {
-      // console.log(JSON.stringify(property, null, 2));
-      // console.log("Turning " + property.name + " " + !property.value);
       var list = this.state.sharedDevices;
       var temp = list[list.indexOf(account)].devices;
       temp = temp[temp.indexOf(device)].properties
@@ -840,7 +841,9 @@ export default class HomeScreen extends React.Component {
 
       var dateTime = new Date();
       var localTime = dateTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York'});
-      // Not sure whym but dateTime.toLocaleDateString('en-US', {weekday:'short'}); kept returning the full date and not the day
+      // MM/DD/YY
+      var date = dateTime.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit',timeZone: 'America/New_York'});
+      // Not sure why but dateTime.toLocaleDateString('en-US', {weekday:'short'}); kept returning the full date and not the day, so switch statement is the work around
       var day = dateTime.getDay();
       switch (day)
       {
@@ -866,28 +869,29 @@ export default class HomeScreen extends React.Component {
           day = 'Sat';
           break;
       }
+      // Check for rules
       if (!temp.unrestricted)
       {
-        // Check if we are within the time range window
-        if (localTime >= temp.time_range_start)
+        // Temporary Rules
+        if (temp.temporary)
         {
-          if (localTime <= temp.time_range_end)
+          // Check if it is still the same day
+          if (date !== temp.temp_date)
+          {
+            this.showToast("Temporary access for this device has expired");
+          }
+          // Check if within the time rules
+          else
           {   
-            // Check if this rule is operating on the correct day(s)
-            if (temp.time_range_reoccuring !== null)
-            {
-              var withinTimeFrame = 0;
-              var daysReoccuring = temp.time_range_reoccuring.match(/.{1,3}/g);
-              for (var i = 0; i < daysReoccuring.length; i++)
+              if (localTime < temp.temp_time_range_start)
               {
-                // console.log(day, daysReoccuring[i]);
-                if (day === daysReoccuring[i])
-                {
-                  withinTimeFrame = 1;
-                }
+                this.showToast("This device is not available at this time (Too early)");
               }
-              
-              if (withinTimeFrame)
+              else if (localTime > temp.temp_time_range_end)
+              {
+                this.showToast("The time window for this device has expired (Too late)");
+              }
+              else
               {
                 // Removes the UI button while the action is being done by setting it to read only
                 temp.read_only = true;
@@ -925,21 +929,175 @@ export default class HomeScreen extends React.Component {
                       this.setState({error});
                   });
               }
+          }
+        }
+        // Schedule based rules
+        else if (temp.time_range)
+        {
+          // Check if within the schedule start date
+          if (date >= temp.time_range_start_date)
+          {   
+            // Check if within the schedule end date
+            if (date <= temp.time_range_end_date)
+            {
+              // Check if we are within the time range window
+              if (localTime >= temp.time_range_start)
+              {
+                if (localTime <= temp.time_range_end)
+                {
+                  // Check if this rule is operating on the correct day(s)
+                  if (temp.time_range_reoccuring !== null)
+                  {
+                    var withinTimeFrame = 0;
+                    var daysReoccuring = temp.time_range_reoccuring.match(/.{1,3}/g);
+                    for (var i = 0; i < daysReoccuring.length; i++)
+                    {
+                      if (day === daysReoccuring[i])
+                      {
+                        withinTimeFrame = 1;
+                      }
+                    }
+                    
+                    if (withinTimeFrame)
+                    {
+                      // Removes the UI button while the action is being done by setting it to read only
+                      temp.read_only = true;
+                      this.setState({sharedDevices: list});
+                      if (property.type == "boolean")
+                        await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
+                            method: 'POST',
+                            headers: 
+                            {
+                                Authorization: 'Bearer ' + this.state.idToken
+                            },
+                            body: JSON.stringify({
+                              account: account.login_credentials_id,
+                              device: device.shared_device_properties_id,
+                              property: property.shared_property_id,
+                              value: !property.value
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                          temp.value = !temp.value;
+                            if(data.statusCode === 400)
+                            {
+                              console.log("%j", data.message);
+                              this.showToast(data.message);
+                            }
+                            // Retoggles the button on the UI allowing the device to be toggled again
+                            temp.read_only = false;
+                            this.setState({sharedDevices: list});
+                            this.getValueForSharedDeviceProperty(account, device, property);
+                        })
+                        .catch((error) => {
+                            console.error('useSharedDevice error:', error);
+                            this.showToast(error);
+                            this.setState({error});
+                        });
+                    }
+                    else
+                    {
+                      this.showToast("Can't use this device on this day");
+                    }
+                  }
+                }
+                else
+                {
+                  this.showToast("This device is not available at this time (Too late)");
+                }
+              }
               else
               {
-                this.showToast("Can't use this device on this day");
+                this.showToast("This device is not available at this time (Too early)");
               }
+            }
+            else
+            {
+              this.showToast("Access to this device has expired (Schedule has ended)");
             }
           }
           else
           {
-            this.showToast("Can't use this device at this time");
+            this.showToast("This device is not available at this date (Schedule hasn't started yet)");
           }
         }
         else
         {
-          this.showToast("Can't use this device at this time");
+          // Removes the UI button while the action is being done by setting it to read only
+          temp.read_only = true;
+          this.setState({sharedDevices: list});
+          if (property.type == "boolean")
+            await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
+                method: 'POST',
+                headers: 
+                {
+                    Authorization: 'Bearer ' + this.state.idToken
+                },
+                body: JSON.stringify({
+                  account: account.login_credentials_id,
+                  device: device.shared_device_properties_id,
+                  property: property.shared_property_id,
+                  value: !property.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+              temp.value = !temp.value;
+                if(data.statusCode === 400)
+                {
+                  console.log("%j", data.message);
+                  this.showToast(data.message);
+                }
+                // Retoggles the button on the UI allowing the device to be toggled again
+                temp.read_only = false;
+                this.setState({sharedDevices: list});
+                this.getValueForSharedDeviceProperty(account, device, property);
+            })
+            .catch((error) => {
+                console.error('useSharedDevice error:', error);
+                this.showToast(error);
+                this.setState({error});
+            });
         }
+      }
+      else
+      {
+        // Removes the UI button while the action is being done by setting it to read only
+        temp.read_only = true;
+        this.setState({sharedDevices: list});
+        if (property.type == "boolean")
+          await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
+              method: 'POST',
+              headers: 
+              {
+                  Authorization: 'Bearer ' + this.state.idToken
+              },
+              body: JSON.stringify({
+                account: account.login_credentials_id,
+                device: device.shared_device_properties_id,
+                property: property.shared_property_id,
+                value: !property.value
+              })
+          })
+          .then(response => response.json())
+          .then(data => {
+            temp.value = !temp.value;
+              if(data.statusCode === 400)
+              {
+                console.log("%j", data.message);
+                this.showToast(data.message);
+              }
+              // Retoggles the button on the UI allowing the device to be toggled again
+              temp.read_only = false;
+              this.setState({sharedDevices: list});
+              this.getValueForSharedDeviceProperty(account, device, property);
+          })
+          .catch((error) => {
+              console.error('useSharedDevice error:', error);
+              this.showToast(error);
+              this.setState({error});
+          });
       }
     }
 
@@ -1008,7 +1166,7 @@ export default class HomeScreen extends React.Component {
             </ScrollView>
             }
             {this.state.hub_url !== null && <TouchableOpacity style={styles.setUserInfoButton} onPress={this.createASharedAccount}>
-              <Text style={{color: '#FFF', fontWeight: '500', fontSize: 18, paddingHorizontal: 10, alignContent: 'center', textAlign: 'center'}}>Share Devices to           secondary@example.com    </Text>
+              <Text style={{color: '#FFF', fontWeight: '500', fontSize: 18, paddingHorizontal: 10, alignContent: 'center', textAlign: 'center'}}>Share Devices to           {shareEmail}    </Text>
               <Text style={{color: '#FFF', fontWeight: '500', paddingHorizontal: 10, alignContent: 'center', textAlign: 'center'}}>(Only for easy testing, this is dynamic)</Text>
             </TouchableOpacity>
             }
@@ -1031,19 +1189,23 @@ export default class HomeScreen extends React.Component {
                     account.devices !== undefined && account.accepted === 1 &&
                     account.devices.map((device, index) => (
                       <View key={index}>
-                        <View style={{flexDirection: 'row', marginLeft: 40}}>
+                        <View style={{flexDirection: 'row', marginLeft: 30}}>
                           <Text style={styles.devices}>&rarr;{device.name} ({device.description})</Text>
                         </View>
                         {
                           device.properties !== undefined &&
                           device.properties.map((property, index) => (
-                            <View key={property.shared_property_id} style={{flexDirection: 'row', marginLeft: 70, justifyContent:"space-between", marginRight: 15}}>
-                              <Text key={property.id} style={styles.devices}>&#8618;{property.name}{" "}(
+                            <View key={property.shared_property_id} style={{flexDirection: 'row', marginLeft: 60, justifyContent:"space-between", marginRight: 15}}>
+                              <Text key={property.id} style={styles.devices2}>&#8618;{property.name}{" "}(
                                 {(() => {
                                   if (property.unrestricted) {
                                    return <Text style={{fontStyle: "italic"}}>unrestricted</Text>;
                                   }
-                                  else if (property.time_range_start !== undefined)
+                                  else if (property.temporary)
+                                  {
+                                    return property.temp_time_range_start + "-" + property.temp_time_range_end + " " + property.temp_date;
+                                  }
+                                  else if (property.time_range)
                                   {
                                     return property.time_range_start + "-" + property.time_range_end + " " + property.time_range_reoccuring;
                                   }
@@ -1146,12 +1308,16 @@ export default class HomeScreen extends React.Component {
                               <TouchableOpacity key={property.id} style={styles.button4} onPress={this.deleteAProperty.bind(this, account, device, property)}> 
                                 <Text style={{fontSize:20, color: '#FFF'}}>X</Text>
                               </TouchableOpacity>
-                              <Text key={property.id} style={styles.devices}>{property.name} (
+                              <Text key={property.id} style={styles.devices2}>{property.name} (
                                 {(() => {
                                   if (property.unrestricted) {
                                    return "unrestricted";
                                   }
-                                  else if (property.time_range_start !== undefined)
+                                  else if (property.temporary)
+                                  {
+                                    return property.temp_time_range_start + "-" + property.temp_time_range_end + " " + property.temp_date;
+                                  }
+                                  else if (property.time_range)
                                   {
                                     return property.time_range_start + "-" + property.time_range_end + " " + property.time_range_reoccuring;
                                   }
@@ -1253,6 +1419,11 @@ export default class HomeScreen extends React.Component {
       fontWeight: '400',
       justifyContent: 'center',
       textTransform: 'capitalize'
+    },
+    devices2: {
+      fontSize: 18,
+      fontWeight: '400',
+      justifyContent: 'center',
     },
     logs: {
       marginLeft: 40,

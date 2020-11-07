@@ -61,7 +61,7 @@ export default class LoginScreen extends React.Component
             </View>
             
             {/* Render the greeting */}
-            <Text style={authStyle.greeting}>{`Login to`} <Text style={authStyle.appName}> { 'Misu' } </Text></Text>
+            <Text style={authStyle.greeting}>Login to BASIC-UI BUILD</Text>
             
             {/* Render the login form */}
             <View style={authStyle.authForm}>

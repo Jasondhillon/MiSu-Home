@@ -7,7 +7,7 @@
     ],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/splash.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -23,8 +23,12 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.ucf.smartshare",
-      "versionCode": 1
+      "package": "com.ucf.misuhome",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#5AC8F3"
+      }
     }
   }
 }
