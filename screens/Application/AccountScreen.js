@@ -34,6 +34,10 @@ class AccountScreen extends React.Component {
         })
     }
 
+    viewLogs = () => {
+        this.props.navigation.navigate("Log");
+    }
+
 
     UNSAFE_componentWillReceiveProps(props){
         if(props.registerData){
@@ -59,6 +63,9 @@ class AccountScreen extends React.Component {
   
                     <TouchableOpacity style={[{marginHorizontal:50, marginBottom: 10}, appStyle.redButton]} onPress={this.signOut}>
                         <AppText>Log out</AppText>
+                    </TouchableOpacity> 
+                    <TouchableOpacity style={[{marginHorizontal:50, marginBottom: 10}, appStyle.greenButton]} onPress={this.viewLogs}>
+                        <AppText>View Logs</AppText>
                     </TouchableOpacity> 
 
                 </View>       

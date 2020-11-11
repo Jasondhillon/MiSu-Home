@@ -15,6 +15,7 @@ import appDataReducer from './redux/AppDataReducer';
 import AccountScreen from './screens/Application/AccountScreen';
 import DeviceScreen from './screens/Application/DeviceScreen';
 import UserScreen from './screens/Application/UserScreen';
+import LogScreen from  './screens/Application/LogScreen';
 //************************************************** */
 // Auth Stack ************************************** */
 //************************************************** */
