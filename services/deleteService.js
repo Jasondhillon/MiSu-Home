@@ -8,7 +8,7 @@ export const  deleteADevice = async ( login_id, device,idToken) => {
         },
         body: JSON.stringify({
           account:  login_id,
-          device: device.shared_device_properties_id
+          device: device
           })
       })
 
@@ -40,10 +40,23 @@ export const  deleteAProperty = async (account, idToken, device, property) => {
         },
         body: JSON.stringify({
           account: account.login_credentials_id,
-          device: device.shared_device_properties_id,
+          device: device,
           property: property.shared_property_id
           })
       })
-      console.log('* Deleted existing property');
       return response.json()
 }
+
+export const endSharingSecondary = async (id ,idToken) => {
+
+return await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/endsharing', {
+            method: 'DELETE',
+            headers: 
+            {
+                Authorization: 'Bearer ' + idToken,
+            },
+            body: JSON.stringify({
+              id: id,
+            })
+          })
+        }

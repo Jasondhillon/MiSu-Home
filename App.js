@@ -1,5 +1,7 @@
 import Amplify from '@aws-amplify/core';
 import React, { Component } from 'react';
+import { View } from 'react-native';
+import Spinner from 'react-native-loading-spinner-overlay';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 // ************************************************ */
@@ -12,11 +14,6 @@ import config from './aws-exports';
 import appDataReducer from './redux/AppDataReducer';
 import AccountScreen from './screens/Application/AccountScreen';
 import DeviceScreen from './screens/Application/DeviceScreen';
-//************************************************** */
-// App Stack *************************************** */
-//************************************************** */
-// Main screen holding all the logic essentially
-import HomeScreen from './screens/index';
 import UserScreen from './screens/Application/UserScreen';
 //************************************************** */
 // Auth Stack ************************************** */
@@ -24,6 +21,11 @@ import UserScreen from './screens/Application/UserScreen';
 // Login/Register screens hold the code that mess with the firebase auth(login)
 import LoginScreen from './screens/Authentication/LoginScreen';
 import RegisterScreen from './screens/Authentication/RegisterScreen';
+//************************************************** */
+// App Stack *************************************** */
+//************************************************** */
+// Main screen holding all the logic essentially
+import HomeScreen from './screens/index';
 //************************************************** */
 // Loading Stack *********************************** */
 //************************************************** */
@@ -93,10 +95,45 @@ const AppContainer = createAppContainer(
 );
 
 export default class App extends Component {
+  constructor(props){
+    super(props)
+    this.state = {
+      loading: false
+    }
+  }
+
+
+  setLoadingTrue() {
+    this.setState({ loading: true})
+  }
+
+
+  setLoadingFalse() {
+    this.setState({ loading: false})
+  }
+
+
   render () {
     return (
       <Provider store={store}>
-        <AppContainer />
+        <View style={{ flex:1}}>
+        <Spinner
+          visible={this.state.loading}
+          textContent={'Loading...'}
+          textStyle={ {
+            color: '#FFF'
+          }}
+         />
+        <AppContainer
+
+screenProps={{
+  setLoadingFalse:this.setLoadingFalse.bind(this),
+  setLoadingTrue:this.setLoadingTrue.bind(this)
+}}
+
+        
+        />
+        </View>
       </Provider>
     )
   }

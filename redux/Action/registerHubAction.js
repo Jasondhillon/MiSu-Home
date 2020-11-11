@@ -35,9 +35,6 @@ export const registerHubAction = ({
               };
             const data =  await createHub(hubDat,idToken)
 
-            console.log('*******register Hub response**********')
-            console.log({data})
-
             dispatch(registerHubSucess({ loading: false ,  success: true, error: null}))
             
         } catch (error) {

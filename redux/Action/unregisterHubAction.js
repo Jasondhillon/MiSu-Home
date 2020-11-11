@@ -34,9 +34,6 @@ export const unregisterHubAction = ({
             hub_password
           },idToken)
 
-           console.log('*******(un)register Hub**********')
-           console.log({data})
-
             dispatch(unregisterHubSucess())
             
         } catch (error) {

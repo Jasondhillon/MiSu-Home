@@ -100,8 +100,6 @@ export const createProperty = async (idToken,accountId,deviceId, property) => {
   if(property.access == 0)
     return "Cant create not allow property " + property.access;
 
-  console.log('*******propertyyy*****')
-  console.log({property})
   const response = await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/property', {
     method: 'POST',
     headers: 
@@ -114,7 +112,7 @@ export const createProperty = async (idToken,accountId,deviceId, property) => {
       name: property.title + "",
       type: property.type + "",
       path:property.links[0].href + "",
-      read_only: property.access == 1 ? 1:0,
+      read_only: property.access == 2 ? 0 : 1,
       unrestricted: 0,
       time_range_start: null,
       time_range_end: null,
@@ -123,6 +121,5 @@ export const createProperty = async (idToken,accountId,deviceId, property) => {
       gps_location_distance: null
       })
     })
-
     return response.json()
 }

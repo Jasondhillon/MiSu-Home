@@ -1,7 +1,5 @@
-
-import { deleteASharedAccount } from '../../services/deleteService'
-
-
+import { endSharingSecondary } from '../../services/deleteService'
+import { getSharedDevicesAction } from '../Action/getSharedDevicesAction'
 
 const setExitStatus =(type , data,success) => ({
     type,
@@ -13,13 +11,21 @@ export const  exitHubAction =  (id, idToken) => {
 
     return async (dispatch) =>{
         try {
-            console.log("exiting hub...." + id + ", " + idToken);
-            const data =   await deleteASharedAccount(id, idToken)
-            console.log({data});
-            dispatch(setExitStatus('EXIT_HUB',data,true))  
+            dispatch(setExitStatus('EXIT_HUB',{ loading: true},true))  
+            //const data =   await deleteASharedAccount(id, idToken)
+            const data = await endSharingSecondary(id, idToken)
+           
+            setTimeout(()=> {
+                dispatch(getSharedDevicesAction(idToken))
+                dispatch(setExitStatus('EXIT_HUB',{...data , loading:false},true))  
+            },400)
+           
+           
         } 
         catch (error) {
-            dispatch(setExitStatus('EXIT_HUB', null,false))
+            setTimeout(()=> {
+            dispatch(setExitStatus('EXIT_HUB', { loading: false},false))
+            },400)
         }
 }
 }

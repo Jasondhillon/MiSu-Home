@@ -31,9 +31,14 @@ class LoginScreen extends React.Component
         else
         {
             try {
+               
+                this.props.screenProps.setLoadingTrue()
+
                 await Auth.signIn(username, password)
                 await this.props.getSession()
 
+                this.props.screenProps.setLoadingFalse()
+                
                 this.props.navigation.navigate("App");
                 
             } catch (error) {
@@ -145,6 +150,8 @@ class LoginScreen extends React.Component
         );
     }
 }
+
+
 
 
 const mapDispatchToProps = dispatch =>  {

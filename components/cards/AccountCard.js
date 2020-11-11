@@ -111,7 +111,6 @@ class AccountCard extends Component
     }
 
     registerHub = () => {
-        console.log("Registering hub");
         this.setState({
             registering: true
         });

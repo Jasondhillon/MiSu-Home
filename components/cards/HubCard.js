@@ -5,65 +5,55 @@ import AppHeaderText from '../app/AppHeaderText';
 import AppText from '../app/AppText';
 import HubCardSharedUsersListEntry from './ListEntries/HubCardSharedUsersListEntry';
 
-
-
-
-
 const HubCard = props => {
     return (
         <View style={[appStyle.card, { paddingBottom:0 }]}>
-        <View style={[appStyle.container, {paddingBottom:-20}]}>
+            <View style={[appStyle.container, {paddingBottom:-20}]}>
 
-                    {/* Render the hub icon */}
-                    <Image
-                        style={style.hubIcon}
-                        source={require('../../assets/icons/hub.png')}
-                    />
+                {/* Render the hub icon */}
+                <Image
+                    style={style.hubIcon}
+                    source={require('../../assets/icons/hub.png')}
+                />
 
-                    {/* Render the hub name */}
-                    <AppHeaderText style={style.name}> {props.name}'s  Home</AppHeaderText>
+                {/* Render the hub name */}
+                <AppHeaderText style={style.name}> {props.name}'s  Home</AppHeaderText>
 
 
-                    {/* Start the hub's sharing view */}
-                    <View style={appStyle.row}>
-                        {/* Render the hub sharing description */}
-                        <AppText style={appStyle.rowLeft, { marginTop: 17.5 }}>Shared Users</AppText>
+                {/* Start the hub's sharing view */}
+                <View style={appStyle.row}>
+                    {/* Render the hub sharing description */}
+                    <AppText style={appStyle.rowLeft, { marginTop: 17.5 }}>Shared Users</AppText>
 
-                        <View style={appStyle.rowRight}>
-                            {/* Render the hub sharing details */}
-                            <TouchableOpacity onPress={() => props.OpenModal()  }>
-                                {/* Render the hub icon */}
-                                <Image
-                                    style={style.addUserIcon}
-                                    source={require('../../assets/icons/add-user.png')}
-                                />
-                            </TouchableOpacity>
-                        </View>
+                    <View style={appStyle.rowRight}>
+                        {/* Render the hub sharing details */}
+                        <TouchableOpacity onPress={() => props.OpenModal()  }>
+                            {/* Render the hub icon */}
+                            <Image
+                                style={style.addUserIcon}
+                                source={require('../../assets/icons/add-user.png')}
+                            />
+                        </TouchableOpacity>
                     </View>
+                </View>
 
-            <View style={ [appStyle.lineSeperatorFull, {marginBottom:10} ]}/>
-                   
-                    {props.sharedAccounts?props.sharedAccounts.map( (sharedAccount,index)=> {
+                <View style={ [appStyle.lineSeperatorFull, {marginBottom:10} ]}/>
+                        {props.sharedAccounts.length <= 0 && 
+                            <View style={appStyle.row}><AppText style={{marginBottom:10, marginTop:-2}}>No users...</AppText></View>
+                        }
+                        {props.sharedAccounts?props.sharedAccounts.map( (sharedAccount,index)=> {
                             return(
-                           
-                            <HubCardSharedUsersListEntry  
-                            key={index}  
-                            move={() => props.navigation.navigate('User', {sharedAccount: {sharedAccount}})}
-                            name={sharedAccount.name}/>
-                            
-                           
-                        )
-                    }
-                   ):null}
-            </View>
+                                <HubCardSharedUsersListEntry  
+                                    key={index}  
+                                    move={() => props.navigation.navigate('User', {sharedAccount: {sharedAccount}})}
+                                    name={sharedAccount.name}/>
+                            )
+                        }
+                    ):null}
+                </View>
             </View>
     )
 }
-
-
-
-
-
 
 const style = StyleSheet.create({
     name: {
@@ -90,6 +80,5 @@ const style = StyleSheet.create({
         marginBottom:7.5
     }
  });
-
 
 export default HubCard

@@ -1,10 +1,9 @@
 import React from 'react';
-import { Image, StyleSheet, TouchableOpacity, View, Alert } from 'react-native';
+import { Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { connect } from 'react-redux';
 import AppHeaderText from '../../components/app/AppHeaderText';
 import AppText from '../../components/app/AppText';
-import AppTitleText from '../../components/app/AppTitleText';
 import ShareModal from '../../components/modals/ShareModal';
 import SmallIcon from '../../components/SmallIcon';
 import { stopSharingAction } from '../../redux/Action/stopSharing';
@@ -91,11 +90,39 @@ class UserScreen extends React.Component  {
         super(props)
 
         this.state  = {
-
+            loading: false,
+            refresh: false
         }
         this.ModalRef = React.createRef();
     }  
 
+
+
+    UNSAFE_componentWillReceiveProps(props) {
+
+        this.setState({
+            refresh: !this.state.refresh
+        })
+
+
+       if(!this.state.loading && props.StopShareState.loading){
+                this.setState({
+                    loading: true
+                })
+               this.props.screenProps.setLoadingTrue()
+       }
+
+        if(this.state.loading && !props.StopShareState.loading){
+            this.setState({
+                loading: false
+            })
+        this.props.screenProps.setLoadingFalse()
+        this.props.navigation.navigate("Home")
+        }
+       
+
+       
+    }
 
     async openModal ( ) {
         await this.setState({selecteddevice: null});
@@ -105,7 +132,6 @@ class UserScreen extends React.Component  {
     async selectDevice(device){
         // You have to map the devices into another layout for the ShareModal to read it
         await Object.keys(this.props.devicesData.devices).map(async (item,index) => {
-            //console.log('founddd' + this.props.devicesData[item].title + ", " + device.name)
             if(this.props.devicesData.devices[item].title == device.name)
             {
                 await this.setState({selecteddevice: this.props.devicesData.devices[item]});
@@ -115,7 +141,7 @@ class UserScreen extends React.Component  {
     }
 
     endAllSharing(login_id,devices,idToken){
-        this.props.navigation.navigate("Home");
+  
         this.props.stopSharing(login_id,devices,idToken);
     }
 
@@ -135,11 +161,12 @@ class UserScreen extends React.Component  {
                         <View style={[appStyle.lineSeperatorFullAlt, {marginTop:5}]}/>
 
                         <View style={appStyle.column}>
-                            {devices.map((device,index)=>
-                            <View key={index} style={{height:50}}>
-                                <DeviceItem key={index} device={device} navigation={navigation} selected={this.selectDevice.bind(this)} />
-                            <View style={[appStyle.lineSeperatorAlt]}/>
-                            </View>)}
+                            { devices.map((device,index)=> 
+                                <View key={index} style={{height:50}}>
+                                    <DeviceItem key={index} device={device} navigation={navigation} selected={this.selectDevice.bind(this)} />
+                                    <View style={[appStyle.lineSeperatorAlt]}/>
+                                </View>
+                            )}
                         </View>
                         <Footer name={name} endSharing={()=> this.endAllSharing(login_id,devices,this.props.sessionData.idToken)}/>
                     </View>
@@ -164,8 +191,8 @@ const styles  = StyleSheet.create({
 })
 
 const mapStateToProps = (state) => {
-    const { devicesData, hubInfoData, sessionData, sharedAccountsData } = state
-    return {devicesData, hubInfoData, sessionData, sharedAccountsData}
+    const { devicesData, hubInfoData, sessionData, sharedAccountsData ,StopShareState} = state
+    return {devicesData, hubInfoData, sessionData, sharedAccountsData ,StopShareState}
   };
 
   const mapDispatchToProps = dispatch =>  {

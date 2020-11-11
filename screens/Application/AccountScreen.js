@@ -24,9 +24,14 @@ class AccountScreen extends React.Component {
     
     // Signs the user out and sends them back to the login screen
     signOut = async () => {
+        this.props.screenProps.setLoadingTrue()
         ToastAndroid.show("Signing out!", ToastAndroid.LONG);
         Auth.signOut()
-        .then(this.props.navigation.navigate("Auth"));
+        .then(()=> {
+            this.props.screenProps.setLoadingFalse()
+        }).then(()=>{
+            this.props.navigation.navigate("Auth")
+        })
     }
 
 

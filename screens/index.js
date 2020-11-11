@@ -10,8 +10,8 @@ import HomeScreen from './Application/HomeScreen';
 
 
 const mapStateToProps = (state) => {
-    const { hubInfoData ,sessionData ,sharedAccountsData ,sharedDevicesData  } = state
-    return { hubInfoData  ,sessionData ,sharedAccountsData ,sharedDevicesData}
+    const { hubInfoData ,sessionData ,sharedAccountsData ,sharedDevicesData , exitHubData ,shareState, updateInviteState } = state
+    return { hubInfoData  ,sessionData ,sharedAccountsData ,sharedDevicesData ,exitHubData ,shareState, updateInviteState}
   };
   
 

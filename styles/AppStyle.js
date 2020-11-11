@@ -11,7 +11,19 @@ const appStyle = StyleSheet.create({
         alignItems: 'center',
         alignSelf:'stretch',
     },
-
+    tab: {
+        backgroundColor: '#f2f2f2',
+        padding:5,
+        paddingHorizontal:8,
+        borderColor:'#4d5a5e',
+        borderWidth:1.4,
+        marginTop:-4,
+        borderRadius: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 28,
+        flexDirection:'row',
+    },
     column: {
         margin:2,
         paddingBottom:0,
@@ -65,7 +77,8 @@ const appStyle = StyleSheet.create({
         shadowRadius: 20.41,
         borderBottomWidth: 3,
         borderBottomColor: "#a8a8a8",
-        height:150,
+        maxHeight:120,
+        height:120,
         elevation: 4, 
     },
     card: {
@@ -293,6 +306,29 @@ const appStyle = StyleSheet.create({
         borderColor:'#9bcc83',
         paddingHorizontal:20,
         elevation: 6
+    },
+
+    checkBox: {
+        backgroundColor: '#f2f2f2',
+        borderColor:'#4d5a5e',
+        borderWidth:1.4,
+        marginTop:-4,
+        borderRadius: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 28,
+        width:28,
+    },
+    checkBoxSelected: {
+        backgroundColor: '#71ccf1',
+        borderColor:'#4d5a5e',
+        borderWidth:1.4,
+        marginTop:-4,
+        borderRadius: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 28,
+        width:28,
     },
 
     formInput: {

@@ -55,7 +55,7 @@ const PermView = (props) => {
     )
 }
 
-export const PermissionList = props => {
+export const PermissionOptions = props => {
     const updatePerm = (newValue) =>{
         //check and remove for previous values
         const found =  props.properties.findIndex( te => te.title == newValue.title )
@@ -69,30 +69,29 @@ export const PermissionList = props => {
             props.setPerm(current)
 
         }
-    }
 
-    console.log(props.properties);
-    console.log(props.selecteduser);
+       
+    }
+    console.log(props.selectedoptions);
+    console.log(props.selectOptions);
     return (
         <View style={appStyle.container}>
-            <AppHeaderText style={{textAlign:'center', marginBottom:0, marginTop:-15}}>What permissions would you like to Share for</AppHeaderText>
+            <AppHeaderText style={{textAlign:'center', marginBottom:0, marginTop:-15}}>Set the access options for these permissions</AppHeaderText>
             
-            <View style={[appStyle.row, {marginTop:10}]}>
-                <View style={appStyle.rowLeft}>
-                    <AppTitleText style={{marginLeft:-25}}> {props.selecteddevice.title}</AppTitleText>
-                </View>
-                <View style={[appStyle.rowRight, {marginLeft:45}]}>
-                    <View style={[appStyle.row, {justifyContent:'flex-end'}]}>
-                        <AppText style={{marginRight:15}}>Read-Only</AppText>
-                        <AppText>Allow</AppText>
-                    </View>
-                </View>
+            <View style={[appStyle.row, {flex:1, marginTop:10, height:30, justifyContent: 'space-between'}]}>
+                <TouchableOpacity style={appStyle.tab}>
+                    <View><AppText>Temporary</AppText></View>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={appStyle.tab}>
+                    <View><AppText>Scheduled</AppText></View>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={appStyle.tab}>
+                    <View><AppText>Unlimited</AppText></View>
+                </TouchableOpacity>
             </View>
 
-            <ScrollView style={{flex:1, width:350}}>
-                {props.properties.map((props,index)=>
-                    <PermView key={index}property={props} updatePerm={updatePerm} access={props.access} initialValue={props.access}/>)}
-            </ScrollView>
         </View>
     )
 }

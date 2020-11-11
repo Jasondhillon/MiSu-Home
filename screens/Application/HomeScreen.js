@@ -3,7 +3,6 @@ import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-
 import Icon from 'react-native-vector-icons/Entypo';
 import AppHeaderText from '../../components/app/AppHeaderText';
 import AppText from '../../components/app/AppText';
-import AppTitleText from '../../components/app/AppTitleText';
 import HomeCard from '../../components/cards/HomeCard';
 import HubCard from '../../components/cards/HubCard';
 import ShareModal from '../../components/modals/ShareModal';
@@ -40,7 +39,9 @@ class HomeScreen extends React.Component {
         message: null,
         selectedProperties: 0,
         refreshing: false,
-        ref: false
+        loading: false,
+        ref: false,
+        refresh: false
       }
       this.ModalRef = React.createRef();
     }
@@ -75,7 +76,7 @@ class HomeScreen extends React.Component {
   }
 
    
-
+  
     // Called when when the screen is about to load, grabs all the info to display
     componentDidMount() {
       this.onRefresh();
@@ -90,11 +91,34 @@ class HomeScreen extends React.Component {
       this.props.getSharedDevices(idToken)
      
     }
+
+
       
-    UNSAFE_componentWillReceiveProps (){
+    UNSAFE_componentWillReceiveProps (props){
+
       this.setState({
-        ref: !this.state.ref
+        refresh: !this.state.refresh
       })
+
+
+      if((!this.state.loading && props.updateInviteState.loading)|| (!this.state.loading && props.exitHubData.loading)||(!this.state.loading &&  props.shareState.loading) || (!this.state.loading && props.exitHubData.loading)){
+        this.setState({
+              loading: true
+             })
+            this.props.screenProps.setLoadingTrue()
+      }
+
+      
+
+      if(this.state.loading &&  !props.shareState.loading && !props.exitHubData.loading && !props.updateInviteState.loading){
+        this.setState({
+          loading: false
+         })
+        this.props.screenProps.setLoadingFalse()
+      }
+
+   
+
     }
 
 
@@ -152,6 +176,8 @@ class HomeScreen extends React.Component {
                 this.props.sharedDevicesData.devices.map((device,index) => { 
                   return  <HomeCard 
                     key={index} 
+                    loading={this.props.exitHubData.loading || this.props.updateInviteState.loading}
+                    
                     sharedDevice={device} 
                     navigation={this.props.navigation}
                     exitHub={this.props.exitHub}
@@ -170,9 +196,16 @@ class HomeScreen extends React.Component {
 
           
         </ScrollView> 
-        <ShareModal ModalRef={this.ModalRef} canEditUser={true}/>
+        <ShareModal 
+        onRefresh={this.onRefresh}
+        ModalRef={this.ModalRef}
+        setLoadingTrue={this.props.screenProps.setLoadingTrue}
+        setLoadingFalse={this.props.screenProps.setLoadingFalse}
+         canEditUser={true}
+         />
         </View> );
     }
 }
+
   
 export default HomeScreen

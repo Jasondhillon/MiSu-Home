@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, Image, TouchableOpacity, View, Alert } from 'react-native';
+import { ActivityIndicator, Alert, Image, Text, TouchableOpacity, View } from 'react-native';
 import appStyle from '../../styles/AppStyle';
 import AppHeaderText from '../app/AppHeaderText';
 import AppText from '../app/AppText';
@@ -9,6 +9,8 @@ import HomeCardDeviceEntry from './ListEntries/HomeCardDeviceEntry';
 class HomeCard extends React.Component {
     constructor(props){
         super(props)
+        this.state ={
+        }
     }
 
     createTwoButtonAlert = (user) =>
@@ -32,10 +34,13 @@ class HomeCard extends React.Component {
         if(this.props.sharedDevice != null && this.props.sharedDevice.devices != null)
         {
             this.props.sharedDevice.devices.forEach((element, index) => {
-                if(index % 2 == 0)
-                    col1.push(element);
-                else
-                    col2.push(element);
+                if(element.properties != null && element.properties.length > 0)
+                {
+                    if(index % 2 == 0)
+                        col1.push(element);
+                    else
+                        col2.push(element);
+                }
             });
         };
 
@@ -44,6 +49,7 @@ class HomeCard extends React.Component {
                 <View style={[appStyle.container]}>
                     <View style={[appStyle.row, {marginLeft:10, marginTop:-10, marginBottom:5}]}>
                     <View style={appStyle.rowLeft}>
+                            <Image style={{width:30, height:30, marginRight:20}} source={require('../../assets/home.png')} />
                             <AppHeaderText>{`${this.props.sharedDevice.sharer_name}'s House`}</AppHeaderText>    
                         </View>
                         <View style={appStyle.rowRight}>

@@ -14,7 +14,7 @@ export const UserList = (props) => {
             <TextInput  
             placeholder={'Search'} 
             style={appStyle.textInput}
-            onChangeText={ text => props.setUser(text)}
+            onChangeText={ text => props.setUser({guest_email: text})}
             placeholderTextColor={'black'}/>
             
             <View style={appStyle.row}>

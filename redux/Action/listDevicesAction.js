@@ -13,11 +13,7 @@ export const listDevicesAction = (idToken) => {
         try {   
             const data  = await getDevices(idToken)
             dispatch( setDevices('SET_DEVICES',{devices: data},true))
-            //console.log('**********Devices***********')
-            //console.log({data})
         } catch (error) {
-            //console.log('**********Devices Error ***********')
-            //console.log({data})
             dispatch( setDevices('UNSET_DEVICES',null,false))
         }
     }  

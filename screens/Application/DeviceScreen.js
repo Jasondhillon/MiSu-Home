@@ -37,7 +37,7 @@ class DeviceScreen extends React.Component
                     </ScrollView>
                     </View>
                 }
-            </View> 
+            </View>
         );
     }
 }

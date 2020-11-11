@@ -7,10 +7,6 @@ import AppText from '../app/AppText';
 
 
 export const DeviceList = (props) => {
-    //console.log({p:props.selecteduser})
-    //console.log({
-    //   dec: props.devices
-    //})
     const titleString = `${props.selecteduser.guest_email}`
     return (
         <View style={appStyle.container}>

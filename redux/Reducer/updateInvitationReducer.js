@@ -1,7 +1,6 @@
 
 const INITIAL_STATE = {
-   
-    hub_email: null
+    loading: false
   }
   
   export const updateInvitationReducer = (state = INITIAL_STATE, action) => {
