@@ -5,13 +5,11 @@ import LogEntry from './ListEntries/LogEntry';
 
 const LogCard = props => {
     return (
-        <View style={[appStyle.card, { paddingBottom:0 }]}>
+        <View style={[appStyle.card, { paddingBottom:0 , flex: 1}]}>
             <View style={[appStyle.container, {paddingBottom:-20}]}>                    
                     {props.logs ? props.logs.map( (entry,index)=> {
                             return(
-                                
                                     <LogEntry log={entry} key={index}/>
-                                
                             )
                         }
                     ):null}

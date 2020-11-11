@@ -34,7 +34,6 @@ class LogScreen extends React.Component {
    
     // Gets the logs for the devices the user has shared
     getUsageLogs = async () => {
-        console.log("Fetching Usage Logs")
         await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/getusagelogs', {
           method: 'GET',
           headers: 
@@ -60,7 +59,6 @@ class LogScreen extends React.Component {
   
       // Gets the logs for the access which may have been granted or revoked to the user
       getAccessLogs = async () => {
-          console.log("Fetching Access Logs");
         await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/getaccesslogs', {
           method: 'GET',
           headers: 
@@ -70,7 +68,7 @@ class LogScreen extends React.Component {
         })
         .then(response => response.json())
         .then(data => {
-          console.log("%j", "Access Logs", data.message);
+          //console.log("%j", "Access Logs", data.message);
           if (data.message.length > 0)
           {
             var sortedLogs = data.message.sort((a,b) => (a.date < b.date) ? 1 : (a.date === b.date) ? ((a.time < b.time) ? 1 : -1) : -1);
@@ -78,9 +76,9 @@ class LogScreen extends React.Component {
           }
         })
         .catch((error) => {
-
-          this.showToast(error);
-          this.setState({error});
+            //console.error('getAccessLogs error:', error);      
+            this.showToast(error);
+            this.setState({error});
         });
       }
    

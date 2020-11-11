@@ -28,3 +28,7 @@ amplifyconfiguration.json
 amplify-build-config.json
 amplify-gradle-config.json
 amplifytools.xcconfig
+.idea/workspace.xml
+.idea/modules.xml
+.idea/MiSu-Home.iml
+.idea/vcs.xml

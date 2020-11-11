@@ -23,9 +23,9 @@ const  LogEntry = (props) =>  {
     var log = props.log;
 
     return (
-        <View style={[appStyle.container, {paddingTop: 0} ]}>
+        <View style={[appStyle.container, {paddingTop: 0, flex: 1, alignItems: 'flex-start'} ]}>
             <View>
-                <Text style={{marginLeft: 5, fontSize: 12,}}>{log.date} - {log.time}</Text>
+                <Text style={{marginLeft: 5, fontSize: 12, textAlign: 'left'}}>{log.date} - {log.time}</Text>
                 {/*
                 <Text >&rarr;User: {log.secondary_user}</Text>
                 <Text >&rarr;Device: {log.device_name} ({log.device_description})</Text>
@@ -33,7 +33,7 @@ const  LogEntry = (props) =>  {
                 <Text >&rarr;Value: {log.value ? "On" : "Off"}</Text>
                 <View style={appStyle.lineSeperator}></View>
                 */}
-                <Text style={{marginLeft: 5, fontSize: 18}}>{formatEntryText(log)}</Text>
+                <Text style={{marginLeft: 5, fontSize: 18, textAlign: 'left'}}>{formatEntryText(log)}</Text>
             </View>
             <View style={ [appStyle.lineSeperatorFull, {marginTop:10} ]}/>
         </View>
@@ -41,5 +41,4 @@ const  LogEntry = (props) =>  {
     );
 }
 
-//export default connect(mapStateToProps)(withNavigation(HubCardSharedUsersListEntry));
 export default LogEntry

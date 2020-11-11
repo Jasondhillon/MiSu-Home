@@ -14,8 +14,8 @@ import config from './aws-exports';
 import appDataReducer from './redux/AppDataReducer';
 import AccountScreen from './screens/Application/AccountScreen';
 import DeviceScreen from './screens/Application/DeviceScreen';
+import LogScreen from './screens/Application/LogScreen';
 import UserScreen from './screens/Application/UserScreen';
-import LogScreen from  './screens/Application/LogScreen';
 //************************************************** */
 // Auth Stack ************************************** */
 //************************************************** */
@@ -43,6 +43,7 @@ const AppStack = createStackNavigator({
   Account: AccountScreen,
   Device: DeviceScreen,
   User: UserScreen,
+  Log: LogScreen
 },
 {
   mode: 'card',
