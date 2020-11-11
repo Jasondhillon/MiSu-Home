@@ -27,13 +27,23 @@ const HubCard = props => {
 
                     <View style={appStyle.rowRight}>
                         {/* Render the hub sharing details */}
-                        <TouchableOpacity onPress={() => props.OpenModal()  }>
-                            {/* Render the hub icon */}
-                            <Image
-                                style={style.addUserIcon}
-                                source={require('../../assets/icons/add-user.png')}
-                            />
-                        </TouchableOpacity>
+                        <View style={{flexDirection: 'row'}}>
+                            <TouchableOpacity style={{paddingRight: 10}} onPress={() => props.navigation.navigate('Log') }>
+                                {/* Render the hub icon */}
+                                <Image
+                                    style={style.addUserIcon}
+                                    source={require('../../assets/log.png')}
+                                />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity onPress={() => props.OpenModal()  }>
+                                {/* Render the hub icon */}
+                                <Image
+                                    style={style.addUserIcon}
+                                    source={require('../../assets/icons/add-user.png')}
+                                />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
 

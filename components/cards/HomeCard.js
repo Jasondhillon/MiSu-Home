@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Alert, Image, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Text, TouchableOpacity, View} from 'react-native';
 import appStyle from '../../styles/AppStyle';
 import AppHeaderText from '../app/AppHeaderText';
 import AppText from '../app/AppText';
@@ -48,14 +48,22 @@ class HomeCard extends React.Component {
             <View style={[appStyle.card, { paddingBottom:0 }]}>
                 <View style={[appStyle.container]}>
                     <View style={[appStyle.row, {marginLeft:10, marginTop:-10, marginBottom:5}]}>
-                    <View style={appStyle.rowLeft}>
+                        <View style={appStyle.rowLeft}>
                             <Image style={{width:30, height:30, marginRight:20}} source={require('../../assets/home.png')} />
                             <AppHeaderText>{`${this.props.sharedDevice.sharer_name}'s House`}</AppHeaderText>    
                         </View>
                         <View style={appStyle.rowRight}>
-                            <TouchableOpacity onPress={()=> this.createTwoButtonAlert(this.props.sharedDevice.sharer_name)}>
-                                <Image style={{width:30, height:30}} source={require('../../assets/exitHouse.png')} />
-                            </TouchableOpacity>
+                            <View style={{flexDirection: 'row'}}>
+                                <TouchableOpacity style={{paddingRight: 10}} onPress={() => this.props.navigation.navigate('Log') }>
+                                    <Image
+                                        style={{width:30, height:30}}
+                                        source={require('../../assets/log.png')}
+                                    />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={()=> this.createTwoButtonAlert(this.props.sharedDevice.sharer_name)}>
+                                    <Image style={{width:30, height:30}} source={require('../../assets/exitHouse.png')} />
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
                     
@@ -106,6 +114,5 @@ class HomeCard extends React.Component {
         )
     }
 }
-
 
 export default HomeCard
