@@ -72,8 +72,6 @@ export const PermissionOptions = props => {
 
        
     }
-    console.log(props.selectedoptions);
-    console.log(props.selectOptions);
     return (
         <View style={appStyle.container}>
             <AppHeaderText style={{textAlign:'center', marginBottom:0, marginTop:-15}}>Set the access options for these permissions</AppHeaderText>

@@ -71,8 +71,6 @@ export const PermissionList = props => {
         }
     }
 
-    console.log(props.properties);
-    console.log(props.selecteduser);
     return (
         <View style={appStyle.container}>
             <AppHeaderText style={{textAlign:'center', marginBottom:0, marginTop:-15}}>What permissions would you like to Share for</AppHeaderText>

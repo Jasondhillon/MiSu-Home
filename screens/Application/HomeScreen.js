@@ -45,37 +45,6 @@ class HomeScreen extends React.Component {
       }
       this.ModalRef = React.createRef();
     }
-
-  
-    // Adds a device/property to share
-  toggleCheckbox = (device, property) => {
-    // Find the device and the property checked and set the value accordingly
-    var list = []  //this.props.appData.devices;
-    var temp = list[list.indexOf(device)].newProps;
-    temp = temp[temp.indexOf(property)];
-    temp.property.isChecked = !temp.property.isChecked;
-    this.props.setDevices(list);
-
-    // Keep track of the number of properties selected
-    if(temp.property.isChecked)
-      this.setState({selectedProperties: this.state.selectedProperties+1});
-    else
-      this.setState({selectedProperties: this.state.selectedProperties-1});
-  }
-
-
-  // Goes through all the devices and properties and gets the current state
-  getCurrentValues = async () => {
-    this.props.appData.sharedDevices.map((account) => {
-      account.devices.map((device) => {
-        device.properties.map((property) => {
-          property.value = this.getValueForSharedDeviceProperty(account, device, property);
-        });
-      });
-    });
-  }
-
-   
   
     // Called when when the screen is about to load, grabs all the info to display
     componentDidMount() {
@@ -84,12 +53,13 @@ class HomeScreen extends React.Component {
 
     // Retrieves all the information on pull down/refresh of the app
     onRefresh = async () => {
+      await this.setState({loading: true});
       const { idToken} = this.props.sessionData 
       this.props.getHub(idToken)
       this.props.getDevices(idToken)
       this.props.getAccounts(idToken)
       this.props.getSharedDevices(idToken)
-     
+      await this.setState({loading: false});
     }
 
 
@@ -108,19 +78,13 @@ class HomeScreen extends React.Component {
             this.props.screenProps.setLoadingTrue()
       }
 
-      
-
       if(this.state.loading &&  !props.shareState.loading && !props.exitHubData.loading && !props.updateInviteState.loading){
         this.setState({
           loading: false
          })
         this.props.screenProps.setLoadingFalse()
       }
-
-   
-
     }
-
 
     openModal () {
       this.ModalRef.current.snapTo(0)
@@ -131,7 +95,7 @@ class HomeScreen extends React.Component {
     {
       // Display this message if there is no hub registered to you and you have no hubs you're added to.
       let newUserScreen = null;
-     if((this.props.hubInfoData.hub_email == null || this.props.hubInfoData.hub_email == '') && this.state.refreshing == false && (this.props.sharedDevicesData == null || this.props.sharedDevicesData.devices == null))
+     if((this.props.hubInfoData.hub_email == null || this.props.hubInfoData.hub_email == '') && this.state.loading == false && (this.props.sharedDevicesData == null || this.props.sharedDevicesData.devices == null || this.props.sharedDevicesData.devices.length <= 0))
      {
         newUserScreen = (
           <View style={appStyle.container}>

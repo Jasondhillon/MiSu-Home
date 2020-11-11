@@ -79,7 +79,6 @@ export const shareAction = (idToken, email,device, accounts, properties) => {
                     {
                         const des = await deleteADevice(account.login_credentials_id, device.id,idToken)
                         showToast("Removed device");
-                        console.log(des);
                     }
                     else
                         showToast("No properties selected");
@@ -112,7 +111,6 @@ export const shareAction = (idToken, email,device, accounts, properties) => {
 
                                     console.log('********errror*****')
                                     console.log('error deleting property')
-                                    console.log(error);
                                 }
                                 
                             }
@@ -132,7 +130,6 @@ export const shareAction = (idToken, email,device, accounts, properties) => {
         }
         else {
             showToast("User not found... Cancelling sharing");
-            console.log('******** User Doesnt Exist *****')
             dispatch(shareFailed({ loading: false, success : false}))
         }
     }
