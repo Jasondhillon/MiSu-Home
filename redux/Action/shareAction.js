@@ -22,8 +22,10 @@ export const  shareFailed = (payload) =>({
 
 
 
-export const shareAction = (idToken, email,device, accounts, properties) => { 
+export const shareAction = (idToken, email,device, accounts, properties, options) => { 
     return async (dispatch) => {
+
+
         if(properties == null)
         {
             return;   
@@ -51,7 +53,7 @@ export const shareAction = (idToken, email,device, accounts, properties) => {
                 device.id = des.message;
 
                 await Promise.all(properties.map(async prop => 
-                    await createProperty(idToken,account.login_credentials_id,device.id,prop)
+                    await createProperty(idToken,account.login_credentials_id,device.id,prop,options)
                 ))
                 
                 showToast("Sent share request");
@@ -116,7 +118,7 @@ export const shareAction = (idToken, email,device, accounts, properties) => {
                             }
                         }
                     }
-                    await createProperty(idToken,account.login_credentials_id,device.id,prop)
+                    await createProperty(idToken,account.login_credentials_id,device.id,prop,options)
                 }))
 
                 if(preexisting == 0)

@@ -1,10 +1,13 @@
 import * as React from 'react';
+import {useState} from 'react';
 import { Picker, View } from 'react-native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import appStyle from '../../styles/AppStyle';
 import AppHeaderText from '../app/AppHeaderText';
 import AppText from '../app/AppText';
 import AppTitleText from '../app/AppTitleText';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import Moment from 'moment';
 
 const PermView = (props) => {
    
@@ -56,40 +59,242 @@ const PermView = (props) => {
 }
 
 export const PermissionOptions = props => {
-    const updatePerm = (newValue) =>{
-        //check and remove for previous values
-        const found =  props.properties.findIndex( te => te.title == newValue.title )
-         
-          if(found == -1) {
-            
-            props.setPerm([...props.properties, newValue])
-          }else {
-            const current = props.properties
-            current.splice(found,1,newValue)
-            props.setPerm(current)
+    var options = props.options;
+    
+    // Used by data picker
+    const [mode, setMode] = useState('date');
+    const [showTempDate, setShowTempDate] = useState(false);
+    const [showScheduledEndDate, setShowScheduledEndDate] = useState(false);
+    const [showScheduledStartDate, setShowScheduledStartDate] = useState(false);
 
-        }
+    const onTempDataChange = (event, selectedDate) => {
+        const currentDate = selectedDate || options.tempDate;
+        setShowTempDate(Platform.OS === 'ios');
+        options.tempDate = currentDate;
+        if(mode == 'date')
+            setMode('time');
+        if(mode == 'time')
+            setMode('date');
+    };
+    
+    const onScheduledEndDateChanged = (event, selectedDate) => {
+        const currentDate = selectedDate || options.scheduledEndDate;
+        setShowScheduledEndDate(Platform.OS === 'ios');
+        options.scheduledEndDate = currentDate;
+        if(mode == 'date')
+            setMode('time');
+        if(mode == 'time')
+            setMode('date');
+    };
+    
+    const onScheduledStartDateChanged = (event, selectedDate) => {
+        const currentDate = selectedDate || options.scheduledStartDate;
+        setShowScheduledStartDate(Platform.OS === 'ios');
+        options.scheduledStartDate = currentDate;
+        if(mode == 'date')
+            setMode('time');
+        if(mode == 'time')
+            setMode('date');
+    };
 
-       
+    const showTempDateMode = (currentMode) => {
+        setShowTempDate(true);
+        setMode(currentMode);
+    };
+
+    const showScheduledStartDateMode = (currentMode) => {
+        setShowScheduledStartDate(true);
+        setMode(currentMode);
+    };
+
+    const showScheduledEndDateMode = (currentMode) => {
+        setShowScheduledEndDate(true);
+        setMode(currentMode);
+    };
+
+    const updateSelection = (newValue) =>{
+        options.selection = newValue;
+        props.selectOptions(options);
     }
+
+    const updateScheduledDays = (day) =>{
+        if(options.scheduledDays != null)
+        {
+            if(options.scheduledDays.includes(day))
+                options.scheduledDays = options.scheduledDays.filter(x => x != day);
+            else
+                options.scheduledDays.push(day);
+        }
+        else
+            options.scheduledDays = [];
+        props.selectOptions(options);
+    }
+
+    // Use date
+    Moment.locale('en');
+
     return (
-        <View style={appStyle.container}>
+
+        <View style={[appStyle.container]}>
             <AppHeaderText style={{textAlign:'center', marginBottom:0, marginTop:-15}}>Set the access options for these permissions</AppHeaderText>
             
-            <View style={[appStyle.row, {flex:1, marginTop:10, height:30, justifyContent: 'space-between'}]}>
-                <TouchableOpacity style={appStyle.tab}>
+            {/* Selection Header */}
+            <View style={[appStyle.row, {flex:1, marginTop:20, maxHeight:30, justifyContent: 'space-between'}]}>
+                <TouchableOpacity style={options.selection == 0 ? appStyle.tabSelected : appStyle.tab} onPress={() => {updateSelection(0)}}>
                     <View><AppText>Temporary</AppText></View>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={appStyle.tab}>
+                <TouchableOpacity style={options.selection == 1 ? appStyle.tabSelected : appStyle.tab} onPress={() => {updateSelection(1)}}>
                     <View><AppText>Scheduled</AppText></View>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={appStyle.tab}>
+                <TouchableOpacity style={options.selection == 2 ? appStyle.tabSelected : appStyle.tab} onPress={() => {updateSelection(2)}}>
                     <View><AppText>Unlimited</AppText></View>
                 </TouchableOpacity>
             </View>
 
+            {/* Display Temporary options */}
+            {
+                options.selection == 0 && 
+                <View style={{flex:1, marginTop:10}}>
+                    <View style={{flex:1, flexDirection:'row'}}>
+                        <AppText>Allow usage from now until...</AppText>
+                    </View>
+                    <View style={{flex:1, marginTop:-180}}>
+                        <View style={appStyle.row}>
+                            <TouchableOpacity style={[appStyle.regularButton, {marginRight:5}]} onPress={() => {showTempDateMode('date')}}>
+                                <AppText style={{paddingHorizontal:20}}>{Moment(options.tempDate).format('MMM Do YYYY')}</AppText>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[appStyle.regularButton, {marginLeft:5}]} onPress={() => {showTempDateMode('time')}}>
+                                <AppText style={{paddingHorizontal:20}}>{Moment(options.tempDate).format('h:mm a')}</AppText>
+                            </TouchableOpacity>
+                        </View>
+                        {showTempDate && (
+                            <DateTimePicker
+                            testID="dateTimePicker"
+                            value={options.tempDate}
+                            mode={mode}
+                            minimumDate={new Date()}
+                            is24Hour={false}
+                            display="default"
+                            onChange={onTempDataChange}
+                            />
+                        )}
+                    </View>
+                </View>
+            }
+            
+            {/* Display Schedule options */}
+            {
+                options.selection == 1 && 
+                <View style={[appStyle.column, {marginTop:15}]}>
+                    
+                    {/* Day Select */}
+                    <View style={appStyle.row}>
+                        <View style={appStyle.rowLeft}>
+                            <AppTitleText>Days</AppTitleText>
+                        </View>
+                        <View style={appStyle.rowRight}>
+                            <View style={[appStyle.row, {alignContent:'flex-end', justifyContent:'flex-end'}]}>
+                                <TouchableOpacity onPress={() => {updateScheduledDays(0)}} style={[options.scheduledDays.includes(0) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginRight:5}]}>
+                                    <AppText>M</AppText>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {updateScheduledDays(1)}} style={[options.scheduledDays.includes(1) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginRight:5}]}>
+                                    <AppText>T</AppText>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {updateScheduledDays(2)}} style={[options.scheduledDays.includes(2) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginRight:5}]}>
+                                    <AppText>W</AppText>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {updateScheduledDays(3)}} style={[options.scheduledDays.includes(3) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginRight:5}]}>
+                                    <AppText>R</AppText>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {updateScheduledDays(4)}} style={[options.scheduledDays.includes(4) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginRight:5}]}>
+                                    <AppText>F</AppText>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {updateScheduledDays(5)}} style={[options.scheduledDays.includes(5) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginRight:5}]}>
+                                    <AppText>S</AppText>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {updateScheduledDays(6)}} style={[options.scheduledDays.includes(6) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginRight:0}]}>
+                                    <AppText>U</AppText>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+
+                    {/* From Time */}
+                    <View style={[appStyle.row, {marginTop:20}]}>
+                        <AppText>From</AppText>
+                        <View style={appStyle.rowRight}>
+                            <TouchableOpacity style={[appStyle.regularButton, {marginTop:-8, marginLeft:20, maxHeight:35}]} onPress={() => {showScheduledStartDateMode('time')}}>
+                                <AppText style={{paddingHorizontal:20}}>{Moment(options.scheduledStartDate).format('h:mm a')}</AppText>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    {/* To Time */}
+                    <View style={[appStyle.row, {marginTop:20}]}>
+                        <AppText>To</AppText>
+                        <View style={appStyle.rowRight}>
+                            <TouchableOpacity style={[appStyle.regularButton, {marginTop:-8, marginLeft:20, maxHeight:35}]} onPress={() => {showScheduledEndDateMode('time')}}>
+                                <AppText style={{paddingHorizontal:20}}>{Moment(options.scheduledEndDate).format('h:mm a')}</AppText>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    {/* Start Date */}
+                    <View style={[appStyle.row, {marginTop:20}]}>
+                        <AppText>Start Date</AppText>
+                        <View style={appStyle.rowRight}>
+                            <TouchableOpacity style={[appStyle.regularButton, {marginTop:-8, marginLeft:20, maxHeight:35}]} onPress={() => {showScheduledStartDateMode('date')}}>
+                                <AppText style={{paddingHorizontal:20}}>{Moment(options.scheduledStartDate).format('MMM Do YYYY')}</AppText>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    
+
+                    {/* End Date */}
+                    <View style={[appStyle.row, {marginTop:20}]}>
+                        <AppText>End Date</AppText>
+                        <View style={appStyle.rowRight}>
+                            <TouchableOpacity style={[appStyle.regularButton, {marginTop:-8, marginLeft:20, maxHeight:35}]} onPress={() => {showScheduledEndDateMode('date')}}>
+                                <AppText style={{paddingHorizontal:20}}>{Moment(options.scheduledEndDate).format('MMM Do YYYY')}</AppText>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    {showScheduledStartDate && (
+                        <DateTimePicker
+                        testID="dateTimePicker"
+                        value={options.scheduledStartDate}
+                        mode={mode}
+                        minimumDate={new Date()}
+                        is24Hour={false}
+                        display="default"
+                        onChange={onScheduledStartDateChanged}
+                        />
+                    )}
+                    {showScheduledEndDate && (
+                        <DateTimePicker
+                        testID="dateTimePicker"
+                        value={options.scheduledEndDate}
+                        mode={mode}
+                        minimumDate={new Date()}
+                        is24Hour={false}
+                        display="default"
+                        onChange={onScheduledEndDateChanged}
+                        />
+                    )}
+                </View>
+            }
+
+            {/* Display Unlimited options */}
+            {
+                options.selection == 2 && 
+                <View style={{flex:1, marginTop:10}}>
+                    <View style={{flex:1, flexDirection:'row'}}>
+                        <AppText>Allow this user unlimited access to the device and properties selected...</AppText>
+                    </View>
+                </View>
+            }
         </View>
     )
 }

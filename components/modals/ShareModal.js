@@ -30,7 +30,7 @@ class Footer extends React.Component {
         {
           text: "Cancel",
         },
-        { text: "Remove", onPress: () => this.props.Share(this.props.IdToken, this.props.selecteduser, this.props.selecteddevice,this.props.sharedAccounts,this.props.selectedprops)}
+        { text: "Remove", onPress: () => this.props.Share(this.props.IdToken, this.props.selecteduser, this.props.selecteddevice,this.props.sharedAccounts,this.props.selectedprops,this.props.selectedoptions)}
       ],
       { cancelable: false }
     );
@@ -53,7 +53,7 @@ class Footer extends React.Component {
                     // Last screen
                     this.props.pos == 3 ?
                     ( 
-                        <TouchableOpacity onPress={()=> this.props.Share(this.props.IdToken, this.props.selecteduser, this.props.selecteddevice,this.props.sharedAccounts,this.props.selectedprops)}>
+                        <TouchableOpacity onPress={()=> this.props.Share(this.props.IdToken, this.props.selecteduser, this.props.selecteddevice,this.props.sharedAccounts,this.props.selectedprops,this.props.selectedoptions)}>
                             <View>
                                 <SmallIcon img={shareImg} />
                             </View>
@@ -119,6 +119,7 @@ class ShareModal extends React.Component {
                     showToast('Select a Device!') 
                 break;
             case 3:
+                this.selectedPerms();
                 this.setState({ pos });  
                 break;
             default:
@@ -225,9 +226,20 @@ class ShareModal extends React.Component {
             selectedprops: tempProps,
         })
        }
-        
     }
 
+    async selectedPerms() {
+        // Initialize the selectedoptions to default selection
+        await this.setState({
+            selectedoptions:{
+                selection:0,
+                tempDate:new Date(),
+                scheduledDays:[],
+                scheduledStartDate:new Date(),
+                scheduledEndDate:new Date(),
+            }
+        })  
+    }
 
     renderScreen(pos) {
         switch(pos) {
@@ -238,14 +250,14 @@ class ShareModal extends React.Component {
             case 2 :
                 return <PermissionList AccessData={this.props.AccessState.temp_access}  ModifyState={this.props.ModifyAccess} selecteduser={this.state.selecteduser}  selecteddevice={this.state.selecteddevice} setPerm={this.selectPermission.bind(this)} properties={this.state.selectedprops} />
             case 3 :
-                return <PermissionOptions AccessData={this.props.AccessState.temp_access}  ModifyState={this.props.ModifyAccess} selecteduser={this.state.selecteduser}  selecteddevice={this.state.selecteddevice} setPerm={this.selectPermission.bind(this)} properties={this.state.selectedprops} options={this.state.selectedoptions} selectOptions={this.selectOptions} />
+                return <PermissionOptions AccessData={this.props.AccessState.temp_access}  ModifyState={this.props.ModifyAccess} selecteduser={this.state.selecteduser}  selecteddevice={this.state.selecteddevice} setPerm={this.selectPermission.bind(this)} properties={this.state.selectedprops} options={this.state.selectedoptions} selectOptions={this.selectOptions.bind(this)} />
             default: 
                 return null
         } 
     }
   
-    share(idToken, selectedAccount, selecteddevice, sharedAccounts, selectedProps){
-        this.props.Share(idToken, selectedAccount.guest_email, selecteddevice, sharedAccounts, selectedProps);
+    share(idToken, selectedAccount, selecteddevice, sharedAccounts, selectedProps, selectedOptions){
+        this.props.Share(idToken, selectedAccount.guest_email, selecteddevice, sharedAccounts, selectedProps,selectedOptions);
         this.props.ModalRef.current.snapTo(1);
     }
 
@@ -295,7 +307,7 @@ class ShareModal extends React.Component {
                             selecteduser={this.state.selecteduser}
                             selecteddevice={this.state.selecteddevice}
                             selectedprops={this.state.selectedprops}
-                            selectOptions={this.state.selectedoptions}
+                            selectedoptions={this.state.selectedoptions}
                             next={this.next.bind(this)} 
                             prev={this.previous.bind(this)} 
                             IdToken={this.props.sessionData.idToken}
@@ -317,7 +329,7 @@ const mapStateToProps = (state) => {
   const mapDispatchToProps = dispatch =>  {
     return {
         ModifyAccess : (title, value) => { dispatch(ModifyAccessStateAction(title,value))},
-        Share : (idToken,email,device, accounts,properties) => {dispatch(shareAction(idToken,email,device, accounts,properties))},
+        Share : (idToken,email,device, accounts,properties, options) => {dispatch(shareAction(idToken,email,device, accounts,properties, options))},
    }
 }
   
