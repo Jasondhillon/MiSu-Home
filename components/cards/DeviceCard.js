@@ -8,7 +8,11 @@ class DeviceCard extends Component
 {
     state = 
     {
-      owned: true
+            owned: true,
+            switchValue: false,
+            minVal: 0,
+            maxVal: 100,
+            currentVal: 50
     }
 
     
@@ -39,14 +43,23 @@ class DeviceCard extends Component
                                             </View>
 
                                             <View style={appStyle.rowRight}>
-                                                { prop.type == 'boolean' && 
+                                                { prop.type == 'boolean' && prop.read_only == 0 && 
                                                     <View style={{flex:1, flexDirection:'row'}}>
-                                                        <Switch/>
+                                                        <Switch
+                                                        value={this.state.switchValue}
+                                                        onValueChange={(switchValue) => this.setState({switchValue})}
+                                                        />
                                                     </View> 
                                                 }
-                                                { prop.type == 'float' && 
+                                                { (prop.type == 'float' || prop.type == 'integer') && prop.read_only == 0 && 
                                                     <View style={{flex:1, flexDirection:'row'}}>
-                                                        <Slider style={appStyle.deviceSlider}/>
+                                        <Slider style={{width: 200}}
+                                        step={1}
+                                        minimumValue={this.state.minVal}
+                                        maximumValue={this.state.maxVal}
+                                        value={this.state.currentVal}
+                                        onValueChange={val => this.setState({currentVal:val})}
+                                        />
                                                     </View> 
                                                 }
                                             </View> 
