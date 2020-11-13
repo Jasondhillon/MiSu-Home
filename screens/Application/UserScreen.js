@@ -91,37 +91,64 @@ class UserScreen extends React.Component  {
 
         this.state  = {
             loading: false,
-            refresh: false
+            refresh: false,
+            devices: [],
+            email: '',
+            name: '',
+            sharedAccount: {}
         }
         this.ModalRef = React.createRef();
     }  
 
 
+    UNSAFE_componentWillMount(){
+        const { navigation } = this.props
+        const sharedAcc = navigation.getParam('sharedAccount').sharedAccount;
+        const devices = sharedAcc.devices
+        const guest_email = sharedAcc.guest_email
+        const name = sharedAcc.name
+        if(sharedAcc != null)
+        {
+            this.setState({
+                email: guest_email,
+                name: name,
+                sharedAccount: sharedAcc
+            }) 
+        }
+        if(devices != null)
+        {
+            this.setState({
+                devices: devices,
+            })
+        }
+
+    }
 
     UNSAFE_componentWillReceiveProps(props) {
-
         this.setState({
             refresh: !this.state.refresh
         })
 
-
-       if(!this.state.loading && props.StopShareState.loading){
-                this.setState({
-                    loading: true
-                })
-               this.props.screenProps.setLoadingTrue()
-       }
+        if(!this.state.loading && props.StopShareState.loading){
+            this.setState({
+                loading: true
+            })
+            this.props.screenProps.setLoadingTrue()
+        }
 
         if(this.state.loading && !props.StopShareState.loading){
             this.setState({
                 loading: false
             })
-        this.props.screenProps.setLoadingFalse()
-        this.props.navigation.navigate("Home")
+            this.props.screenProps.setLoadingFalse()
+            this.props.navigation.navigate("Home")
         }
-       
+        console.log('-------------------')
+        console.log(props.sharedAccountsData);
+        if(props.sharedAccountsData != null) {
 
-       
+            this.getSharedAccountDevicesFromRedux(this.state.email, props.sharedAccountsData.sharedAccounts)
+        }
     }
 
     async openModal ( ) {
@@ -141,38 +168,43 @@ class UserScreen extends React.Component  {
     }
 
     endAllSharing(login_id,devices,idToken){
-  
+        //console.log(login_id);
         this.props.stopSharing(login_id,devices,idToken);
     }
 
+
+     getSharedAccountDevicesFromRedux (email ,sharedAccounts) {
+        const Account =  sharedAccounts.find(faccount => faccount.guest_email == email)
+        if(Account != null && Account.devices != null){
+            this.setState({
+                devices: Account.devices
+            })
+        }
+     }  
+
+
     render () {
-        const { navigation } = this.props;
-        const sharedAcc = navigation.getParam('sharedAccount').sharedAccount
-        const devices = sharedAcc.devices
-        const login_id=  sharedAcc.login_credentials_id
-        const guest_email=  sharedAcc.guest_email
-        const name = sharedAcc.name
         return (
             <View style={{flex:1}}>
                 <View style={appStyle.container}>
                     <View style={[appStyle.card, {paddingHorizontal:20}]}>
-                        <Header open={this.openModal.bind(this)} guest_email={guest_email} />
+                        <Header open={this.openModal.bind(this)} guest_email={this.state.email} />
 
                         <View style={[appStyle.lineSeperatorFullAlt, {marginTop:5}]}/>
 
                         <View style={appStyle.column}>
-                            { devices.map((device,index)=> 
+                            { this.state.devices != null && this.state.devices.map((device,index)=> 
                                 <View key={index} style={{height:50}}>
-                                    <DeviceItem key={index} device={device} navigation={navigation} selected={this.selectDevice.bind(this)} />
+                                    <DeviceItem key={index} device={device} navigation={this.props.navigation} selected={this.selectDevice.bind(this)} />
                                     <View style={[appStyle.lineSeperatorAlt]}/>
                                 </View>
                             )}
                         </View>
-                        <Footer name={name} endSharing={()=> this.endAllSharing(login_id,devices,this.props.sessionData.idToken)}/>
+                        <Footer name={this.state.name} endSharing={()=> this.endAllSharing(this.state.sharedAccount.login_credentials_id,this.state.devices,this.props.sessionData.idToken)}/>
                     </View>
                 </View>
                 <View style={{ elevation:5, flex:1 }}>
-                    <ShareModal ModalRef={this.ModalRef} canEditUser={false} selecteduser={sharedAcc}  selecteddevice={this.state.selecteddevice}  />
+                    <ShareModal ModalRef={this.ModalRef} canEditUser={false} selecteduser={this.state.sharedAccount}  selecteddevice={this.state.selecteddevice}  />
                 </View>
             </View>
         )

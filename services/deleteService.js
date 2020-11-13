@@ -11,8 +11,8 @@ export const  deleteADevice = async ( login_id, device,idToken) => {
           device: device
           })
       })
-
-      return response.json()
+      const val = response.json();
+      return val;
 }
 
 export const  deleteASharedAccount = async (id, idToken) => {
@@ -26,8 +26,8 @@ export const  deleteASharedAccount = async (id, idToken) => {
           id: id,
         })
       })
-
-      return response.json()
+      const val = response.json();
+      return val;
 }
 
 
@@ -44,19 +44,20 @@ export const  deleteAProperty = async (account, idToken, device, property) => {
           property: property.shared_property_id
           })
       })
-      return response.json()
+      const val = response.json();
+      return val
 }
 
 export const endSharingSecondary = async (id ,idToken) => {
 
-return await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/endsharing', {
-            method: 'DELETE',
-            headers: 
-            {
-                Authorization: 'Bearer ' + idToken,
-            },
-            body: JSON.stringify({
-              id: id,
-            })
-          })
-        }
+    return await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/endsharing', {
+    method: 'DELETE',
+    headers: 
+    {
+        Authorization: 'Bearer ' + idToken,
+    },
+    body: JSON.stringify({
+      id: id,
+    })
+  })
+}

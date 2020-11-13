@@ -1,9 +1,9 @@
 import React from 'react';
-import { TouchableOpacity, ScrollView, View } from 'react-native';
+import { ScrollView, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { connect } from 'react-redux';
-import appStyle from '../../styles/AppStyle';
 import DeviceCard from '../../components/cards/DeviceCard';
+import appStyle from '../../styles/AppStyle';
 
 class DeviceScreen extends React.Component 
 {
@@ -20,20 +20,45 @@ class DeviceScreen extends React.Component
         headerRight: () => ( <View></View>)
     });
 
+    constructor(props){
+        super(props)
+
+        this.state  = {
+           
+            device:  {},
+          
+        }
+      
+    }  
+
+
+
+    componentWillMount(){
+        const device = this.props.navigation.getParam('device', null);
+        this.setState({
+            device
+        })
+
+    }
     
   
+    UNSAFE_componentWillReceiveProps(props){
+        if(props.devicesData){
+            //loop throught & find device and update it 
+        }
+    }
   
   
     render()
     {
-        const device = this.props.navigation.getParam('device','');
+       
         return(
             
             <View style={appStyle.container}>
                 {
                     <View style={appStyle.cardContainer}>
                     <ScrollView style={appStyle.scrollView}>
-                        <DeviceCard device={device}/>
+                        <DeviceCard device={this.state.device}/>
                     </ScrollView>
                     </View>
                 }
