@@ -143,8 +143,7 @@ class UserScreen extends React.Component  {
             this.props.screenProps.setLoadingFalse()
             this.props.navigation.navigate("Home")
         }
-        console.log('-------------------')
-        console.log(props.sharedAccountsData);
+        
         if(props.sharedAccountsData != null) {
 
             this.getSharedAccountDevicesFromRedux(this.state.email, props.sharedAccountsData.sharedAccounts)

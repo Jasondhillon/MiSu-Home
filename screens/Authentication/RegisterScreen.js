@@ -51,7 +51,7 @@ export default class RegisterScreen extends React.Component
                 }
             })
             .then((response) => {
-                this.setState({error: null, userId: response.userSub, signedUp:true, message:'A verification code was sent to your email! '});
+                this.setState({error: null, userId: response.userSub, signedUp:true, message:'A confirmation code was sent to your email! '});
                 this.setState({errorMessage: ''});
                 console.log('sign up successful!');
                 console.log(response.userSub);

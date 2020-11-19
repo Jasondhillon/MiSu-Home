@@ -8,6 +8,7 @@ import AppText from '../app/AppText';
 
 export const DeviceList = (props) => {
     const titleString = `${props.selecteduser.guest_email}`
+    
     return (
         <View style={appStyle.container}>
             <AppHeaderText style={{textAlign:'center', marginBottom:0, marginTop:-15}}>What device would you like to Share with</AppHeaderText>

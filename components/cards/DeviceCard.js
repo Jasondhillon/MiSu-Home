@@ -35,7 +35,7 @@ class DeviceCard extends Component
                     
                     {
                         this.props.device.properties.map((prop,index) => { 
-                        return  <View key={index} style={appStyle.row}>
+                            return  <View key={index} style={appStyle.row}>
                                         <View style={{flex:1, flexDirection:'row'}}>
                                             <View style={appStyle.rowLeft}>
                                                 <AppText> {prop.name} </AppText>
