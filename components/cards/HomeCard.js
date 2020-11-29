@@ -54,12 +54,6 @@ class HomeCard extends React.Component {
                         </View>
                         <View style={appStyle.rowRight}>
                             <View style={{flexDirection: 'row'}}>
-                                <TouchableOpacity style={{paddingRight: 10}} onPress={() => this.props.navigation.navigate('Log') }>
-                                    <Image
-                                        style={{width:30, height:30}}
-                                        source={require('../../assets/log.png')}
-                                    />
-                                </TouchableOpacity>
                                 <TouchableOpacity onPress={()=> this.createTwoButtonAlert(this.props.sharedDevice.sharer_name)}>
                                     <Image style={{width:30, height:30}} source={require('../../assets/exitHouse.png')} />
                                 </TouchableOpacity>

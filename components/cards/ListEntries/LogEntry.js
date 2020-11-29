@@ -23,9 +23,9 @@ const  LogEntry = (props) =>  {
     var log = props.log;
 
     return (
-        <View style={[appStyle.container, {paddingTop: 0, flex: 1, alignItems: 'flex-start'} ]}>
-            <View>
-                <Text style={{marginLeft: 5, fontSize: 12, textAlign: 'left'}}>{log.date} - {log.time}</Text>
+        <View style={[appStyle.container, {paddingTop: 0, flex: 1, alignItems: 'stretch'} ]}>
+            <View style={{alignItems: 'stretch', flex: 1}}>
+                <Text style={{marginLeft: 5, fontSize: 12, textAlign: 'left', alignSelf:'stretch', flex: 1}}>{log.date} - {log.time}</Text>
                 {/*
                 <Text >&rarr;User: {log.secondary_user}</Text>
                 <Text >&rarr;Device: {log.device_name} ({log.device_description})</Text>
@@ -33,10 +33,10 @@ const  LogEntry = (props) =>  {
                 <Text >&rarr;Value: {log.value ? "On" : "Off"}</Text>
                 <View style={appStyle.lineSeperator}></View>
                 */}
-                <Text style={{marginLeft: 5, fontSize: 18, textAlign: 'left'}}>{formatEntryText(log)}</Text>
+                <Text style={{marginLeft: 5, fontSize: 16, textAlign: 'left', alignSelf: 'stretch', flex: 1}}>{formatEntryText(log)}</Text>
             </View>
-            <View style={ [appStyle.lineSeperatorFull, {marginTop:10} ]}/>
-        </View>
+            <View style={ [appStyle.lineSeperatorFull, {marginTop:10, alignSelf: 'stretch'} ]}/>
+        </View> 
 
     );
 }

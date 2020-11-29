@@ -5,6 +5,7 @@ import AppHeaderText from '../../components/app/AppHeaderText';
 import AppText from '../../components/app/AppText';
 import HomeCard from '../../components/cards/HomeCard';
 import HubCard from '../../components/cards/HubCard';
+import LogCard from '../../components/cards/LogCard';
 import ShareModal from '../../components/modals/ShareModal';
 import appStyle from '../../styles/AppStyle';
 
@@ -41,7 +42,9 @@ class HomeScreen extends React.Component {
         refreshing: false,
         loading: false,
         ref: false,
-        refresh: false
+        refresh: false,
+        usageLogs: [],
+        accessLogs: []
       }
       this.ModalRef = React.createRef();
     }
@@ -59,6 +62,8 @@ class HomeScreen extends React.Component {
       this.props.getDevices(idToken)
       this.props.getAccounts(idToken)
       this.props.getSharedDevices(idToken)
+      this.getUsageLogs()
+      this.getAccessLogs()
       await this.setState({loading: false});
     }
 
@@ -124,7 +129,7 @@ class HomeScreen extends React.Component {
         }>
          
           {this.state.refreshing == false && 
-            <View style={[appStyle.container]}>
+            <View style={[appStyle.container, {flex: 1}]}>
               {/* Display owner hub */}
               {
                 (this.props.hubInfoData.hub_email != null && this.props.hubInfoData.hub_email != '') &&
@@ -148,7 +153,23 @@ class HomeScreen extends React.Component {
                     updateInvite={this.props.updateInvite}
                     IdToken={this.props.sessionData.idToken} /> 
                 })
-          : null}
+              : null}
+              {/* Display Log*/}
+              
+              {this.state.usageLogs.length > 0 ? 
+                <View style={[appStyle.container, {padding: 0, flex: 1, alignSelf: 'stretch'}]}>
+                  <TouchableOpacity style={{alignSelf: "stretch"}} onPress={() => this.props.navigation.navigate("Log")}>
+                    <LogCard type="Usage" logs={this.state.usageLogs.slice(0,5)}/>
+                  </TouchableOpacity>
+                </View>
+              : null}
+              {this.state.accessLogs.length > 0 ? 
+                <View style={[appStyle.container, {padding: 0, flex: 1, alignSelf: 'stretch'}]}>
+                  <TouchableOpacity style={{alignSelf: "stretch"}} onPress={() => this.props.navigation.navigate("Log")}>
+                    <LogCard type="Access" logs={this.state.accessLogs.slice(0,5)}/>
+                  </TouchableOpacity>
+                </View>
+              : null}
             </View>
           }
           {/* Screen to show when the screen is empty */}
@@ -168,6 +189,56 @@ class HomeScreen extends React.Component {
          canEditUser={true}
          />
         </View> );
+    }
+
+    // Gets the logs for the devices the user has shared
+    getUsageLogs = async () => {
+      await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/getusagelogs', {
+        method: 'GET',
+        headers: 
+        {
+            Authorization: 'Bearer ' + this.props.sessionData.idToken
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+          //console.log("%j", "Usage Logs", data.message);
+          if (data.message.length > 0)
+          {
+            var sortedLogs = data.message.sort((a,b) => (a.date < b.date) ? 1 : (a.date === b.date) ? ((a.time < b.time) ? 1 : -1) : -1);
+            this.setState({usageLogs: sortedLogs});
+          }
+      })
+      .catch((error) => {
+        //console.error('getUsageLogs error:', error);
+        this.showToast(error);
+        this.setState({error});
+      });
+    }
+
+    // Gets the logs for the access which may have been granted or revoked to the user
+    getAccessLogs = async () => {
+      await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/getaccesslogs', {
+        method: 'GET',
+        headers: 
+        {
+            Authorization: 'Bearer ' + this.props.sessionData.idToken
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        //console.log("%j", "Access Logs", data.message);
+        if (data.message.length > 0)
+        {
+          var sortedLogs = data.message.sort((a,b) => (a.date < b.date) ? 1 : (a.date === b.date) ? ((a.time < b.time) ? 1 : -1) : -1);
+          this.setState({accessLogs: sortedLogs});
+        }
+      })
+      .catch((error) => {
+          //console.error('getAccessLogs error:', error);      
+          this.showToast(error);
+          this.setState({error});
+      });
     }
 }
 

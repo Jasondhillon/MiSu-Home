@@ -85,11 +85,11 @@ class LogScreen extends React.Component {
     render()
     {
         return(
-            <View style={appStyle.container}>
+            <View style={[appStyle.container, {alignItems: 'stretch'}]}>
                 <ScrollView style={appStyle.scrollView}>
 
-                    {this.state.usageLogs.length > 0 ? <LogCard logs={this.state.usageLogs}/> : null}
-                    {this.state.accessLogs.length > 0 ? <LogCard logs={this.state.accessLogs}/> : null}
+                    {this.state.usageLogs.length > 0 ? <LogCard type='Usage' logs={this.state.usageLogs}/> : null}
+                    {this.state.accessLogs.length > 0 ? <LogCard type='Access' logs={this.state.accessLogs}/> : null}
 
                     {/* Usage Logs
                     {this.state.usageLogs !== null ? <Text>{"\n"}</Text> : null}
