@@ -38,24 +38,12 @@ const PermView = (props) => {
                     }}/>
                 </View>
             </View>
-            {/* <View style={appStyle.rowRight}>
-                <Picker    
-                    selectedValue={selectedValue}
-                    style={{ height: 30, width: 150 }}
-                    onValueChange={(itemValue, itemIndex) => {
-                        setSelectedValue(itemValue)
-                        props.updatePerm({...pr ,access:itemValue })
-                    }}>
-                    <Picker.Item label="Allow" value={2} />
-                    <Picker.Item label="Read Only" value={1} />
-                    <Picker.Item label="No Access" value={0} />
-                </Picker> 
-            </View> */}
         </View>
     )
 }
 
 export const PermissionList = props => {
+
     const updatePerm = (newValue) =>{
         //check and remove for previous values
         const found =  props.properties.findIndex( te => te.title == newValue.title )
@@ -71,23 +59,72 @@ export const PermissionList = props => {
         }
     }
 
+    const selectedAllAccess = props.properties.every(x => x != null && x.access === 2);
+
+    const selectedAllReadOnly = props.properties.every(x => x != null && x.access === 1);
+
     return (
         <View style={appStyle.container}>
-            <AppHeaderText style={{textAlign:'center', marginBottom:0, marginTop:-15}}>What permissions would you like to Share for</AppHeaderText>
+            <AppHeaderText style={{textAlign:'center', marginBottom:0, marginTop:-15}}>What permissions would you like to share...</AppHeaderText>
             
             <View style={[appStyle.row, {marginTop:10}]}>
                 <View style={appStyle.rowLeft}>
-                    <AppTitleText style={{marginLeft:-25}}> {props.selecteddevice.title}</AppTitleText>
+                    <AppTitleText style={{marginLeft:-25, marginTop:25}}> {props.selecteddevice.title}</AppTitleText>
                 </View>
                 <View style={[appStyle.rowRight, {marginLeft:45}]}>
                     <View style={[appStyle.row, {justifyContent:'flex-end'}]}>
-                        <AppText style={{marginRight:15}}>Read-Only</AppText>
-                        <AppText>Allow</AppText>
+                        <View style={[appStyle.column]}>
+                            {/* Select All Read-Only options */}
+                            <TouchableOpacity style={[(selectedAllReadOnly) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginLeft:29, width:25, height:25}]} onPress={() => {
+                                    if(selectedAllReadOnly)
+                                    {
+                                        const tempProps = props.properties;
+                                        tempProps.forEach(function(x, index) {
+                                            tempProps[index].access = 0
+                                          }, tempProps); 
+                                        props.setPerm(tempProps);
+                                    }
+                                    else
+                                    {
+                                        const tempProps = props.properties;
+                                        tempProps.forEach(function(x, index) {
+                                            tempProps[index].access = 1
+                                          }, tempProps); 
+                                        props.setPerm(tempProps);
+                                    }
+                                }}/>
+                            <AppText style={{marginRight:15}}>Read-Only</AppText>
+                        </View>
+                        <View style={[appStyle.column, {marginLeft:-15}]}>
+                            {/* Select All Allow options */}
+                            <TouchableOpacity style={[(selectedAllAccess) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginLeft:25, width:25, height:25}]} onPress={() => {
+                                if(selectedAllAccess)
+                                {
+                                    const tempProps = props.properties;
+                                    tempProps.forEach(function(x, index) {
+                                        tempProps[index].access = 0
+                                      }, tempProps); 
+                                    props.setPerm(tempProps);
+                                }
+                                else
+                                {
+                                    const tempProps = props.properties;
+                                    tempProps.forEach(function(x, index) {
+                                        tempProps[index].access = 2
+                                      }, tempProps); 
+                                    props.setPerm(tempProps);
+                                }
+                                }}/>
+                            <AppText style={{marginLeft:15}}>Allow</AppText>
+                        </View>
                     </View>
                 </View>
             </View>
 
-            <ScrollView style={{flex:1, width:350}}>
+            
+            
+            <ScrollView style={{flex:1, width:350, marginTop:2}}>
+                
                 {props.properties.map((props,index)=>
                     <PermView key={index}property={props} updatePerm={updatePerm} access={props.access} initialValue={props.access}/>)}
             </ScrollView>

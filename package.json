@@ -20,6 +20,7 @@
     "aws-appsync": "^3.0.4",
     "aws-appsync-react": "^3.0.4",
     "aws-sdk": "^2.702.0",
+    "datetimepicker": "^0.1.39",
     "expo": "~37.0.3",
     "graphql": "^15.1.0",
     "moment": "^2.29.1",
