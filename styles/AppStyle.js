@@ -103,6 +103,7 @@ const appStyle = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         alignSelf:'stretch',
+        backgroundColor: '#FFFFFF',
         
         borderRadius: 15,
         shadowColor: "#000",

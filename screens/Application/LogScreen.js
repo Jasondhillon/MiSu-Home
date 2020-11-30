@@ -57,40 +57,59 @@ class LogScreen extends React.Component {
         });
       }
   
-      // Gets the logs for the access which may have been granted or revoked to the user
-      getAccessLogs = async () => {
+    // Gets the logs for the access which may have been granted or revoked to the user
+    getAccessLogs = async () => {
         await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/getaccesslogs', {
-          method: 'GET',
-          headers: 
-          {
-              Authorization: 'Bearer ' + this.props.sessionData.idToken
-          }
+            method: 'GET',
+            headers: 
+            {
+                Authorization: 'Bearer ' + this.props.sessionData.idToken
+            }
         })
         .then(response => response.json())
         .then(data => {
-          //console.log("%j", "Access Logs", data.message);
-          if (data.message.length > 0)
-          {
+            //console.log("%j", "Access Logs", data.message);
+            if (data.message.length > 0)
+            {
             var sortedLogs = data.message.sort((a,b) => (a.date < b.date) ? 1 : (a.date === b.date) ? ((a.time < b.time) ? 1 : -1) : -1);
             this.setState({accessLogs: sortedLogs});
-          }
+            }
         })
         .catch((error) => {
             //console.error('getAccessLogs error:', error);      
             this.showToast(error);
             this.setState({error});
         });
-      }
+    }
+
+    renderLogs = () => {
+        if (this.state.usageLogs.length > 0 && this.state.accessLogs <= 0){
+            return <LogCard type='Usage' logs={this.state.usageLogs}/>
+        }
+        else if (this.state.accessLogs.length > 0 && this.state.usageLogs <= 0){
+            return <LogCard type='Access' logs={this.state.accessLogs}/>
+        }
+        else if (this.state.accessLogs.length > 0 && this.state.usageLogs > 0){
+            return (
+                <View>
+                    <LogCard type='Usage' logs={this.state.usageLogs}/>
+                    <LogCard type='Access' logs={this.state.accessLogs}/>
+                </View>
+            )    
+        }
+        else return null
+    }
    
     render()
     {
         return(
             <View style={[appStyle.container, {alignItems: 'stretch'}]}>
                 <ScrollView style={appStyle.scrollView}>
-
+                    {this.renderLogs()}
+                    {/*
                     {this.state.usageLogs.length > 0 ? <LogCard type='Usage' logs={this.state.usageLogs}/> : null}
                     {this.state.accessLogs.length > 0 ? <LogCard type='Access' logs={this.state.accessLogs}/> : null}
-
+                    */}
                     {/* Usage Logs
                     {this.state.usageLogs !== null ? <Text>{"\n"}</Text> : null}
                     {this.state.usageLogs !== null ? <View style={{borderBottomColor: 'black', borderBottomWidth: 3}}/> : null}

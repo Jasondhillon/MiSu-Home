@@ -55,7 +55,7 @@ class HomeCard extends React.Component {
                         <View style={appStyle.rowRight}>
                             <View style={{flexDirection: 'row'}}>
                                 <TouchableOpacity onPress={()=> this.createTwoButtonAlert(this.props.sharedDevice.sharer_name)}>
-                                    <Image style={{width:30, height:30}} source={require('../../assets/exitHouse.png')} />
+                                    <Image style={{width:30, height:30}} source={require('../../assets/x.png')} />
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -82,26 +82,26 @@ class HomeCard extends React.Component {
                             </View>
                         ): null}
                    
-                   { this.props.sharedDevice.accepted == 0 ?(
-                        <View>
-                        <View style={{paddingTop:10, paddingHorizontal:5, paddingBottom:5}}>
-                            <AppText>You've been given access to devices in this home.</AppText>
-                        </View>
+                        { this.props.sharedDevice.accepted == 0 ?(
+                            <View>
+                                <View style={{paddingTop:10, paddingHorizontal:5, paddingBottom:5}}>
+                                    <AppText>You've been given access to devices in this home.</AppText>
+                                </View>
 
-                        <View style={appStyle.row}>
-                            <View style={{flex:1, marginRight:5}}>
-                                <TouchableOpacity style={appStyle.greenButton} onPress={()=> this.props.updateInvite(this.props.sharedDevice.login_credentials_id,1,this.props.IdToken)}>
-                                        <Text style={{ color: 'white' ,textAlign:"center"}}> Accept</Text>
-                                </TouchableOpacity>
+                                <View style={appStyle.row}>
+                                    <View style={{flex:1, marginRight:5}}>
+                                        <TouchableOpacity style={appStyle.greenButton} onPress={()=> this.props.updateInvite(this.props.sharedDevice.login_credentials_id,1,this.props.IdToken)}>
+                                                <Text style={{ color: 'white' ,textAlign:"center"}}> Accept</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={{ marginLeft:5, flex:1 }}>
+                                        <TouchableOpacity style={appStyle.redButton} onPress={()=> this.props.updateInvite(this.props.sharedDevice.login_credentials_id,0,this.props.IdToken)}>
+                                                <Text style={{ color: 'white',textAlign:"center"}}> Decline</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
                             </View>
-                            <View style={{ marginLeft:5, flex:1 }}>
-                                <TouchableOpacity style={appStyle.redButton} onPress={()=> this.props.updateInvite(this.props.sharedDevice.login_credentials_id,0,this.props.IdToken)}>
-                                        <Text style={{ color: 'white',textAlign:"center"}}> Decline</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                        </View>
-                   ): null}
+                        ): null}
                 </View>
             </View>
         )

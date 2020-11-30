@@ -1,5 +1,5 @@
 import React from 'react';
-import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { RefreshControl, ScrollView, Text, TouchableOpacity, View, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import AppHeaderText from '../../components/app/AppHeaderText';
 import AppText from '../../components/app/AppText';
@@ -100,8 +100,9 @@ class HomeScreen extends React.Component {
     {
       // Display this message if there is no hub registered to you and you have no hubs you're added to.
       let newUserScreen = null;
-     if((this.props.hubInfoData.hub_email == null || this.props.hubInfoData.hub_email == '') && this.state.loading == false && (this.props.sharedDevicesData == null || this.props.sharedDevicesData.devices == null || this.props.sharedDevicesData.devices.length <= 0))
-     {
+      let noLogs = null;
+      if((this.props.hubInfoData.hub_email == null || this.props.hubInfoData.hub_email == '') && this.state.loading == false && (this.props.sharedDevicesData == null || this.props.sharedDevicesData.devices == null || this.props.sharedDevicesData.devices.length <= 0))
+      {
         newUserScreen = (
           <View style={appStyle.container}>
             <View style={ {width:240, alignItems: "center"} }>
@@ -118,7 +119,27 @@ class HomeScreen extends React.Component {
                 <AppText style= { {marginTop:5, fontSize:15}}><AppText style = {{fontWeight: "bold"}}> { this.props.sessionData.email} </AppText> </AppText>
           </View>
         );
+
+        
       }
+      else {
+        if (this.state.usageLogs.length <= 0 && this.state.accessLogs.length <= 0)
+        {
+          noLogs = (
+            <View style={appStyle.card}>
+                    <View style={[appStyle.container, {paddingBottom: 0, flex: 1}]}>
+                      <View style={appStyle.rowLeft}>
+                          <Image style={{width:30, height:30, marginRight:20}} source={require('../../assets/log.png')} />
+                          <AppHeaderText>No Logs Yet...</AppHeaderText>
+                      </View>
+                    </View>
+                  </View>
+          )
+        }
+      }
+
+      
+     
 
 
       return (
@@ -155,6 +176,7 @@ class HomeScreen extends React.Component {
                 })
               : null}
               {/* Display Log*/}
+              {noLogs}
               
               {this.state.usageLogs.length > 0 ? 
                 <View style={[appStyle.container, {padding: 0, flex: 1, alignSelf: 'stretch'}]}>

@@ -33,7 +33,7 @@ class DeviceScreen extends React.Component
 
 
 
-    componentWillMount(){
+    UNSAFE_componentWillMount(){
         const device = this.props.navigation.getParam('device', null);
         this.setState({
             device
