@@ -6,7 +6,7 @@ import AppHeaderText from '../app/AppHeaderText';
 import AppTitleText from '../app/AppTitleText';
 import AppText from '../app/AppText';
 
-class ForgotPasswordPopup extends Component 
+class ForgotPasswordConfirmPopup extends Component 
 {
     constructor(props){
         super(props);
@@ -39,9 +39,9 @@ class ForgotPasswordPopup extends Component
                 <View style={appStyle.popup}>
                     <View style={appStyle.container}>
                         {/* Title */}
-                        <AppHeaderText>Enter your Email Address</AppHeaderText>
+                        <AppHeaderText>Enter Confirm Code</AppHeaderText>
                         
-                        {/* Render the form */}
+                        {/* Render the login form */}
                         <View style={appStyle.container}>
                             <TextInput 
                                 style={appStyle.formInput} 
@@ -50,11 +50,29 @@ class ForgotPasswordPopup extends Component
                                 value={this.state.username}
                                 placeholder="Email">
                             </TextInput>
+
+                            <TextInput 
+                                style={appStyle.formInput} 
+                                autoCapitalize="none" 
+                                keyboardType='numeric'
+                                onChangeText={authCode => this.setState({authCode})} 
+                                value={this.state.authCode}
+                                placeholder="Confirm Code">
+                            </TextInput>
+                            
+                            <TextInput 
+                                style={appStyle.formInput} 
+                                secureTextEntry 
+                                autoCapitalize="none" 
+                                onChangeText={password => this.setState({password})} 
+                                value={this.state.password}
+                                placeholder="Password">
+                            </TextInput>
                         </View>
                         
                         {/* Render the submit button */}
-                        <TouchableOpacity style={appStyle.regularButton} onPress={ () => this.props.onSubmit(this.state.username) } >
-                            <AppText>Confirm</AppText>
+                        <TouchableOpacity style={appStyle.regularButton} onPress={ () => this.props.onSubmit(this.state.username, this.state.authCode, this.state.password) } >
+                            <AppText>Submit</AppText>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -67,4 +85,4 @@ const style = StyleSheet.create({
     
  });
 
-export default ForgotPasswordPopup;
+export default ForgotPasswordConfirmPopup;
