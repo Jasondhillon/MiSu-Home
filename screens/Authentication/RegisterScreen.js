@@ -69,7 +69,6 @@ export default class RegisterScreen extends React.Component
         this.setState({errorMessage: ''});
         this.setState({message: ''});
         this.setState({confirmingCode: false});
-        const password = this.state.password;
 
         // Form validation
         if(username == '')

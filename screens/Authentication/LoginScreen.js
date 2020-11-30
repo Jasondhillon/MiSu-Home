@@ -6,6 +6,8 @@ import { connect } from 'react-redux';
 import { currentSessionAction } from '../../redux/Action/currentSessionAction';
 import appStyle from '../../styles/AppStyle';
 import authStyle from '../../styles/AuthStyle';
+import ConfirmCodePopup from '../../components/popup/ConfirmCodePopup'
+import ForgotPasswordPopup from '../../components/popup/ForgotPasswordPopup';
 
 class LoginScreen extends React.Component 
 {
@@ -49,6 +51,39 @@ class LoginScreen extends React.Component
         }
     }
 
+    // Complete the forgot password auth
+    forgotPassword = async(username) => {
+        this.setState({errorMessage: ''});
+        this.setState({message: ''});
+        this.setState({forgotPassword: false});
+
+        // Form validation
+        if(username == '')
+        {
+            this.setState({message: 'Please enter the email address of your account' });
+            this.setState({errorMessage: ''});
+        }
+        else
+        {
+            this.setState({isLoading: true});
+            // const user = await Auth.confirmSignUp(username, authCode)
+            // .then(async user =>  {
+            //     console.log('confirmed sign up successful!');
+                
+            //     this.setState({errorMessage: ''});
+            //     this.setState({message: 'Confirm successful, please sign in.'});
+            //     this.setState({isLoading: false});
+            // })
+            // .catch((err) => {
+            //     this.setState({errorMessage: err.message});
+            //     this.setState({message: ''});
+            //     this.setState({isLoading: false});
+            // });
+            await new Promise(resolve => setTimeout(resolve, 800));
+            this.setState({isLoading: false});
+        }
+    }
+
     render()
     {
         // The loading element will restrict input during networked operations
@@ -60,6 +95,18 @@ class LoginScreen extends React.Component
                     <ActivityIndicator size="large" style = {[appStyle.loadingElement]} />
                 </View>
             )
+        }
+
+        // The confirm code popup will appear if there is actually an error
+        let forgotPasswordPopupElement = null;
+        if(this.state.forgotPassword)
+        {
+            forgotPasswordPopupElement = (
+            <ForgotPasswordPopup 
+                onCancel = { () => this.setState({ forgotPassword : false })}
+                onSubmit = { this.forgotPassword }
+                username = { this.state.username }
+            />)
         }
 
         // The error element will be set if there is actually an error
@@ -133,6 +180,18 @@ class LoginScreen extends React.Component
 
                 {/* Render the error message */}
                 { errorElement }
+
+                {/* Render the forgot popup */}
+                { forgotPasswordPopupElement }
+
+                {/* Render the confirm code toggle */}
+                <View>
+                    <TouchableOpacity style={{alignSelf: 'center', marginTop: 16}} onPress={() => { this.setState( { forgotPassword : true }); }}>
+                        <Text style={{color: '#414959', fontSize: 13}}Password> 
+                            Forgot your password? <Text style={{color: '#71ccf0', fontWeight: '500'}}>Reset</Text>
+                        </Text>
+                    </TouchableOpacity>
+                </View>
 
                 {/* Render the register toggle */}
                 <View>

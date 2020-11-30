@@ -167,10 +167,7 @@ class ShareModal extends React.Component {
     async selectDevice (device) {
        const FoundAcc =  await this.props.sharedAccountsData.sharedAccounts.find( account => account.guest_email == this.state.selecteduser.guest_email)
        if(FoundAcc){
-           
            const FoundDevice = await  FoundAcc.devices.find(dev => dev.name == device.title)
-
-          
             if(FoundDevice) {
                 const  tempProps  = []
                 Object.keys(device.properties).forEach((pkey,index)=> {
@@ -229,14 +226,94 @@ class ShareModal extends React.Component {
     }
 
     async selectedPerms() {
-        // Initialize the selectedoptions to default selection
+        
+        var type = 0;
+        var tempDate = new Date();
+        var scheduledDays = [];
+        var scheduledStartDate = new Date();
+        var scheduledEndDate = new Date();
+        
+        // Initialize the selectedoptions to current selection if it exists
+        const FoundAcc = this.props.sharedAccountsData.sharedAccounts.find( account => account.guest_email == this.state.selecteduser.guest_email)
+        if(FoundAcc){
+           const FoundDevice = FoundAcc.devices.find(dev => dev.name == this.state.selecteddevice.title)
+            if(FoundDevice) {
+                var firstPerm = FoundDevice.properties[0];
+                var type = 0;
+                if(firstPerm != null)
+                {
+                    if(firstPerm.temporary == 1)
+                    {
+                        tempDate = new Date(firstPerm.temp_date + ", " + firstPerm.temp_time_range_end);
+                        type = 0;
+                    }
+
+                    if(firstPerm.time_range == 1)
+                    {
+                        scheduledStartDate = new Date(firstPerm.time_range_start_date + ", " + firstPerm.time_range_start);
+                        scheduledEndDate = new Date(firstPerm.time_range_end_date + ", " + firstPerm.time_range_end);
+                        // get scheduled days by iterating through time_range_reoccuring
+                        if(firstPerm.time_range_reoccuring != "" && firstPerm.time_range_reoccuring != null)
+                        {
+                            var tempCount = 0;
+                            for (var i = 0; i < firstPerm.time_range_reoccuring.length + 1; i++) {
+                                // Skip to every three letters to support the MonThuSat example
+                                if(tempCount >= 3 && i <= firstPerm.time_range_reoccuring.length)
+                                {
+                                    // Push to the scheduledDays arrays depending on the day
+                                    tempCount = 0;
+                                    var dayCut = firstPerm.time_range_reoccuring.substring(i - 3, i);
+                                    // Check if the time range is thursday for special case of using R to signify it
+                                    if(dayCut == "Mon")
+                                    {
+                                        scheduledDays.push(0);
+                                    }
+                                    else if(dayCut == "Tue")
+                                    {
+                                        scheduledDays.push(1);
+                                    }
+                                    else if(dayCut == "Wed")
+                                    {
+                                        scheduledDays.push(2);
+                                    }
+                                    else if(dayCut == "Thu")
+                                    {
+                                        scheduledDays.push(3);
+                                    }
+                                    else if(dayCut == "Fri")
+                                    {
+                                        scheduledDays.push(4);
+                                    }
+                                    else if(dayCut == "Sat")
+                                    {
+                                        scheduledDays.push(5);
+                                    }
+                                    else if(dayCut == "Sun")
+                                    {
+                                        scheduledDays.push(6);
+                                    }
+                                }
+                                tempCount++;
+                            }
+                        }
+                        type = 1;
+                    }    
+                
+                    if(firstPerm.unrestricted == 1)
+                    {
+                        type = 2;
+                    }
+                }
+            }
+        }
+        
         await this.setState({
             selectedoptions:{
-                selection:0,
-                tempDate:new Date(),
-                scheduledDays:[],
-                scheduledStartDate:new Date(),
-                scheduledEndDate:new Date(),
+                selection:type,
+                tempDate:tempDate,
+                scheduledDays:scheduledDays,
+                scheduledStartDate:scheduledStartDate,
+                scheduledEndDate:scheduledEndDate,
             }
         })  
     }

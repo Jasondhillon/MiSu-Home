@@ -12,16 +12,94 @@ import appStyle from '../../styles/AppStyle';
 
 const DeviceItem = (props) => {
    
+    function formatDate(time) {
+        // Check correct time format and split into components
+        time = time.toString ().match (/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+
+        if (time.length > 1) { // If time format correct
+            time = time.slice (1);  // Remove full string match value
+            time[5] = +time[0] < 12 ? 'AM' : 'PM'; // Set AM/PM
+            time[0] = +time[0] % 12 || 12; // Adjust hours
+        }
+        return time.join (''); // return adjusted time or original string
+      }
+    var desc = "";
+    props.device.properties.forEach(x => desc += x.name + ", ");
+    desc = desc.substring(0, desc.length - 2);
+    desc = desc.substring(0, 15) + (desc.length > 15 ? '...' : '');
+
+    var deviceName = props.device.name;
+    deviceName = deviceName.substring(0, 10) + (deviceName.length > 15 ? '...' : '');
+
+    const firstProp = props.device.properties[0];
+    var firstPropTimeRangeReoccuringStr = "";
+    if(firstProp.time_range_reoccuring == "" || firstProp.time_range_reoccuring == null)
+        firstPropTimeRangeReoccuringStr = "Everyday  ";
+    else
+    {
+        var tempCount = 0;
+        for (var i = 0; i < firstProp.time_range_reoccuring.length + 1; i++) {
+            // Skip to every three letters to support the MonThuSat example
+            if(tempCount >= 3 && i <= firstProp.time_range_reoccuring.length)
+            {
+                tempCount = 0;
+                var dayCut = firstProp.time_range_reoccuring.substring(i - 3, i);
+                // Check if the time range is thursday for special case of using R to signify it
+                if(dayCut == "Thu")
+                {
+                    firstPropTimeRangeReoccuringStr += "R, ";
+                }
+                // Check if the time range is sunday for special case of using U to signify it
+                else if(dayCut == "Sun")
+                {
+                    firstPropTimeRangeReoccuringStr += "U, ";
+                }
+                else
+                    firstPropTimeRangeReoccuringStr += dayCut[0] + ", ";
+            }
+            tempCount++;
+        }
+    }
+    firstPropTimeRangeReoccuringStr = firstPropTimeRangeReoccuringStr.substring(0, firstPropTimeRangeReoccuringStr.length - 2);
     return (
-        <TouchableOpacity style={[appStyle.row, {flex:1, marginTop:5} ]} onPress={() => {props.selected(props.device)}}>
+        <TouchableOpacity style={[{flex:1, marginTop:5} ]} onPress={() => {props.selected(props.device)}}>
+            {/* Display first row detailing the name, properties, and selection button*/ }
+            <View style={appStyle.row}>
                 <View style={appStyle.rowLeft}>
                     <Image style={{width:35, height:35}} source={require('../../assets/device.png')} />
-                    <AppText style={{marginTop:5, marginLeft:10}}> {props.device.name}</AppText>
+                    <View style={appStyle.column}>
+                        <AppText style={{marginTop:0, marginLeft:10}}>{deviceName}</AppText>
+                    </View>
                 </View>
                 <View style={appStyle.rowRight}>
+                    <AppText style={{paddingBottom:12, marginRight:10, fontSize:14}}> {desc}</AppText>
                     <Image style={{width:30, height:30, marginTop:3}} source={require('../../assets/right.png')} />
                 </View>
-            <View style={[(appStyle.lineSeperatorAlt), {marginTop:5}]}/>
+                <View style={[(appStyle.lineSeperatorAlt), {marginTop:5}]}/>
+            </View>
+            {/* Display second row detailing the access*/ }
+            <View style={appStyle.row}>
+                {
+                    firstProp.unrestricted == 1 && 
+                        <View>
+                            <AppText style={{fontSize:14, marginTop:-4}}>* Unrestricted Access</AppText>
+                        </View>
+                }
+                {
+                    firstProp.time_range == 1 && 
+                        <View style={appStyle.row}>
+                            <AppText style={{fontSize:14, marginTop:-4}}>{formatDate(firstProp.time_range_start)} {firstProp.time_range_start_date}</AppText>
+                            <AppText style={{fontSize:14, marginTop:-4}}>  -  {formatDate(firstProp.time_range_end)} {firstProp.time_range_end_date}</AppText>
+                            <AppText style={{fontSize:14, marginTop:-4}}>,  {firstPropTimeRangeReoccuringStr}</AppText>
+                        </View>
+                }
+                {
+                    firstProp.temporary == 1 && 
+                        <View>
+                            <AppText style={{fontSize:14, marginTop:-4}}>{(firstProp.temp_date)}, {formatDate(firstProp.temp_time_range_end)}</AppText>
+                        </View>
+                }
+            </View>
         </TouchableOpacity>
     )
 }
@@ -193,7 +271,7 @@ class UserScreen extends React.Component  {
 
                         <View style={appStyle.column}>
                             { this.state.devices != null && this.state.devices.map((device,index)=> 
-                                <View key={index} style={{height:50}}>
+                                <View key={index} style={{height:65}}>
                                     <DeviceItem key={index} device={device} navigation={this.props.navigation} selected={this.selectDevice.bind(this)} />
                                     <View style={[appStyle.lineSeperatorAlt]}/>
                                 </View>

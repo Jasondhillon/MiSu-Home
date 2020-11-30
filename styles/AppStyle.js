@@ -70,6 +70,11 @@ const appStyle = StyleSheet.create({
     rowRight: {
         alignSelf:'stretch',
         alignItems:'flex-end',
+        alignContent:'flex-end',
+        alignSelf:'flex-end',
+        textAlign:'right',
+        justifyContent:'flex-end',
+        flexDirection:'row',
         flex:1,
     },
 
@@ -237,7 +242,7 @@ const appStyle = StyleSheet.create({
         shadowOpacity: 10,
         shadowRadius: 20.41,
         elevation: 4,
-        zIndex:-5,
+        zIndex:5,
         opacity:0.9,
     },
     loadingHolderNoColor: {
