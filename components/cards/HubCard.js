@@ -9,15 +9,20 @@ const HubCard = props => {
     return (
         <View style={[appStyle.card, { paddingBottom:0 }]}>
             <View style={[appStyle.container, {paddingBottom:-20}]}>
+                {/*<View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
+                    {/* Render the hub icon }
+                    <Image
+                        style={[style.hubIcon, {alignSelf: 'flex-start'}]}
+                        source={require('../../assets/icons/hub.png')}
+                    />
 
-                {/* Render the hub icon */}
-                <Image
-                    style={style.hubIcon}
-                    source={require('../../assets/icons/hub.png')}
-                />
-
-                {/* Render the hub name */}
-                <AppHeaderText style={style.name}> {props.name}'s  Home</AppHeaderText>
+                    {/* Render the hub name }
+                    <AppHeaderText style={style.name}> {props.name}'s  Home</AppHeaderText>
+                </View>*/}
+                <View style={appStyle.rowLeft}>
+                    <Image style={{width:30, height:30, marginRight:20}} source={require('../../assets/home.png')} />
+                    <AppHeaderText>Your Home</AppHeaderText>    
+                </View>
 
 
                 {/* Start the hub's sharing view */}
@@ -28,14 +33,6 @@ const HubCard = props => {
                     <View style={appStyle.rowRight}>
                         {/* Render the hub sharing details */}
                         <View style={{flexDirection: 'row'}}>
-                            <TouchableOpacity style={{paddingRight: 10}} onPress={() => props.navigation.navigate('Log') }>
-                                {/* Render the hub icon */}
-                                <Image
-                                    style={style.addUserIcon}
-                                    source={require('../../assets/log.png')}
-                                />
-                            </TouchableOpacity>
-
                             <TouchableOpacity onPress={() => props.OpenModal()  }>
                                 {/* Render the hub icon */}
                                 <Image
@@ -48,17 +45,17 @@ const HubCard = props => {
                 </View>
 
                 <View style={ [appStyle.lineSeperatorFull, {marginBottom:10} ]}/>
-                        {props.sharedAccounts.length <= 0 && 
-                            <View style={appStyle.row}><AppText style={{marginBottom:10, marginTop:-2}}>No users...</AppText></View>
-                        }
-                        {props.sharedAccounts?props.sharedAccounts.map( (sharedAccount,index)=> {
-                            return(
-                                <HubCardSharedUsersListEntry  
-                                    key={index}  
-                                    move={() => props.navigation.navigate('User', {sharedAccount: {sharedAccount}})}
-                                    name={sharedAccount.name}/>
-                            )
-                        }
+                    {props.sharedAccounts.length <= 0 && 
+                        <View style={appStyle.row}><AppText style={{marginBottom:10, marginTop:-2}}>No users...</AppText></View>
+                    }
+                    {props.sharedAccounts?props.sharedAccounts.map( (sharedAccount,index)=> {
+                        return(
+                            <HubCardSharedUsersListEntry  
+                                key={index}  
+                                move={() => props.navigation.navigate('User', {sharedAccount: {sharedAccount}})}
+                                name={sharedAccount.name}/>
+                        )
+                    }
                     ):null}
                 </View>
             </View>
@@ -73,8 +70,8 @@ const style = StyleSheet.create({
     },
     hubIcon: {
         marginTop:10,
-        height:150,
-        width: 150,
+        height:50,
+        width: 50,
     },
     addUserIcon: {
         height:35,
