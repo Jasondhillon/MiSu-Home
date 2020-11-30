@@ -40,7 +40,7 @@ class AccountCard extends Component
             <View style={[appStyle.card, {paddingHorizontal:20}]}>
 
                 <Image
-                        style={[style.icon, {marginBottom:0}]}
+                        style={[style.icon, {marginBottom:0, marginLeft:20}]}
                         source={require('../../assets/icons/user.png')}
                 />
 
