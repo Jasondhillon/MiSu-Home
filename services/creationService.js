@@ -104,11 +104,12 @@ export const createProperty = async (idToken,accountId,deviceId, property, optio
   var scheduledStartTime = "";
   var tempDate = "";
   var tempTime = "";
+  
   // check if we've selected Temporary
   if(options.selection == 0)
   {
     tempDate = Moment(options.tempDate).format('MM/DD/YY');
-    tempTime = Moment(options.tempTime).format('HH:mm');
+    tempTime = Moment(options.tempDate).format('HH:mm');
   }
   // check if we've selected Scheduled
   if(options.selection == 1)

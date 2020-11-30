@@ -35,7 +35,7 @@ class Footer extends React.Component {
       { cancelable: false }
     );
 
-    render ()   {
+    render ()   { 
         return (
             <View>
                 <View style={{backgroundColor:'black', height:1, marginBottom:10}}/>
