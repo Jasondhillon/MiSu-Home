@@ -3,6 +3,7 @@ import { View, Image, StyleSheet, Switch, Slider, TouchableOpacity } from 'react
 import AppHeaderText from '../app/AppHeaderText';
 import AppText from '../app/AppText';
 import appStyle from '../../styles/AppStyle';
+import getDeviceIcon from '../app/DeviceIcons'
 
 class DeviceCard extends Component 
 {
@@ -27,7 +28,7 @@ class DeviceCard extends Component
                     {/* Render the device icon */}
                     <Image
                         style={[style.icon, {marginBottom:0}]}
-                        source={require('../../assets/device.png')}
+                        source={getDeviceIcon(this.props.device.description)}
                     />
                     
                     {/* Render the hub name */}
