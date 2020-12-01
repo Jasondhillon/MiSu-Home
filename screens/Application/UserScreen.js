@@ -8,6 +8,7 @@ import ShareModal from '../../components/modals/ShareModal';
 import SmallIcon from '../../components/SmallIcon';
 import { stopSharingAction } from '../../redux/Action/stopSharing';
 import appStyle from '../../styles/AppStyle';
+import getDeviceIcon from '../../components/app/DeviceIcons'
 
 
 const DeviceItem = (props) => {
@@ -66,7 +67,7 @@ const DeviceItem = (props) => {
             {/* Display first row detailing the name, properties, and selection button*/ }
             <View style={appStyle.row}>
                 <View style={appStyle.rowLeft}>
-                    <Image style={{width:35, height:35}} source={require('../../assets/device.png')} />
+                    <Image style={{width:35, height:35}} source={getDeviceIcon(props.device.description)} /> 
                     <View style={appStyle.column}>
                         <AppText style={{marginTop:0, marginLeft:10}}>{deviceName}</AppText>
                     </View>
