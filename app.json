@@ -7,9 +7,9 @@
     ],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/MISU.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/MISU.png",
       "resizeMode": "contain",
       "backgroundColor": "#5AC8F3"
     },
