@@ -29,7 +29,13 @@ class HomeScreen extends React.Component {
               </TouchableOpacity>
           </View>
       ),
-      headerLeft: () => ( <View></View> )
+      headerLeft: () => ( 
+        <View>
+          <Image
+            style={[{marginBottom:-5, marginLeft:20, width:32, height:32}]}
+            source={require('../../assets/icons/logo.png')}
+          />
+        </View> )
     });
 
     constructor(props){
@@ -57,14 +63,16 @@ class HomeScreen extends React.Component {
     // Retrieves all the information on pull down/refresh of the app
     onRefresh = async () => {
       await this.setState({loading: true});
+      await this.setState({refreshingUsers: true});
       const { idToken} = this.props.sessionData 
       this.props.getHub(idToken)
       this.props.getDevices(idToken)
-      this.props.getAccounts(idToken)
+      await this.props.getAccounts(idToken)
       this.props.getSharedDevices(idToken)
       this.getUsageLogs()
       this.getAccessLogs()
       await this.setState({loading: false});
+      await this.setState({refreshingUsers: false});
     }
 
 
@@ -155,10 +163,11 @@ class HomeScreen extends React.Component {
               {
                 (this.props.hubInfoData.hub_email != null && this.props.hubInfoData.hub_email != '') &&
                 <HubCard  
-                name={this.props.sessionData.name} 
-                sharedAccounts={this.props.sharedAccountsData.sharedAccounts} 
-                OpenModal={this.openModal.bind(this)}
-                navigation={this.props.navigation}/>
+                  name={this.props.sessionData.name} 
+                  sharedAccounts={this.props.sharedAccountsData.sharedAccounts} 
+                  loading={this.state.refreshingUsers}
+                  OpenModal={this.openModal.bind(this)}
+                  navigation={this.props.navigation}/>
               }
               {/* Display shared accounts*/}
               {
@@ -167,7 +176,6 @@ class HomeScreen extends React.Component {
                   return  <HomeCard 
                     key={index} 
                     loading={this.props.exitHubData.loading || this.props.updateInviteState.loading}
-                    
                     sharedDevice={device} 
                     navigation={this.props.navigation}
                     exitHub={this.props.exitHub}

@@ -165,7 +165,7 @@ export default class RegisterScreen extends React.Component
                     </View>
                 
                     {/* Render the greeting */}
-                    <Text style={authStyle.greeting}>{`Sign up to`} <Text style={authStyle.appName}> { 'Misu' } </Text></Text>
+                    <Text style={authStyle.greeting}>{`Sign up to`}<Text style={authStyle.appName}> { 'MiSu' } </Text></Text>
 
                     {/* Render the register form */}
                     <View style={authStyle.authForm}>

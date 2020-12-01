@@ -28,7 +28,8 @@ export const DeviceList = (props) => {
                             </TouchableOpacity>
                         </View>
                     )
-                }):null}
+                }): <View><AppText>No Devices in your Hub...</AppText></View>
+                }
             </View>
         </View>
     )

@@ -73,9 +73,9 @@ export const PermissionList = props => {
                 </View>
                 <View style={[appStyle.rowRight, {marginLeft:45}]}>
                     <View style={[appStyle.row, {justifyContent:'flex-end'}]}>
-                        <View style={[appStyle.column]}>
+                        <View style={[appStyle.column, {marginLeft:-40, marginRight:5}]}>
                             {/* Select All Read-Only options */}
-                            <TouchableOpacity style={[(selectedAllReadOnly) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginLeft:29, width:25, height:25}]} onPress={() => {
+                            <TouchableOpacity style={[(selectedAllReadOnly) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginLeft:10, width:25, height:25}]} onPress={() => {
                                     if(selectedAllReadOnly)
                                     {
                                         const tempProps = props.properties;
@@ -93,9 +93,9 @@ export const PermissionList = props => {
                                         props.setPerm(tempProps);
                                     }
                                 }}/>
-                            <AppText style={{marginRight:15}}>Read-Only</AppText>
+                            <AppText style={{marginRight:15}}>View</AppText>
                         </View>
-                        <View style={[appStyle.column, {marginLeft:-15}]}>
+                        <View style={[appStyle.column, {marginRight:-2.5}]}>
                             {/* Select All Allow options */}
                             <TouchableOpacity style={[(selectedAllAccess) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginLeft:25, width:25, height:25}]} onPress={() => {
                                 if(selectedAllAccess)
@@ -115,7 +115,7 @@ export const PermissionList = props => {
                                     props.setPerm(tempProps);
                                 }
                                 }}/>
-                            <AppText style={{marginLeft:15}}>Allow</AppText>
+                            <AppText style={{marginLeft:5}}>Control</AppText>
                         </View>
                     </View>
                 </View>

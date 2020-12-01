@@ -206,7 +206,7 @@ class LoginScreen extends React.Component
                 </View>
                 
                 {/* Render the greeting */}
-                <Text style={authStyle.greeting}>{`Login to`} <Text style={authStyle.appName}> { 'Misu' } </Text></Text>
+                <Text style={[authStyle.greeting]}>{`Login to`}<Text style={authStyle.appName}> {'MiSu'} </Text></Text>
                 
                 {/* Render the login form */}
                 <View style={authStyle.authForm}>

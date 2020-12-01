@@ -227,7 +227,7 @@ class ShareModal extends React.Component {
 
     async selectedPerms() {
         
-        var type = 0;
+        var type = 2;
         var tempDate = new Date();
         var scheduledDays = [];
         var scheduledStartDate = new Date();

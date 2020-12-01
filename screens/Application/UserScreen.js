@@ -45,17 +45,18 @@ const DeviceItem = (props) => {
                 tempCount = 0;
                 var dayCut = firstProp.time_range_reoccuring.substring(i - 3, i);
                 // Check if the time range is thursday for special case of using R to signify it
-                if(dayCut == "Thu")
-                {
-                    firstPropTimeRangeReoccuringStr += "R, ";
-                }
-                // Check if the time range is sunday for special case of using U to signify it
-                else if(dayCut == "Sun")
-                {
-                    firstPropTimeRangeReoccuringStr += "U, ";
-                }
-                else
-                    firstPropTimeRangeReoccuringStr += dayCut[0] + ", ";
+                // if(dayCut == "Thu")
+                // {
+                //     firstPropTimeRangeReoccuringStr += "R, ";
+                // }
+                // // Check if the time range is sunday for special case of using U to signify it
+                // else if(dayCut == "Sun")
+                // {
+                //     firstPropTimeRangeReoccuringStr += "U, ";
+                // }
+                // else
+                //     firstPropTimeRangeReoccuringStr += dayCut[0] + ", ";
+                firstPropTimeRangeReoccuringStr += dayCut + ", ";
             }
             tempCount++;
         }
@@ -87,16 +88,20 @@ const DeviceItem = (props) => {
                 }
                 {
                     firstProp.time_range == 1 && 
-                        <View style={appStyle.row}>
-                            <AppText style={{fontSize:14, marginTop:-4}}>{formatDate(firstProp.time_range_start)} {firstProp.time_range_start_date}</AppText>
-                            <AppText style={{fontSize:14, marginTop:-4}}>  -  {formatDate(firstProp.time_range_end)} {firstProp.time_range_end_date}</AppText>
-                            <AppText style={{fontSize:14, marginTop:-4}}>,  {firstPropTimeRangeReoccuringStr}</AppText>
+                        <View style={[{marginTop:-20, top:20}]}>
+                            <View style={[appStyle.rowRight, {right:25}]}>
+                                <AppText style={{fontSize:14, marginTop:-4}}>{firstPropTimeRangeReoccuringStr}</AppText>
+                            </View>
+                            <View style={appStyle.row}>
+                                <AppText style={{fontSize:14, marginTop:-4}}>Scheduled {firstProp.time_range_start_date.slice(0, -3)} @ {formatDate(firstProp.time_range_start)}</AppText>
+                                <AppText style={{fontSize:14, marginTop:-4}}> to {firstProp.time_range_end_date.slice(0, -3)} @ {formatDate(firstProp.time_range_end)}</AppText>
+                            </View>
                         </View>
                 }
                 {
                     firstProp.temporary == 1 && 
                         <View>
-                            <AppText style={{fontSize:14, marginTop:-4}}>{(firstProp.temp_date)}, {formatDate(firstProp.temp_time_range_end)}</AppText>
+                            <AppText style={{fontSize:14, marginTop:-4}}>Temporary until {(firstProp.temp_date.slice(0, -3))}, {formatDate(firstProp.temp_time_range_end)}</AppText>
                         </View>
                 }
             </View>

@@ -6,7 +6,6 @@ var height = Dimensions.get('window').height; //full height
 const appStyle = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop:15,
         padding: 12.5,
         alignItems: 'center',
         alignSelf:'stretch',
@@ -88,15 +87,16 @@ const appStyle = StyleSheet.create({
         justifyContent:"center",
         alignItems:"center", 
         padding:5,
-        marginTop:10,
-        paddingTop:20,
+        marginTop:5,
+        paddingTop:-10,
+        paddingBottom:-10,
         borderRadius:10,
         shadowOpacity: 10,
         shadowRadius: 20.41,
         borderBottomWidth: 3,
         borderBottomColor: "#a8a8a8",
-        maxHeight:120,
-        height:120,
+        maxHeight:100,
+        height:100,
         elevation: 4, 
     },
     card: {

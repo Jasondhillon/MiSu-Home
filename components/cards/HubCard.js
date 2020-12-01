@@ -46,7 +46,7 @@ const HubCard = props => {
 
                 <View style={ [appStyle.lineSeperatorFull, {marginBottom:10} ]}/>
                     {props.sharedAccounts.length <= 0 && 
-                        <View style={appStyle.row}><AppText style={{marginBottom:10, marginTop:-2}}>No users...</AppText></View>
+                        <View style={appStyle.row}><AppText style={{marginBottom:10, marginTop:-2}}>{props.loading ? 'Loading...' : 'No users...'}</AppText></View>
                     }
                     {props.sharedAccounts?props.sharedAccounts.map( (sharedAccount,index)=> {
                         return(

@@ -145,7 +145,7 @@ export const PermissionOptions = props => {
                 </TouchableOpacity>
 
                 <TouchableOpacity style={options.selection == 1 ? appStyle.tabSelected : appStyle.tab} onPress={() => {updateSelection(1)}}>
-                    <View><AppText>Scheduled</AppText></View>
+                    <View><AppText>Recurring</AppText></View>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={options.selection == 2 ? appStyle.tabSelected : appStyle.tab} onPress={() => {updateSelection(2)}}>
@@ -221,25 +221,6 @@ export const PermissionOptions = props => {
                         </View>
                     </View>
 
-                    {/* From Time */}
-                    <View style={[appStyle.row, {marginTop:20}]}>
-                        <AppText>From</AppText>
-                        <View style={appStyle.rowRight}>
-                            <TouchableOpacity style={[appStyle.regularButton, {marginTop:-8, marginLeft:20, maxHeight:35}]} onPress={() => {showScheduledStartDateMode('time')}}>
-                                <AppText style={{paddingHorizontal:20}}>{Moment(options.scheduledStartDate).format('h:mm a')}</AppText>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-
-                    {/* To Time */}
-                    <View style={[appStyle.row, {marginTop:20}]}>
-                        <AppText>To</AppText>
-                        <View style={appStyle.rowRight}>
-                            <TouchableOpacity style={[appStyle.regularButton, {marginTop:-8, marginLeft:20, maxHeight:35}]} onPress={() => {showScheduledEndDateMode('time')}}>
-                                <AppText style={{paddingHorizontal:20}}>{Moment(options.scheduledEndDate).format('h:mm a')}</AppText>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
 
                     {/* Start Date */}
                     <View style={[appStyle.row, {marginTop:20}]}>
@@ -250,7 +231,16 @@ export const PermissionOptions = props => {
                             </TouchableOpacity>
                         </View>
                     </View>
-                    
+
+                    {/* Start Time */}
+                    <View style={[appStyle.row, {marginTop:20}]}>
+                        <AppText>Start Time</AppText>
+                        <View style={appStyle.rowRight}>
+                            <TouchableOpacity style={[appStyle.regularButton, {marginTop:-8, marginLeft:20, maxHeight:35}]} onPress={() => {showScheduledStartDateMode('time')}}>
+                                <AppText style={{paddingHorizontal:20}}>{Moment(options.scheduledStartDate).format('h:mm a')}</AppText>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
 
                     {/* End Date */}
                     <View style={[appStyle.row, {marginTop:20}]}>
@@ -261,6 +251,17 @@ export const PermissionOptions = props => {
                             </TouchableOpacity>
                         </View>
                     </View>
+
+                    {/* End Time */}
+                    <View style={[appStyle.row, {marginTop:20}]}>
+                        <AppText>End Time</AppText>
+                        <View style={appStyle.rowRight}>
+                            <TouchableOpacity style={[appStyle.regularButton, {marginTop:-8, marginLeft:20, maxHeight:35}]} onPress={() => {showScheduledEndDateMode('time')}}>
+                                <AppText style={{paddingHorizontal:20}}>{Moment(options.scheduledEndDate).format('h:mm a')}</AppText>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    
                     {showScheduledStartDate && (
                         <DateTimePicker
                         testID="dateTimePicker"
