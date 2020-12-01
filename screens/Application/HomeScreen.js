@@ -32,8 +32,8 @@ class HomeScreen extends React.Component {
       headerLeft: () => ( 
         <View>
           <Image
-            style={[{marginBottom:-5, marginLeft:20, width:32, height:32}]}
-            source={require('../../assets/icons/logo.png')}
+            style={[{marginBottom:-5, marginLeft:10, width:64, height:64}]}
+            source={require('../../assets/MISU.png')}
           />
         </View> )
     });

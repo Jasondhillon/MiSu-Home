@@ -1445,10 +1445,10 @@
     wcwidth "^1.0.1"
     ws "^1.1.0"
 
-"@react-native-community/datetimepicker@^3.0.4":
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/@react-native-community/datetimepicker/-/datetimepicker-3.0.4.tgz#ad3efa90fab78fc3c0710abf3cb06d2976603140"
-  integrity sha512-IsBkemz1XYubH5twfQPC/xleZdILA5SEUaLJ2C86IbnIOctb6suk8tB6uT9VxQkCsw4zjkrlqt9p9LGx9DJ97w==
+"@react-native-community/datetimepicker@^3.0.6":
+  version "3.0.6"
+  resolved "https://registry.yarnpkg.com/@react-native-community/datetimepicker/-/datetimepicker-3.0.6.tgz#ac5ef61b2724bc8d80e2e32b2a77e74a7794c78d"
+  integrity sha512-w+c+U7sR3JVVI+oJE8ZoprBU4d8TG2KG6I+WeM5DCnszxSHS+pJVZPSc5hWHMTDb12PkBlNJDpMoasyDGLPUdw==
   dependencies:
     invariant "^2.2.4"
 
@@ -3404,11 +3404,6 @@ dashdash@^1.12.0:
   integrity sha1-hTz6D3y+L+1d4gMmuN1YEDX24vA=
   dependencies:
     assert-plus "^1.0.0"
-
-datepicker@^0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/datepicker/-/datepicker-0.0.0.tgz#9c2001fbcb1938abc180d42fc082b62d3a061369"
-  integrity sha1-nCAB+8sZOKvBgNQvwIK2LToGE2k=
 
 datetimepicker@^0.1.39:
   version "0.1.39"
