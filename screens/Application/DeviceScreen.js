@@ -33,7 +33,7 @@ class DeviceScreen extends React.Component
 
 
 
-    UNSAFE_componentWillMount(){
+    componentWillMount(){
         const device = this.props.navigation.getParam('device', null);
         this.setState({
             device
@@ -58,7 +58,7 @@ class DeviceScreen extends React.Component
                 {
                     <View style={appStyle.cardContainer}>
                     <ScrollView style={appStyle.scrollView}>
-                        <DeviceCard device={this.state.device}/>
+                            <DeviceCard device={this.state.device} deviceList={this.props.sharedDevicesData} IdToken={this.props.sessionData.idToken}/>
                     </ScrollView>
                     </View>
                 }
@@ -68,8 +68,8 @@ class DeviceScreen extends React.Component
 }
 
 const mapStateToProps = (state) => {
-    const { devicesData} = state
-    return { devicesData}
+    const { devicesData, sessionData, sharedDevicesData, sharedAccountsData} = state
+    return { devicesData, sessionData, sharedDevicesData, sharedAccountsData }
   };
 
 
