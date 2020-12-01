@@ -6,7 +6,7 @@ const AWS = require('aws-sdk');
 AWS.config.update({ region: "us-east-1"});
 // 0 for no logs, 1 for basic logs, 2 for verbose
 const debug = 0;
-const shareEmail = "secondary@example.com"
+const shareEmail = "secondary@test.com"
 
 export default class HomeScreen extends React.Component {
 
@@ -177,7 +177,7 @@ export default class HomeScreen extends React.Component {
       });
     }
 
-    // Gets user's hub devices from User's table through ID in idToken
+    // Gets all devices from the user's hub
     getDevices = async () => {
       await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/device', {
           method: 'GET',
@@ -207,11 +207,25 @@ export default class HomeScreen extends React.Component {
                   properties.push({"property" : temp});
                 }
               }
+              for (key in item.actions) 
+              {
+                // This gets the name of the action since we don't know what the property is called
+                if (item.actions.hasOwnProperty(key)) 
+                {
+                  temp = item.actions[key];
+                  // This adds two key/value pairs to each device so we can tell when it is checked for sharing, and also the current state (on or off for example)
+                  temp.type = "action";
+                  temp.isChecked = false;
+                  temp.value = null;
+                  properties.push({"property" : temp});
+                }
+              }
               // Adds the new, updated key/value pairs to the device
               device.newProps = properties;
               devices.push(device);
             });
-            
+          
+          // console.log("%j", "Devices:", devices);
           this.setState({devices});
           this.showToast("Devices list updated!");
           }
@@ -874,7 +888,8 @@ export default class HomeScreen extends React.Component {
       this.state.sharedDevices.map((account) => {
         account.devices.map((device) => {
           device.properties.map((property) => {
-            property.value = this.getValueForSharedDeviceProperty(account, device, property);
+            if (property.type !== "action")
+              property.value = this.getValueForSharedDeviceProperty(account, device, property);
           });
         });
       });
@@ -944,7 +959,7 @@ export default class HomeScreen extends React.Component {
                 // Removes the UI button while the action is being done by setting it to read only
                 temp.read_only = true;
                 this.setState({sharedDevices: list});
-                if (property.type == "boolean")
+                if (temp.type == "boolean")
                   await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
                       method: 'POST',
                       headers: 
@@ -976,6 +991,41 @@ export default class HomeScreen extends React.Component {
                       this.showToast(error);
                       this.setState({error});
                   });
+                else if (temp.type === "action")
+                {
+                  console.log("Yeet!");
+                  await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
+                      method: 'POST',
+                      headers: 
+                      {
+                          Authorization: 'Bearer ' + this.state.idToken
+                      },
+                      body: JSON.stringify({
+                        account: account.login_credentials_id,
+                        device: device.shared_device_properties_id,
+                        property: property.shared_property_id,
+                        value: property.name
+                      })
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                    temp.value = !temp.value;
+                      if(data.statusCode === 400)
+                      {
+                        console.log("%j", data.message);
+                        this.showToast(data.message);
+                      }
+                      // Retoggles the button on the UI allowing the device to be toggled again
+                      temp.read_only = false;
+                      this.setState({sharedDevices: list});
+                      this.getValueForSharedDeviceProperty(account, device, property);
+                  })
+                  .catch((error) => {
+                      console.error('useSharedDevice error:', error);
+                      this.showToast(error);
+                      this.setState({error});
+                  });
+                }
               }
           }
         }
@@ -1114,7 +1164,7 @@ export default class HomeScreen extends React.Component {
         // Removes the UI button while the action is being done by setting it to read only
         temp.read_only = true;
         this.setState({sharedDevices: list});
-        if (property.type == "boolean")
+        if (temp.type == "boolean")
           await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
               method: 'POST',
               headers: 
@@ -1146,6 +1196,38 @@ export default class HomeScreen extends React.Component {
               this.showToast(error);
               this.setState({error});
           });
+        else if (temp.type === "action")
+          {
+            await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
+                method: 'POST',
+                headers: 
+                {
+                    Authorization: 'Bearer ' + this.state.idToken
+                },
+                body: JSON.stringify({
+                  account: account.login_credentials_id,
+                  device: device.shared_device_properties_id,
+                  property: property.shared_property_id,
+                  value: property.name
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.statusCode === 400)
+                {
+                  console.log("%j", data.message);
+                  this.showToast(data.message);
+                }
+                // Retoggles the button on the UI allowing the device to be toggled again
+                temp.read_only = false;
+                this.setState({sharedDevices: list});
+            })
+            .catch((error) => {
+                console.error('useSharedDevice error:', error);
+                this.showToast(error);
+                this.setState({error});
+            });
+          }
       }
     }
 
@@ -1276,7 +1358,14 @@ export default class HomeScreen extends React.Component {
                                   </TouchableOpacity>
                                 }
                                 {
-                                  (property.value == null || property.value instanceof Promise) && <ActivityIndicator size="small"/>
+                                  !property.read_only && property.value === null && property.type === "action" && property.value instanceof Promise == false &&
+                                  <TouchableOpacity onPress={() => this.useSharedDevice(account, device, property)}> 
+                                    {property.value ? <Text style={{fontSize: 20}}>&#9899;</Text>:
+                                    <Text style={{fontSize: 20, backgroundColor: 'black', borderRadius: 20}}>&#9898;</Text>}
+                                  </TouchableOpacity>
+                                }
+                                {
+                                  ((property.value == null || property.value instanceof Promise) && property.type !== "action") && <ActivityIndicator size="small"/>
                                 }
                                 {
                                   (property.value !== null && property.value instanceof Promise == false) && property.type === "boolean" &&
