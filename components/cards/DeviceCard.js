@@ -132,69 +132,98 @@ class DeviceCard extends Component {
         // Check if within the time rules
         else
         {   
-            if (localTime < temp.temp_time_range_start)
+          if (localTime < temp.temp_time_range_start)
+          {
+            ////this.showToast("This device is not available at this time (Too early)");
+          }
+          else if (localTime > temp.temp_time_range_end)
+          {
+            //this.showToast("The time window for this device has expired (Too late)");
+          }
+          else
+          {
+            
+            if (property.type == "boolean")
+              await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
+                  method: 'POST',
+                  headers: 
+                  {
+                      Authorization: 'Bearer ' + this.props.IdToken
+                  },
+                  body: JSON.stringify({
+                    account: account,
+                    device: device.shared_device_properties_id,
+                    property: property.shared_property_id,
+                    value: property.value
+                  })
+              })
+              .then(response => response.json())
+              .then(data => {
+                temp.value = !temp.value;
+                  if(data.statusCode === 400)
+                    console.log("%j", data.message);
+                  
+                  this.getValueForSharedDeviceProperty(account, device, property);
+              })
+              .catch((error) => {
+                  console.error('useSharedDevice error:', error);
+              });
+            else if (property.type === "action")
             {
-              ////this.showToast("This device is not available at this time (Too early)");
+              await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
+                  method: 'POST',
+                  headers: 
+                  {
+                      Authorization: 'Bearer ' + this.props.IdToken
+                  },
+                  body: JSON.stringify({
+                    account: account,
+                    device: device.shared_device_properties_id,
+                    property: property.shared_property_id,
+                    value: property.name
+                  })
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if(data.statusCode === 400)
+                  {
+                    console.log("%j","error, ",  data.message);
+                  }
+              })
+              .catch((error) => {
+                  console.error('useSharedDevice error:', error);
+              });
             }
-            else if (localTime > temp.temp_time_range_end)
+          else if (property.type == "integer")
             {
-              //this.showToast("The time window for this device has expired (Too late)");
-            }
-            else
-            {
-              
-              if (property.type == "boolean")
-                await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
-                    method: 'POST',
-                    headers: 
-                    {
-                        Authorization: 'Bearer ' + this.props.IdToken
-                    },
-                    body: JSON.stringify({
-                      account: account,
-                      device: device.shared_device_properties_id,
-                      property: property.shared_property_id,
-                      value: property.value
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
+              await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
+                  method: 'POST',
+                  headers: 
+                  {
+                      Authorization: 'Bearer ' + this.props.IdToken
+                  },
+                  body: JSON.stringify({
+                    account: account,
+                    device: device.shared_device_properties_id,
+                    property: property.shared_property_id,
+                    value: property.value
+                  })
+              })
+              .then(response => response.json())
+
+              .then(data => {
                   temp.value = !temp.value;
-                    if(data.statusCode === 400)
-                      console.log("%j", data.message);
-                    
-                    this.getValueForSharedDeviceProperty(account, device, property);
-                })
-                .catch((error) => {
-                    console.error('useSharedDevice error:', error);
-                });
-              else if (property.type === "action")
-              {
-                await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
-                    method: 'POST',
-                    headers: 
-                    {
-                        Authorization: 'Bearer ' + this.props.IdToken
-                    },
-                    body: JSON.stringify({
-                      account: account,
-                      device: device.shared_device_properties_id,
-                      property: property.shared_property_id,
-                      value: property.name
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if(data.statusCode === 400)
-                    {
-                      console.log("%j","error, ",  data.message);
-                    }
-                })
-                .catch((error) => {
-                    console.error('useSharedDevice error:', error);
-                });
-              }
+                  console.log(temp);
+                  if(data.statusCode === 400)
+                    console.log("%j", data.message);
+
+                  this.getValueForSharedDeviceProperty(account, device, property);
+              })
+              .catch((error) => {
+                  console.error('useSharedDevice error:', error);
+              });
             }
+          }
         }
       }
       // Schedule based rules
@@ -269,6 +298,35 @@ class DeviceCard extends Component {
                       .then(data => {
                         if(data.statusCode === 400)
                           console.log("%j","error, ",  data.message);
+                      })
+                      .catch((error) => {
+                          console.error('useSharedDevice error:', error);
+                      });
+                    }
+                    else if (property.type == "integer")
+                    {
+                      await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
+                          method: 'POST',
+                          headers: 
+                          {
+                              Authorization: 'Bearer ' + this.props.IdToken
+                          },
+                          body: JSON.stringify({
+                            account: account,
+                            device: device.shared_device_properties_id,
+                            property: property.shared_property_id,
+                            value: property.value
+                          })
+                      })
+                      .then(response => response.json())
+
+                      .then(data => {
+                          temp.value = !temp.value;
+                          console.log(temp);
+                          if(data.statusCode === 400)
+                            console.log("%j", data.message);
+
+                          this.getValueForSharedDeviceProperty(account, device, property);
                       })
                       .catch((error) => {
                           console.error('useSharedDevice error:', error);
@@ -355,6 +413,35 @@ class DeviceCard extends Component {
               console.error('useSharedDevice error:', error);
           });
         }
+        else if (property.type == "integer")
+        {
+          await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
+              method: 'POST',
+              headers: 
+              {
+                  Authorization: 'Bearer ' + this.props.IdToken
+              },
+              body: JSON.stringify({
+                account: account,
+                device: device.shared_device_properties_id,
+                property: property.shared_property_id,
+                value: property.value
+              })
+          })
+          .then(response => response.json())
+
+          .then(data => {
+              temp.value = !temp.value;
+              console.log(temp);
+              if(data.statusCode === 400)
+                console.log("%j", data.message);
+
+              this.getValueForSharedDeviceProperty(account, device, property);
+          })
+          .catch((error) => {
+              console.error('useSharedDevice error:', error);
+          });
+        }
       }
     }
     else
@@ -410,6 +497,35 @@ class DeviceCard extends Component {
             console.error('useSharedDevice error:', error);
         });
       }
+      else if (property.type == "integer")
+      {
+        await fetch('https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/usedevice', {
+            method: 'POST',
+            headers: 
+            {
+                Authorization: 'Bearer ' + this.props.IdToken
+            },
+            body: JSON.stringify({
+              account: account,
+              device: device.shared_device_properties_id,
+              property: property.shared_property_id,
+              value: property.value
+            })
+        })
+        .then(response => response.json())
+
+        .then(data => {
+            temp.value = !temp.value;
+            console.log(temp);
+            if(data.statusCode === 400)
+              console.log("%j", data.message);
+
+            this.getValueForSharedDeviceProperty(account, device, property);
+        })
+        .catch((error) => {
+            console.error('useSharedDevice error:', error);
+        });
+      }
     }
   }
 
@@ -458,12 +574,13 @@ class DeviceCard extends Component {
                             maximumValue={100}
                             value={prop.value}
                             onSlidingComplete={(currentVal) =>
-                            {
-                                var temp = this.state.device;
-                                var temp2 = temp.properties[temp.properties.indexOf(prop)];
-                                temp2.value = currentVal;
-                                this.setState({device: temp})
-                            }
+                              {
+                                  var temp = this.state.device;
+                                  var temp2 = temp.properties[temp.properties.indexOf(prop)];
+                                  temp2.value = currentVal;
+                                  this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, temp2);
+                                  this.setState({device: temp})
+                              }
                             }
                           />
                         </View>
