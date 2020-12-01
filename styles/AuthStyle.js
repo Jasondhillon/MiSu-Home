@@ -16,10 +16,10 @@ const authStyle = StyleSheet.create({
         fontWeight:'bold'
     },
     icon: {
-        height: 175,
-        width:175,
-        marginBottom:-5,
-        marginTop:-25
+        height: 225,
+        width: 225,
+        marginBottom:-45,
+        marginTop:-55
     },
     iconHolder: {
         marginTop: 32,

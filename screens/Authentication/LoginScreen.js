@@ -201,7 +201,7 @@ class LoginScreen extends React.Component
                 <View style={authStyle.iconHolder}>
                     <Image
                         style={authStyle.icon}
-                        source={require('../../assets/icons/logo.png')}
+                        source={require('../../assets/MISU.png')}
                     />
                 </View>
                 
