@@ -25,7 +25,8 @@ class HomeScreen extends React.Component {
       headerRight: () => (
           <View>
               <TouchableOpacity style={{alignSelf: 'center', marginTop: 16}} onPress={() => navigation.navigate("Account") }>
-                  <Icon name="menu" size={35} style={{ marginRight:16, marginBottom:10 }}/>
+                  <Icon name="menu" size={35} style={{ marginRight:16, marginBottom:0, bottom:-10 }}/>
+                  <Text style={{fontSize:22, top:-22, right:50, fontWeight: 'bold'}}>{ navigation.getParam('name') != null ? navigation.getParam('name') : "..."}</Text>
               </TouchableOpacity>
           </View>
       ),
@@ -57,6 +58,10 @@ class HomeScreen extends React.Component {
   
     // Called when when the screen is about to load, grabs all the info to display
     componentDidMount() {
+      if(this.props.sessionData != null)
+        this.props.navigation.setParams({
+          name: this.props.sessionData.name
+        })
       this.onRefresh();
     }
 
@@ -78,7 +83,6 @@ class HomeScreen extends React.Component {
 
       
     UNSAFE_componentWillReceiveProps (props){
-
       this.setState({
         refresh: !this.state.refresh
       })
