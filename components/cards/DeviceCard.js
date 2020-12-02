@@ -109,7 +109,6 @@ class DeviceCard extends Component {
         if (data.message !== null) {
           for (var key in data.message) {
             if (data.message.hasOwnProperty(key)) {
-            //   console.log("Changing " + temp.name + " to " + data.message[key]);
               temp.value = data.message[key];
 
               if (temp.type === "boolean")
@@ -126,6 +125,8 @@ class DeviceCard extends Component {
   };
 
   getCurrentValues = async () => {
+    if (this.state.switchVals.length !== 0)
+      this.setState({switchVals: []});
     this.props.device.properties.map((property) => {
       this.getValueForSharedDeviceProperty(
         this.props.device.login_credentials_id,
@@ -133,7 +134,6 @@ class DeviceCard extends Component {
         property
       );
     });
-
   };
 
   toggleSwitch = (switchProp) => {
@@ -153,6 +153,7 @@ class DeviceCard extends Component {
 
     var dateTime = new Date();
     var localTime = dateTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York'});
+    localTime = localTime.substring(0, localTime.length-3);
     // MM/DD/YY
     var date = dateTime.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit',timeZone: 'America/New_York'});
     // Not sure why but dateTime.toLocaleDateString('en-US', {weekday:'short'}); kept returning the full date and not the day, so switch statement is the work around
@@ -188,20 +189,20 @@ class DeviceCard extends Component {
       if (temp.temporary)
       {
         // Check if it is still the same day
-        if (date !== temp.temp_date)
+        if (date <= temp.temp_date)
         {
-          ////this.showToast("Temporary access for this device has expired");
+          this.showToast("Temporary access for this device has expired");
         }
         // Check if within the time rules
         else
         {   
           if (localTime < temp.temp_time_range_start)
           {
-            ////this.showToast("This device is not available at this time (Too early)");
+            this.showToast("This device is not available at this time (Too early)");
           }
           else if (localTime > temp.temp_time_range_end)
           {
-            //this.showToast("The time window for this device has expired (Too late)");
+            this.showToast("The time window for this device has expired (Too late)");
           }
           else
           {
@@ -226,7 +227,7 @@ class DeviceCard extends Component {
                   if(data.statusCode === 400)
                     console.log("%j", data.message);
                   
-                  this.getValueForSharedDeviceProperty(account, device, property);
+                  // this.getValueForSharedDeviceProperty(account, device, property);
               })
               .catch((error) => {
                   console.error('useSharedDevice error:', error);
@@ -337,7 +338,7 @@ class DeviceCard extends Component {
                           if(data.statusCode === 400)
                             console.log("%j", data.message);
 
-                          this.getValueForSharedDeviceProperty(account, device, property);
+                          // this.getValueForSharedDeviceProperty(account, device, property);
                       })
                       .catch((error) => {
                           console.error('useSharedDevice error:', error);
@@ -405,8 +406,8 @@ class DeviceCard extends Component {
               }
               else
               {
-                this.showToast("This device is not available at this time (Too late)");
-                console.log("This device is not available at this time (Too late");
+                this.showToast("This device is not available at this time (Too late or wrong day)");
+                console.log("This device is not available at this time (Too late or wrong day)");
               }
             }
             else
@@ -448,7 +449,7 @@ class DeviceCard extends Component {
               if(data.statusCode === 400)
                 console.log("%j", data.message);
               
-              this.getValueForSharedDeviceProperty(account, device, property);
+              // this.getValueForSharedDeviceProperty(account, device, property);
           })
           .catch((error) => {
               console.error('useSharedDevice error:', error);
@@ -532,7 +533,7 @@ class DeviceCard extends Component {
             if(data.statusCode === 400)
               console.log("%j", data.message);
 
-            this.getValueForSharedDeviceProperty(account, device, property);
+            // this.getValueForSharedDeviceProperty(account, device, property);
         })
         .catch((error) => {
             console.error('useSharedDevice error:', error);
@@ -584,7 +585,7 @@ class DeviceCard extends Component {
             if(data.statusCode === 400)
               console.log("%j", data.message);
 
-            this.getValueForSharedDeviceProperty(account, device, property);
+            // this.getValueForSharedDeviceProperty(account, device, property);
         })
         .catch((error) => {
             console.error('useSharedDevice error:', error);

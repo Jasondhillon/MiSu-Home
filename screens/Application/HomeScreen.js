@@ -13,19 +13,17 @@ import appStyle from '../../styles/AppStyle';
 const AWS = require('aws-sdk');
 AWS.config.update({ region: "us-east-1"});
 
-// Logging config
-// 0 for no logs, 1 for basic logs, 2 for verbose
-const debug = 0;
-
-
 class HomeScreen extends React.Component {
+    showToast = (text) => {
+      ToastAndroid.show(text, ToastAndroid.LONG);
+    };
 
     static navigationOptions = ({ navigate, navigation }) => ({
       headerTitle: 'Home',
       headerRight: () => (
           <View>
               <TouchableOpacity style={{alignSelf: 'center', marginTop: 16}} onPress={() => navigation.navigate("Account") }>
-                  <Icon name="menu" size={35} style={{ marginRight:16, marginBottom:0, bottom:-10 }}/>
+                  <Icon name="menu" size={35} style={{ marginLeft: 16, marginRight:16, marginBottom:0, bottom:-10 }}/>
                   <Text style={{fontSize:22, top:-25, right:60, fontWeight: 'bold'}}>{ navigation.getParam('name') != null ? navigation.getParam('name') : "..."}</Text>
               </TouchableOpacity>
           </View>
