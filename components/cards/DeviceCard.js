@@ -14,6 +14,62 @@ import AppHeaderText from "../app/AppHeaderText";
 import AppText from "../app/AppText";
 import appStyle from "../../styles/AppStyle";
 
+const Example = (props) => {
+    function formatDate(time) {
+      // Check correct time format and split into components
+      time = time.toString ().match (/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+
+      if (time.length > 1) { // If time format correct
+        time = time.slice (1);  // Remove full string match value
+        time[5] = +time[0] < 12 ? 'AM' : 'PM'; // Set AM/PM
+        time[0] = +time[0] % 12 || 12; // Adjust hours
+      }
+      return time.join (''); // return adjusted time or original string
+    }
+    console.log("Hi " + props);
+
+    var desc = "";
+    return null;
+    //props.prop.properties.forEach(x => desc += x.name + ", ");
+    desc = desc.substring(0, desc.length - 2);
+    desc = desc.substring(0, 15) + (desc.length > 15 ? '...' : '');
+
+    var deviceName = props.device.name;
+    deviceName = deviceName.substring(0, 10) + (deviceName.length > 15 ? '...' : '');
+
+    const firstProp = props.device.properties[0];
+    var firstPropTimeRangeReoccuringStr = "";
+    if(firstProp.time_range_reoccuring == "" || firstProp.time_range_reoccuring == null)
+        firstPropTimeRangeReoccuringStr = "Everyday  ";
+    else
+    {
+      var tempCount = 0;
+      for (var i = 0; i < firstProp.time_range_reoccuring.length + 1; i++) {
+        // Skip to every three letters to support the MonThuSat example
+        if(tempCount >= 3 && i <= firstProp.time_range_reoccuring.length)
+        {
+            tempCount = 0;
+            var dayCut = firstProp.time_range_reoccuring.substring(i - 3, i);
+            // Check if the time range is thursday for special case of using R to signify it
+            // if(dayCut == "Thu")
+            // {
+            //     firstPropTimeRangeReoccuringStr += "R, ";
+            // }
+            // // Check if the time range is sunday for special case of using U to signify it
+            // else if(dayCut == "Sun")
+            // {
+            //     firstPropTimeRangeReoccuringStr += "U, ";
+            // }
+            // else
+            //     firstPropTimeRangeReoccuringStr += dayCut[0] + ", ";
+            firstPropTimeRangeReoccuringStr += dayCut + ", ";
+        }
+        tempCount++;
+      }
+    }
+    firstPropTimeRangeReoccuringStr = firstPropTimeRangeReoccuringStr.substring(0, firstPropTimeRangeReoccuringStr.length - 2);
+}
+
 class DeviceCard extends Component {
   state = {
     owned: true,
@@ -549,21 +605,85 @@ class DeviceCard extends Component {
           />
 
           {/* Render the device name */}
-          <AppHeaderText style={style.name}>
+          <AppHeaderText style={[style.name], {marginBottom:20}}>
             {this.props.device.name}
           </AppHeaderText>
 
+          {/* Render each property */}
           {this.state.device !== null && this.state.device.properties.map((prop, index) => {
-            return (
-              <View key={index} style={appStyle.row}>
-                <View style={{ flex: 1, flexDirection: "row" }}>
-                  <View style={appStyle.rowLeft}>
-                    <AppText> {prop.name} </AppText>
-                    { prop.type !== "integer" &&
-                      <Text>(
+                return (
+                  <View key={index} style={appStyle.container}>
+                    <View style={appStyle.row}>
+                      <View style={{ flex: 1, flexDirection: "row" }}>
+                        
+                        {/* Render Property Left Side  */}
+                        <View style={appStyle.rowLeft}>
+                          {/* Render Property Name */}
+                          <AppText> {prop.name} </AppText>
+                        </View>
+                        
+                        {/* Render Property Right Side */}
+                        <View style={appStyle.rowRight}>
+                          {/* Render Switch for Boolean */}
+                          {prop.type == "boolean" && prop.read_only == 0 && (
+                            <View style={{ flex: 1, flexDirection: "row", justifyContent: "flex-end" }}>
+                              <Switch
+                                value={this.state.device.properties[index].value}
+                                onValueChange={(x) => {
+                                    this.toggleSwitch(index);
+                                }}
+                              />
+                            </View>
+                          )}
+                          {/* Render Slider for float and integers */}
+                          {(prop.type == "float" || prop.type == "integer") &&
+                            prop.read_only == 0 && (
+                                <View>
+                                  <Slider
+                                    style={{ width: 200 }}
+                                    step={1}
+                                    minimumValue={0}
+                                    maximumValue={100}
+                                    value={prop.value}
+                                    onSlidingComplete={(currentVal) =>
+                                      {
+                                          var temp = this.state.device;
+                                          var temp2 = temp.properties[temp.properties.indexOf(prop)];
+                                          temp2.value = currentVal;
+                                          this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, temp2);
+                                          this.setState({device: temp})
+                                      }
+                                    }
+                                  />
+                                </View>
+                            )}
+                          {/* Render Buttons for actions */}
+                          {prop.type == "action" &&
+                            <View style={[appStyle.container, {marginRight:20}]}>
+                              <TouchableOpacity onPress={() => this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, prop)}> 
+                                <Text style={{fontSize: 20}}>&#9899;</Text>
+                              </TouchableOpacity>
+                            </View>
+                          }
+                        </View>
+                      </View>
+                    </View>
+                    <View style = {style.lineContainer} />
+                    
+                    <View style={appStyle.row}>
+
+                      <Example curVal={this.prop}/>
+                      {/* Render Property Readonly */}
+                      {prop.read_only == 1 && 
+                        <AppText style={{flexDirection: 'row', justifyContent:'flex-start', flex:1, alignSelf:'stretch', fontSize:14}}> Read Only</AppText>
+                      }
+                      
+                      {/* Render Property Access Info */}
+                      {
+                      <Text>
                       {(() => {
                         if (prop.unrestricted) {
-                          return <Text style={{fontStyle: "italic"}}>unrestricted</Text>;
+                          return <Text style={{fontStyle: "italic"}}>Unrestricted</Text>;
                         }
                         else if (prop.temporary)
                         {
@@ -573,70 +693,12 @@ class DeviceCard extends Component {
                         {
                           return prop.time_range_start + "-" + prop.time_range_end + " " + prop.time_range_reoccuring;
                         }
-                        })()})
+                        })()}
                       </Text>
-                    }
-                    {prop.read_only == 1 && <AppText> Read Only</AppText>}
+                      }
+                    </View>
                   </View>
-                
-                  <View style={appStyle.rowRight}>
-                    {prop.type == "boolean" && prop.read_only == 0 && (
-                      <View style={{ flex: 1, flexDirection: "row" }}>
-                        <Switch
-                          value={this.state.device.properties[index].value}
-                          onValueChange={(x) => {
-                              this.toggleSwitch(index);
-                          }}
-                        />
-                      </View>
-                    )}
-                    {(prop.type == "float" || prop.type == "integer") &&
-                      prop.read_only == 0 && (
-                          <View>
-                            <Slider
-                              style={{ width: 200 }}
-                              step={1}
-                              minimumValue={0}
-                              maximumValue={100}
-                              value={prop.value}
-                              onSlidingComplete={(currentVal) =>
-                                {
-                                    var temp = this.state.device;
-                                    var temp2 = temp.properties[temp.properties.indexOf(prop)];
-                                    temp2.value = currentVal;
-                                    this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, temp2);
-                                    this.setState({device: temp})
-                                }
-                              }
-                            />
-                            {prop.type === "integer" &&
-                              <Text>(
-                              {(() => {
-                                if (prop.unrestricted) {
-                                  return <Text style={{fontStyle: "italic"}}>unrestricted</Text>;
-                                }
-                                else if (prop.temporary)
-                                {
-                                  return prop.temp_time_range_start + "-" + prop.temp_time_range_end + " " + prop.temp_date;
-                                }
-                                else if (prop.time_range)
-                                {
-                                  return prop.time_range_start + "-" + prop.time_range_end + " " + prop.time_range_reoccuring;
-                                }
-                                })()})
-                              </Text>}
-                          </View>
-                      )}
-                        {prop.type === "action" &&
-                        <TouchableOpacity onPress={() => this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, prop)}> 
-                          <Text style={{fontSize: 20}}>&#9899;</Text>
-                        </TouchableOpacity>
-                        }
-                  </View>
-                </View>
-              </View>
-            );
-          })}
+                );})}
         </View>
       </View>
     );
@@ -656,6 +718,18 @@ const style = StyleSheet.create({
     marginTop: 10,
     height: 100,
     width: 100,
+  },
+  lineContainer: {
+    flex:1,
+    backgroundColor:'#333333',
+    height:2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf:'stretch',
+    position:'absolute',
+    left:0,
+    right:0,
+    top:40,
   },
 });
 
