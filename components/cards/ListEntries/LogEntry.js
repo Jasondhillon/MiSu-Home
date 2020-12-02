@@ -15,7 +15,7 @@ const formatEntryText = (log) => {
         else
             return `You accepted access`
     }
-    return `${log.secondary_user} set the ${log.property_name} property of ${log.device_name} to ${log.value ? 'On' : 'Off'}`
+    return `${log.secondary_user} set the ${log.property_name} property of ${log.device_name} to ${log.value == true ? 'On' : (log.value == false ? 'Off' : log.value)}`
 }
 
 const  LogEntry = (props) =>  {

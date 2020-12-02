@@ -53,7 +53,6 @@ class DeviceCard extends Component {
         if (data.message !== null) {
           for (var key in data.message) {
             if (data.message.hasOwnProperty(key)) {
-            //   console.log("Changing " + temp.name + " to " + data.message[key]);
               temp.value = data.message[key];
 
               if (temp.type === "boolean")
@@ -70,6 +69,8 @@ class DeviceCard extends Component {
   };
 
   getCurrentValues = async () => {
+    if (this.state.switchVals.length !== 0)
+      this.setState({switchVals: []});
     this.props.device.properties.map((property) => {
       this.getValueForSharedDeviceProperty(
         this.props.device.login_credentials_id,
@@ -77,7 +78,6 @@ class DeviceCard extends Component {
         property
       );
     });
-
   };
 
   toggleSwitch = (switchProp) => {
@@ -97,6 +97,7 @@ class DeviceCard extends Component {
 
     var dateTime = new Date();
     var localTime = dateTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York'});
+    localTime = localTime.substring(0, localTime.length-3);
     // MM/DD/YY
     var date = dateTime.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit',timeZone: 'America/New_York'});
     // Not sure why but dateTime.toLocaleDateString('en-US', {weekday:'short'}); kept returning the full date and not the day, so switch statement is the work around
@@ -132,20 +133,20 @@ class DeviceCard extends Component {
       if (temp.temporary)
       {
         // Check if it is still the same day
-        if (date !== temp.temp_date)
+        if (date <= temp.temp_date)
         {
-          ////this.showToast("Temporary access for this device has expired");
+          this.showToast("Temporary access for this device has expired");
         }
         // Check if within the time rules
         else
         {   
           if (localTime < temp.temp_time_range_start)
           {
-            ////this.showToast("This device is not available at this time (Too early)");
+            this.showToast("This device is not available at this time (Too early)");
           }
           else if (localTime > temp.temp_time_range_end)
           {
-            //this.showToast("The time window for this device has expired (Too late)");
+            this.showToast("The time window for this device has expired (Too late)");
           }
           else
           {
@@ -170,7 +171,7 @@ class DeviceCard extends Component {
                   if(data.statusCode === 400)
                     console.log("%j", data.message);
                   
-                  this.getValueForSharedDeviceProperty(account, device, property);
+                  // this.getValueForSharedDeviceProperty(account, device, property);
               })
               .catch((error) => {
                   console.error('useSharedDevice error:', error);
@@ -281,7 +282,7 @@ class DeviceCard extends Component {
                           if(data.statusCode === 400)
                             console.log("%j", data.message);
 
-                          this.getValueForSharedDeviceProperty(account, device, property);
+                          // this.getValueForSharedDeviceProperty(account, device, property);
                       })
                       .catch((error) => {
                           console.error('useSharedDevice error:', error);
@@ -349,8 +350,8 @@ class DeviceCard extends Component {
               }
               else
               {
-                this.showToast("This device is not available at this time (Too late)");
-                console.log("This device is not available at this time (Too late");
+                this.showToast("This device is not available at this time (Too late or wrong day)");
+                console.log("This device is not available at this time (Too late or wrong day)");
               }
             }
             else
@@ -392,7 +393,7 @@ class DeviceCard extends Component {
               if(data.statusCode === 400)
                 console.log("%j", data.message);
               
-              this.getValueForSharedDeviceProperty(account, device, property);
+              // this.getValueForSharedDeviceProperty(account, device, property);
           })
           .catch((error) => {
               console.error('useSharedDevice error:', error);
@@ -476,7 +477,7 @@ class DeviceCard extends Component {
             if(data.statusCode === 400)
               console.log("%j", data.message);
 
-            this.getValueForSharedDeviceProperty(account, device, property);
+            // this.getValueForSharedDeviceProperty(account, device, property);
         })
         .catch((error) => {
             console.error('useSharedDevice error:', error);
@@ -528,7 +529,7 @@ class DeviceCard extends Component {
             if(data.statusCode === 400)
               console.log("%j", data.message);
 
-            this.getValueForSharedDeviceProperty(account, device, property);
+            // this.getValueForSharedDeviceProperty(account, device, property);
         })
         .catch((error) => {
             console.error('useSharedDevice error:', error);
@@ -558,9 +559,57 @@ class DeviceCard extends Component {
               <View key={index} style={appStyle.row}>
                 <View style={{ flex: 1, flexDirection: "row" }}>
                   <View style={appStyle.rowLeft}>
-                    <AppText> {prop.name} </AppText>
-                    { prop.type !== "integer" &&
-                      <Text>(
+                    <AppText style={{width: 100}}> {prop.name} </AppText>
+                  </View>
+
+                  {/* READ ONLY VALUES */}
+                  <View style={appStyle.rowRight}>
+                  {prop.read_only == 1 && 
+                    (prop.type === "integer" ? <AppText>{prop.value}</AppText> : prop.value ? <AppText>True</AppText> : <AppText>False</AppText>)}
+                  </View>
+
+                    {/* ROW FOR PROPERTIES */}
+                  <View style={appStyle.rowLeft}>
+                    {/* SWITCH FOR BOOLEAN */}
+                    {prop.type == "boolean" && prop.read_only == 0 && (
+                      <View style={{left: -10}}>
+                        <Switch
+                          value={this.state.device.properties[index].value}
+                          onValueChange={(x) => {
+                              this.toggleSwitch(index);
+                          }}
+                        />
+                      </View>
+                    )}
+
+                    {/* SLIDER FOR INTEGERS */}
+                    {(prop.type == "float" || prop.type == "integer") &&
+                      prop.read_only == 0 && (
+                        <View>
+                          <Slider
+                            style={{width: 200 }}
+                            step={1}
+                            minimumValue={0}
+                            maximumValue={100}
+                            value={prop.value}
+                            onSlidingComplete={(currentVal) =>
+                              {
+                                  var temp = this.state.device;
+                                  var temp2 = temp.properties[temp.properties.indexOf(prop)];
+                                  temp2.value = currentVal;
+                                  this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, temp2);
+                                  this.setState({device: temp})
+                              }
+                            }
+                          />
+                        </View>
+                      )}
+                  </View>
+                  {/* ROW FOR ACTIONS */}
+                  {prop.type === "action" &&
+                  <View style={appStyle.rowRight}>
+                    {/* RULES FOR ACTIONS*/}
+                    {prop.type ==="action" && <Text>(
                       {(() => {
                         if (prop.unrestricted) {
                           return <Text style={{fontStyle: "italic"}}>unrestricted</Text>;
@@ -571,69 +620,36 @@ class DeviceCard extends Component {
                         }
                         else if (prop.time_range)
                         {
-                          return prop.time_range_start + "-" + prop.time_range_end + " " + prop.time_range_reoccuring;
+                          return prop.time_range_start + "-" + prop.time_range_end + " " + prop.time_range_start_date + "-" + prop.time_range_end_date + " " + prop.time_range_reoccuring;
                         }
-                        })()})
-                      </Text>
-                    }
-                    {prop.read_only == 1 && <AppText> Read Only</AppText>}
-                  </View>
-                
-                  <View style={appStyle.rowRight}>
-                    {prop.type == "boolean" && prop.read_only == 0 && (
-                      <View style={{ flex: 1, flexDirection: "row" }}>
-                        <Switch
-                          value={this.state.device.properties[index].value}
-                          onValueChange={(x) => {
-                              this.toggleSwitch(index);
-                          }}
-                        />
-                      </View>
-                    )}
-                    {(prop.type == "float" || prop.type == "integer") &&
-                      prop.read_only == 0 && (
-                          <View>
-                            <Slider
-                              style={{ width: 200 }}
-                              step={1}
-                              minimumValue={0}
-                              maximumValue={100}
-                              value={prop.value}
-                              onSlidingComplete={(currentVal) =>
-                                {
-                                    var temp = this.state.device;
-                                    var temp2 = temp.properties[temp.properties.indexOf(prop)];
-                                    temp2.value = currentVal;
-                                    this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, temp2);
-                                    this.setState({device: temp})
-                                }
-                              }
-                            />
-                            {prop.type === "integer" &&
-                              <Text>(
-                              {(() => {
-                                if (prop.unrestricted) {
-                                  return <Text style={{fontStyle: "italic"}}>unrestricted</Text>;
-                                }
-                                else if (prop.temporary)
-                                {
-                                  return prop.temp_time_range_start + "-" + prop.temp_time_range_end + " " + prop.temp_date;
-                                }
-                                else if (prop.time_range)
-                                {
-                                  return prop.time_range_start + "-" + prop.time_range_end + " " + prop.time_range_reoccuring;
-                                }
-                                })()})
-                              </Text>}
-                          </View>
-                      )}
-                        {prop.type === "action" &&
-                        <TouchableOpacity onPress={() => this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, prop)}> 
-                          <Text style={{fontSize: 20}}>&#9899;</Text>
-                        </TouchableOpacity>
-                        }
-                  </View>
+                      })()})
+                    </Text>}
+                    
+                      {/* ACTIONS */}
+                      {prop.type === "action" &&
+                      <TouchableOpacity onPress={() => this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, prop)}> 
+                        <Text style={{fontSize: 20}}>&#9899;</Text>
+                      </TouchableOpacity>
+                      }
+                  </View>}
                 </View>
+                {/* RULES FOR PROPERTIES*/}
+                {prop.type !== "action" && prop.read_only !== 1 && <Text>{"\n\n"}(
+                    {(() => {
+                      if (prop.unrestricted) {
+                        return <Text style={{fontStyle: "italic", flexDirection:'row',
+                        alignSelf: 'flex-start',}}>unrestricted</Text>;
+                      }
+                      else if (prop.temporary)
+                      {
+                        return prop.temp_time_range_start + "-" + prop.temp_time_range_end + " " + prop.temp_date;
+                      }
+                      else if (prop.time_range)
+                      {
+                        return prop.time_range_start + "-" + prop.time_range_end + " " + prop.time_range_start_date + "-" + prop.time_range_end_date + " " + prop.time_range_reoccuring;
+                      }
+                    })()}){"\n"}
+                  </Text>}
               </View>
             );
           })}

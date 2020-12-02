@@ -57,8 +57,6 @@ export const getDevices = async (idToken) => {
                     }
                 }
                 // Adds the new, updated key/value pairs to the device
-                console.log("%j", "original props", device.properties);
-                console.log("%j", "new props", properties);
                 device.properties = properties;
                 devices.push(device);
             });

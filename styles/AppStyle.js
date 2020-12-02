@@ -64,7 +64,7 @@ const appStyle = StyleSheet.create({
     },
     rowLeft: {
         flexDirection:'row',
-        alignSelf: 'flex-start'
+        alignSelf: 'flex-start',
     },
     rowRight: {
         alignSelf:'stretch',
