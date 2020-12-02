@@ -26,7 +26,7 @@ class HomeScreen extends React.Component {
           <View>
               <TouchableOpacity style={{alignSelf: 'center', marginTop: 16}} onPress={() => navigation.navigate("Account") }>
                   <Icon name="menu" size={35} style={{ marginRight:16, marginBottom:0, bottom:-10 }}/>
-                  <Text style={{fontSize:22, top:-22, right:50, fontWeight: 'bold'}}>{ navigation.getParam('name') != null ? navigation.getParam('name') : "..."}</Text>
+                  <Text style={{fontSize:22, top:-25, right:60, fontWeight: 'bold'}}>{ navigation.getParam('name') != null ? navigation.getParam('name') : "..."}</Text>
               </TouchableOpacity>
           </View>
       ),
