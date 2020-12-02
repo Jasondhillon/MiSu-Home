@@ -1,10 +1,14 @@
 import React, { Component } from "react";
+import getDeviceIcon from '../app/DeviceIcons';
 import {
   View,
   Image,
   StyleSheet,
   Switch,
   Slider,
+  TouchableOpacity,
+  Text,
+  ToastAndroid,
 } from "react-native";
 import AppHeaderText from "../app/AppHeaderText";
 import AppText from "../app/AppText";
@@ -20,29 +24,33 @@ class DeviceCard extends Component {
     slider: 0,
   };
 
+  showToast = (text) => {
+    ToastAndroid.show(text, ToastAndroid.LONG);
+  };
+
   getValueForSharedDeviceProperty = async (account, device, property) => {
     // console.log("\n\n%j", 2, property);
-
-    await fetch(
-      "https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/getvalues",
-      {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + this.props.IdToken,
-        },
-        body: JSON.stringify({
-          account: account,
-          device: device.shared_device_properties_id,
-          property: property.shared_property_id,
-        }),
-      }
-    )
+    var list = this.props.device;
+    var temp = list.properties[list.properties.indexOf(property)]; 
+    if (property.type !== "action")
+    {
+      await fetch(
+        "https://c8zta83ta5.execute-api.us-east-1.amazonaws.com/test/getvalues",
+        {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + this.props.IdToken,
+          },
+          body: JSON.stringify({
+            account: account,
+            device: device.shared_device_properties_id,
+            property: property.shared_property_id,
+          }),
+        }
+      )
       .then((response) => response.json())
       .then((data) => {
         if (data.message !== null) {
-          var list = this.props.device;
-          var temp = list.properties[list.properties.indexOf(property)]; 
-
           for (var key in data.message) {
             if (data.message.hasOwnProperty(key)) {
             //   console.log("Changing " + temp.name + " to " + data.message[key]);
@@ -52,23 +60,22 @@ class DeviceCard extends Component {
                 this.state.switchVals.push(temp.value);
             }
           }
-
-          this.setState({ device: list });
         } else throw error("Values empty");
       })
       .catch((error) => {
         console.error("getValueForSharedDeviceProperty error:", error);
       });
+    }
+    this.setState({ device: list });
   };
 
   getCurrentValues = async () => {
     this.props.device.properties.map((property) => {
-      if (property.type !== "action")
-        this.getValueForSharedDeviceProperty(
-          this.props.device.login_credentials_id,
-          this.props.device,
-          property
-        );
+      this.getValueForSharedDeviceProperty(
+        this.props.device.login_credentials_id,
+        this.props.device,
+        property
+      );
     });
 
   };
@@ -217,7 +224,7 @@ class DeviceCard extends Component {
                   if(data.statusCode === 400)
                     console.log("%j", data.message);
 
-                  this.getValueForSharedDeviceProperty(account, device, property);
+                  // this.getValueForSharedDeviceProperty(account, device, property);
               })
               .catch((error) => {
                   console.error('useSharedDevice error:', error);
@@ -326,7 +333,7 @@ class DeviceCard extends Component {
                           if(data.statusCode === 400)
                             console.log("%j", data.message);
 
-                          this.getValueForSharedDeviceProperty(account, device, property);
+                          // this.getValueForSharedDeviceProperty(account, device, property);
                       })
                       .catch((error) => {
                           console.error('useSharedDevice error:', error);
@@ -335,31 +342,32 @@ class DeviceCard extends Component {
                   }
                   else
                   {
+                    this.showToast("Can't use this device on this day");
                     console.log("Can't use this device on this day");
                   }
                 }
               }
               else
               {
-                //this.showToast("This device is not available at this time (Too late)");
+                this.showToast("This device is not available at this time (Too late)");
                 console.log("This device is not available at this time (Too late");
               }
             }
             else
             {
-              //this.showToast("This device is not available at this time (Too early)");
+              this.showToast("This device is not available at this time (Too early)");
               console.log("This device is not available at this time (Too early)");
             }
           }
           else
           {
-            //this.showToast("Access to this device has expired (Schedule has ended)");
+            this.showToast("Access to this device has expired (Schedule has ended)");
             console.log("Access to this device has expired (Schedule has ended)");
           }
         }
         else
         {
-          ////this.showToast("This device is not available at this date (Schedule hasn't started yet)");
+          this.showToast("This device is not available at this date (Schedule hasn't started yet)");
           console.log("This device is not available at this date (Schedule hasn't started yet)");
         }
       }
@@ -436,7 +444,7 @@ class DeviceCard extends Component {
               if(data.statusCode === 400)
                 console.log("%j", data.message);
 
-              this.getValueForSharedDeviceProperty(account, device, property);
+              // this.getValueForSharedDeviceProperty(account, device, property);
           })
           .catch((error) => {
               console.error('useSharedDevice error:', error);
@@ -536,10 +544,11 @@ class DeviceCard extends Component {
           {/* Render the device icon */}
           <Image
             style={[style.icon, { marginBottom: 0 }]}
-            source={require("../../assets/device.png")}
+            source={getDeviceIcon(this.props.device.description)}
+            
           />
 
-          {/* Render the hub name */}
+          {/* Render the device name */}
           <AppHeaderText style={style.name}>
             {this.props.device.name}
           </AppHeaderText>
@@ -550,9 +559,26 @@ class DeviceCard extends Component {
                 <View style={{ flex: 1, flexDirection: "row" }}>
                   <View style={appStyle.rowLeft}>
                     <AppText> {prop.name} </AppText>
+                    { prop.type !== "integer" &&
+                      <Text>(
+                      {(() => {
+                        if (prop.unrestricted) {
+                          return <Text style={{fontStyle: "italic"}}>unrestricted</Text>;
+                        }
+                        else if (prop.temporary)
+                        {
+                          return prop.temp_time_range_start + "-" + prop.temp_time_range_end + " " + prop.temp_date;
+                        }
+                        else if (prop.time_range)
+                        {
+                          return prop.time_range_start + "-" + prop.time_range_end + " " + prop.time_range_reoccuring;
+                        }
+                        })()})
+                      </Text>
+                    }
                     {prop.read_only == 1 && <AppText> Read Only</AppText>}
                   </View>
-
+                
                   <View style={appStyle.rowRight}>
                     {prop.type == "boolean" && prop.read_only == 0 && (
                       <View style={{ flex: 1, flexDirection: "row" }}>
@@ -566,25 +592,46 @@ class DeviceCard extends Component {
                     )}
                     {(prop.type == "float" || prop.type == "integer") &&
                       prop.read_only == 0 && (
-                        <View style={{ flex: 1, flexDirection: "row" }}>
-                          <Slider
-                            style={{ width: 200 }}
-                            step={1}
-                            minimumValue={0}
-                            maximumValue={100}
-                            value={prop.value}
-                            onSlidingComplete={(currentVal) =>
-                              {
-                                  var temp = this.state.device;
-                                  var temp2 = temp.properties[temp.properties.indexOf(prop)];
-                                  temp2.value = currentVal;
-                                  this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, temp2);
-                                  this.setState({device: temp})
+                          <View>
+                            <Slider
+                              style={{ width: 200 }}
+                              step={1}
+                              minimumValue={0}
+                              maximumValue={100}
+                              value={prop.value}
+                              onSlidingComplete={(currentVal) =>
+                                {
+                                    var temp = this.state.device;
+                                    var temp2 = temp.properties[temp.properties.indexOf(prop)];
+                                    temp2.value = currentVal;
+                                    this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, temp2);
+                                    this.setState({device: temp})
+                                }
                               }
-                            }
-                          />
-                        </View>
+                            />
+                            {prop.type === "integer" &&
+                              <Text>(
+                              {(() => {
+                                if (prop.unrestricted) {
+                                  return <Text style={{fontStyle: "italic"}}>unrestricted</Text>;
+                                }
+                                else if (prop.temporary)
+                                {
+                                  return prop.temp_time_range_start + "-" + prop.temp_time_range_end + " " + prop.temp_date;
+                                }
+                                else if (prop.time_range)
+                                {
+                                  return prop.time_range_start + "-" + prop.time_range_end + " " + prop.time_range_reoccuring;
+                                }
+                                })()})
+                              </Text>}
+                          </View>
                       )}
+                        {prop.type === "action" &&
+                        <TouchableOpacity onPress={() => this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, prop)}> 
+                          <Text style={{fontSize: 20}}>&#9899;</Text>
+                        </TouchableOpacity>
+                        }
                   </View>
                 </View>
               </View>

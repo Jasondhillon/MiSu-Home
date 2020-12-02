@@ -15,7 +15,7 @@ class LoginScreen extends React.Component
     state = 
     {   
         // TODO: Remove this: alt account secondary@example.com
-        username: 'primary@example.com',// 'secondary@example.com'
+        username: 'secondary@example.com',// 'secondary@example.com'
         password: '#Cop4935',
         errorMessage: null,
         message: null,
