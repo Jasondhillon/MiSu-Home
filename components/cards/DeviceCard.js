@@ -14,6 +14,7 @@ import AppHeaderText from "../app/AppHeaderText";
 import AppText from "../app/AppText";
 import appStyle from "../../styles/AppStyle";
 
+// Render each properties access values
 const Example = (props) => {
     function formatDate(time) {
       // Check correct time format and split into components
@@ -26,18 +27,8 @@ const Example = (props) => {
       }
       return time.join (''); // return adjusted time or original string
     }
-    console.log("Hi " + props);
 
-    var desc = "";
-    return null;
-    //props.prop.properties.forEach(x => desc += x.name + ", ");
-    desc = desc.substring(0, desc.length - 2);
-    desc = desc.substring(0, 15) + (desc.length > 15 ? '...' : '');
-
-    var deviceName = props.device.name;
-    deviceName = deviceName.substring(0, 10) + (deviceName.length > 15 ? '...' : '');
-
-    const firstProp = props.device.properties[0];
+    const firstProp = props.curVal;
     var firstPropTimeRangeReoccuringStr = "";
     if(firstProp.time_range_reoccuring == "" || firstProp.time_range_reoccuring == null)
         firstPropTimeRangeReoccuringStr = "Everyday  ";
@@ -68,6 +59,35 @@ const Example = (props) => {
       }
     }
     firstPropTimeRangeReoccuringStr = firstPropTimeRangeReoccuringStr.substring(0, firstPropTimeRangeReoccuringStr.length - 2);
+
+    return (
+      <View style={{flex:1}}>
+        {/* Render Property Readonly */}
+        {firstProp.read_only == 1 && 
+          <AppText style={{flexDirection: 'row', justifyContent:'flex-start', flex:1, alignSelf:'stretch', fontSize:14}}> Read Only</AppText>
+        }
+        
+        {/* Render Property Access Info */}
+        {
+        <Text>
+          {(() => {
+            if (firstProp.unrestricted) {
+              return <Text style={{fontStyle: "italic"}}>Unrestricted</Text>;
+            }
+            else if (firstProp.temporary)
+            {
+              return firstProp.temp_time_range_start + "-" + firstProp.temp_time_range_end + " " + firstProp.temp_date;
+            }
+            else if (firstProp.time_range)
+            {
+              return firstProp.time_range_start + "-" + firstProp.time_range_end + " " + firstProp.time_range_reoccuring;
+            }
+            })()
+          }
+        </Text>
+        }
+      </View>
+    );
 }
 
 class DeviceCard extends Component {
@@ -602,7 +622,6 @@ class DeviceCard extends Component {
           <Image
             style={[style.icon, { marginBottom: 0 }]}
             source={getDeviceIcon(this.props.device.description)}
-            
           />
 
           {/* Render the device name */}
@@ -660,7 +679,7 @@ class DeviceCard extends Component {
                             )}
                           {/* Render Buttons for actions */}
                           {prop.type == "action" &&
-                            <View style={[appStyle.container, {marginRight:20}]}>
+                            <View style={{bottom:5}}>
                               <TouchableOpacity onPress={() => this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, prop)}> 
                                 <Text style={{fontSize: 20}}>&#9899;</Text>
                               </TouchableOpacity>
@@ -673,30 +692,9 @@ class DeviceCard extends Component {
                     
                     <View style={appStyle.row}>
 
-                      <Example curVal={this.prop}/>
-                      {/* Render Property Readonly */}
-                      {prop.read_only == 1 && 
-                        <AppText style={{flexDirection: 'row', justifyContent:'flex-start', flex:1, alignSelf:'stretch', fontSize:14}}> Read Only</AppText>
-                      }
-                      
-                      {/* Render Property Access Info */}
-                      {
-                      <Text>
-                      {(() => {
-                        if (prop.unrestricted) {
-                          return <Text style={{fontStyle: "italic"}}>Unrestricted</Text>;
-                        }
-                        else if (prop.temporary)
-                        {
-                          return prop.temp_time_range_start + "-" + prop.temp_time_range_end + " " + prop.temp_date;
-                        }
-                        else if (prop.time_range)
-                        {
-                          return prop.time_range_start + "-" + prop.time_range_end + " " + prop.time_range_reoccuring;
-                        }
-                        })()}
-                      </Text>
-                      }
+                      {/* Render Property Info */}
+                      <Example curVal={prop}/>
+
                     </View>
                   </View>
                 );})}
