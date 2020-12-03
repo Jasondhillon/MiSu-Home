@@ -61,32 +61,56 @@ const Example = (props) => {
     firstPropTimeRangeReoccuringStr = firstPropTimeRangeReoccuringStr.substring(0, firstPropTimeRangeReoccuringStr.length - 2);
 
     return (
-      <View style={{flex:1}}>
-        {/* Render Property Readonly */}
-        {firstProp.read_only == 1 && 
-          <AppText style={{flexDirection: 'row', justifyContent:'flex-start', flex:1, alignSelf:'stretch', fontSize:14}}> Read Only</AppText>
-        }
-        
-        {/* Render Property Access Info */}
-        {
-        <Text>
-          {(() => {
-            if (firstProp.unrestricted) {
-              return <Text style={{fontStyle: "italic"}}>Unrestricted</Text>;
-            }
-            else if (firstProp.temporary)
-            {
-              return firstProp.temp_time_range_start + "-" + firstProp.temp_time_range_end + " " + firstProp.temp_date;
-            }
-            else if (firstProp.time_range)
-            {
-              return firstProp.time_range_start + "-" + firstProp.time_range_end + " " + firstProp.time_range_reoccuring;
-            }
-            })()
-          }
-        </Text>
-        }
+      
+      <View style={[appStyle.row, {marginLeft:-5, marginTop:2}]}>
+      {/* Display second row detailing the access*/}
+      {
+          firstProp.unrestricted == 1 && 
+              <View>
+                  <AppText style={{fontSize:14, marginTop:-4}}>* Unrestricted Access</AppText>
+              </View>
+      }
+      {
+          firstProp.time_range == 1 && 
+              <View style={[{marginTop:-15, top:0}]}>
+                  <View style={[appStyle.rowRight, {right:0, top: 32}]}>
+                      <AppText style={{fontSize:12, fontStyle:'italic', marginTop:-4}}>{firstPropTimeRangeReoccuringStr}</AppText>
+                  </View>
+                  <View style={appStyle.row}>
+                      <AppText style={{fontSize:14, marginTop:-4}}>Scheduled {firstProp.time_range_start_date.slice(0, -3)} @ {formatDate(firstProp.time_range_start)}</AppText>
+                      <AppText style={{fontSize:14, marginTop:-4}}> to {firstProp.time_range_end_date.slice(0, -3)} @ {formatDate(firstProp.time_range_end)}</AppText>
+                  </View>
+              </View>
+      }
+      {
+          firstProp.temporary == 1 && 
+              <View>
+                  <AppText style={{fontSize:14, marginTop:-4}}>Temporary until {(firstProp.temp_date.slice(0, -3))}, {formatDate(firstProp.temp_time_range_end)}</AppText>
+              </View>
+      }
       </View>
+      // <View style={{flex:1}}>
+      //   {/* Render Property Access Info */}
+      //   {
+      //   <Text>
+      //     {(() => {
+      //       if (firstProp.unrestricted) {
+      //         return <Text style={{fontStyle: "italic"}}>Unrestricted</Text>;
+      //       }
+      //       else if (firstProp.temporary)
+      //       {
+      //         return firstProp.temp_time_range_start + "-" + firstProp.temp_time_range_end + " " + firstProp.temp_date;
+      //       }
+      //       else if (firstProp.time_range)
+      //       {
+      //         return firstProp.time_range_start + "-" + firstProp.time_range_end + " " + firstProp.time_range_reoccuring;
+      //       }
+      //       })()
+      //     }
+      //   </Text>
+      //   }
+      // </View>
+
     );
 }
 
@@ -644,6 +668,12 @@ class DeviceCard extends Component {
                         
                         {/* Render Property Right Side */}
                         <View style={appStyle.rowRight}>
+                          
+                          {/* Render Property Readonly */}
+                          {prop.read_only == 1 && 
+                            <AppText style={{fontStyle: 'italic', fontSize:16}}> Read Only</AppText>
+                          }
+        
                           {/* Render Switch for Boolean */}
                           {prop.type == "boolean" && prop.read_only == 0 && (
                             <View style={{ flex: 1, flexDirection: "row", justifyContent: "flex-end" }}>
@@ -655,6 +685,7 @@ class DeviceCard extends Component {
                               />
                             </View>
                           )}
+                          
                           {/* Render Slider for float and integers */}
                           {(prop.type == "float" || prop.type == "integer") &&
                             prop.read_only == 0 && (

@@ -91,7 +91,7 @@ const DeviceItem = (props) => {
                     firstProp.time_range == 1 && 
                         <View style={[{marginTop:-20, top:20}]}>
                             <View style={[appStyle.rowRight, {right:25}]}>
-                                <AppText style={{fontSize:14, marginTop:-4}}>{firstPropTimeRangeReoccuringStr}</AppText>
+                                <AppText style={{fontSize:12, fontStyle:'italic', marginTop:-4}}>{firstPropTimeRangeReoccuringStr}</AppText>
                             </View>
                             <View style={appStyle.row}>
                                 <AppText style={{fontSize:14, marginTop:-4}}>Scheduled {firstProp.time_range_start_date.slice(0, -3)} @ {formatDate(firstProp.time_range_start)}</AppText>
