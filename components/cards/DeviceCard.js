@@ -15,7 +15,7 @@ import AppText from "../app/AppText";
 import appStyle from "../../styles/AppStyle";
 
 // Render each properties access values
-const Example = (props) => {
+const RenderAccess = (props) => {
     function formatDate(time) {
       // Check correct time format and split into components
       time = time.toString ().match (/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
@@ -67,25 +67,25 @@ const Example = (props) => {
       {
           firstProp.unrestricted == 1 && 
               <View>
-                  <AppText style={{fontSize:14, marginTop:-4}}>* Unrestricted Access</AppText>
+                  <AppText style={{fontSize:14, fontStyle:'italic', marginTop:-4}}>* Unrestricted Access</AppText>
               </View>
       }
       {
           firstProp.time_range == 1 && 
               <View style={[{marginTop:-15, top:0}]}>
-                  <View style={[appStyle.rowRight, {right:0, top: 32}]}>
+                  <View style={[appStyle.rowRight, {right:10, top: 32}]}>
                       <AppText style={{fontSize:12, fontStyle:'italic', marginTop:-4}}>{firstPropTimeRangeReoccuringStr}</AppText>
                   </View>
                   <View style={appStyle.row}>
-                      <AppText style={{fontSize:14, marginTop:-4}}>Scheduled {firstProp.time_range_start_date.slice(0, -3)} @ {formatDate(firstProp.time_range_start)}</AppText>
-                      <AppText style={{fontSize:14, marginTop:-4}}> to {firstProp.time_range_end_date.slice(0, -3)} @ {formatDate(firstProp.time_range_end)}</AppText>
+                      <AppText style={{fontSize:14, fontStyle:'italic', marginTop:-4}}>Scheduled {firstProp.time_range_start_date.slice(0, -3)} @ {formatDate(firstProp.time_range_start)}</AppText>
+                      <AppText style={{fontSize:14, fontStyle:'italic', marginTop:-4}}> to {firstProp.time_range_end_date.slice(0, -3)} @ {formatDate(firstProp.time_range_end)}</AppText>
                   </View>
               </View>
       }
       {
           firstProp.temporary == 1 && 
               <View>
-                  <AppText style={{fontSize:14, marginTop:-4}}>Temporary until {(firstProp.temp_date.slice(0, -3))}, {formatDate(firstProp.temp_time_range_end)}</AppText>
+                  <AppText style={{fontSize:14, fontStyle:'italic', marginTop:-4}}>Temporary until {(firstProp.temp_date.slice(0, -3))}, {formatDate(firstProp.temp_time_range_end)}</AppText>
               </View>
       }
       </View>
@@ -640,8 +640,14 @@ class DeviceCard extends Component {
 
   render() {
     return (
-      <View style={appStyle.card}>
-        <View style={appStyle.container}>
+      <View style={[appStyle.container, {marginLeft:-10, marginRight:-10}]}>
+        <View style={[appStyle.card]}>
+
+          {/* Render the owners name */}
+          <AppHeaderText style={[style.name], {marginBottom:-10, marginTop:10}}>
+            {this.props.owner}'s House
+          </AppHeaderText>
+
           {/* Render the device icon */}
           {this.props.device.name === "Google Home Mini" &&
             <Image
@@ -661,6 +667,11 @@ class DeviceCard extends Component {
           <AppHeaderText style={[style.name], {marginBottom:20}}>
             {this.props.device.name}
           </AppHeaderText>
+          
+          {/* Render loading bar */}
+          {this.state.device === null &&
+            (<View><AppText>Loading...</AppText></View>)
+          }
 
           {/* Render each property */}
           {this.state.device !== null && this.state.device.properties.map((prop, index) => {
@@ -728,14 +739,14 @@ class DeviceCard extends Component {
                         </View>
                       </View>
                     </View>
-                    <View style = {style.lineContainer} />
                     
                     <View style={appStyle.row}>
 
                       {/* Render Property Info */}
-                      <Example curVal={prop}/>
+                      <RenderAccess curVal={prop}/>
 
                     </View>
+                    <View style = {style.lineContainer} />
                   </View>
                 );})}
         </View>

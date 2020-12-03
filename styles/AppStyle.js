@@ -95,9 +95,9 @@ const appStyle = StyleSheet.create({
         shadowRadius: 20.41,
         borderBottomWidth: 3,
         borderBottomColor: "#a8a8a8",
-        maxHeight:100,
-        height:100,
-        elevation: 4, 
+        maxHeight:110,
+        height:110,
+        elevation: 2, 
     },
     card: {
         justifyContent: 'center',

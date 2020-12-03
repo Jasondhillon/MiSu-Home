@@ -69,14 +69,14 @@ class HomeCard extends React.Component {
                                 <View style={appStyle.columnLeft}>
                                     {col2.map((device,index) => {
                                         return  (
-                                            <HomeCardDeviceEntry navigation={this.props.navigation}  key={index} device={device}/>
+                                            <HomeCardDeviceEntry navigation={this.props.navigation}  key={index} device={device} owner={this.props.sharedDevice.sharer_name}/>
                                     )})}
                                 </View>
                                 {/* Right Column */ }
                                 <View style={appStyle.columnRight}>
                                     {col1.map((device,index) => {
                                         return  (
-                                            <HomeCardDeviceEntry navigation={this.props.navigation} key={index} device={device}/>
+                                            <HomeCardDeviceEntry navigation={this.props.navigation} key={index} device={device} owner={this.props.sharedDevice.sharer_name}/>
                                     )})}
                                 </View>
                             </View>

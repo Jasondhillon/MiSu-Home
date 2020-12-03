@@ -58,7 +58,7 @@ class DeviceScreen extends React.Component
                 {
                     <View style={appStyle.cardContainer}>
                     <ScrollView style={appStyle.scrollView}>
-                            <DeviceCard device={this.state.device} deviceList={this.props.sharedDevicesData} IdToken={this.props.sessionData.idToken}/>
+                            <DeviceCard device={this.state.device} deviceList={this.props.sharedDevicesData} IdToken={this.props.sessionData.idToken} owner={this.props.navigation.getParam('owner', null)}/>
                     </ScrollView>
                     </View>
                 }
