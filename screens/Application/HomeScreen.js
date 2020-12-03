@@ -140,7 +140,7 @@ class HomeScreen extends React.Component {
                     <View style={[appStyle.container, {paddingBottom: 0, flex: 1}]}>
                       <View style={appStyle.rowLeft}>
                           <Image style={{width:30, height:30, marginRight:20}} source={require('../../assets/log.png')} />
-                          <AppHeaderText>No Logs Yet...</AppHeaderText>
+                          <AppHeaderText  style={{fontSize:20, marginTop:2, marginLeft:-5}}>No Logs Yet...</AppHeaderText>
                       </View>
                     </View>
                   </View>
