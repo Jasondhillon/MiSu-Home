@@ -65,7 +65,7 @@ export const PermissionList = props => {
 
     return (
         <View style={appStyle.container}>
-            <AppHeaderText style={{textAlign:'center', marginBottom:0, marginTop:-15}}>What permissions would you like to share...</AppHeaderText>
+            <AppHeaderText style={{textAlign:'center', marginBottom:0, marginTop:-15}}>Which permissions would you like to share...</AppHeaderText>
             
             <View style={[appStyle.row, {marginTop:10}]}>
                 <View style={appStyle.rowLeft}>

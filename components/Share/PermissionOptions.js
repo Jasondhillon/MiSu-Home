@@ -136,10 +136,10 @@ export const PermissionOptions = props => {
     return (
 
         <View style={[appStyle.container]}>
-            <AppHeaderText style={{textAlign:'center', marginBottom:0, marginTop:-15}}>Set the access options for these permissions</AppHeaderText>
+            <AppHeaderText style={{textAlign:'center', marginBottom:0, marginTop:-15}}>Set the access options for these properties</AppHeaderText>
             
             {/* Selection Header */}
-            <View style={[appStyle.row, {flex:1, marginTop:20, maxHeight:30, justifyContent: 'space-between'}]}>
+            <View style={[appStyle.row, {flex:1, top: -10 ,marginTop:15, maxHeight:30, overflow: "visible", justifyContent: 'space-between'}]}>
                 <TouchableOpacity style={options.selection == 0 ? appStyle.tabSelected : appStyle.tab} onPress={() => {updateSelection(0)}}>
                     <View><AppText>Temporary</AppText></View>
                 </TouchableOpacity>
@@ -187,7 +187,7 @@ export const PermissionOptions = props => {
             {/* Display Schedule options */}
             {
                 options.selection == 1 && 
-                <View style={[appStyle.column, {marginTop:15}]}>
+                <View style={[appStyle.column, {marginTop:15, top: 10}]}>
                     
                     {/* Day Select */}
                     <View style={appStyle.row}>
