@@ -643,10 +643,19 @@ class DeviceCard extends Component {
       <View style={appStyle.card}>
         <View style={appStyle.container}>
           {/* Render the device icon */}
+          {this.props.device.name === "Google Home Mini" &&
+            <Image
+              style={[style.icon, { marginBottom: 0 }]}
+              source={getDeviceIcon("Unknown Model")}
+            />
+          }
+
+          {this.props.device.name !== "Google Home Mini" &&
           <Image
             style={[style.icon, { marginBottom: 0 }]}
             source={getDeviceIcon(this.props.device.description)}
           />
+          }
 
           {/* Render the device name */}
           <AppHeaderText style={[style.name], {marginBottom:20}}>
