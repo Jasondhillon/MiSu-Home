@@ -654,7 +654,7 @@ class DeviceCard extends Component {
           {this.props.device.name === "Google Home Mini" &&
             <Image
               style={[style.icon, { marginBottom: 0 }]}
-              source={getDeviceIcon("Unknown Model")}
+              source={getDeviceIcon("Google Home Mini")}
             />
           }
 

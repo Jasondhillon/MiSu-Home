@@ -16,6 +16,8 @@ export default getDeviceIcon = (deviceType) =>{
         return Plug
     else if (deviceType === 'Unknown Model') // This is the Ring doorbell default description
         return Doorbell
+    else if (deviceType === 'Google Home Mini')
+        return Speaker
     else 
         return device
 }
