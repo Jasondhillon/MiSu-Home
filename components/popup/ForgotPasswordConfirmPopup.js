@@ -39,7 +39,7 @@ class ForgotPasswordConfirmPopup extends Component
                 <View style={appStyle.popup}>
                     <View style={appStyle.container}>
                         {/* Title */}
-                        <AppHeaderText>Enter Confirm Code</AppHeaderText>
+                        <AppHeaderText style={{textAlign: 'center',}}>Enter Password Confirm Code</AppHeaderText>
                         
                         {/* Render the login form */}
                         <View style={appStyle.container}>
