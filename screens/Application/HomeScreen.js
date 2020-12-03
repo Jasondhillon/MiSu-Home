@@ -191,7 +191,7 @@ class HomeScreen extends React.Component {
               {this.state.usageLogs.length > 0 ? 
                 <View style={[appStyle.container, {padding: 0, flex: 1, alignSelf: 'stretch'}]}>
                   <TouchableOpacity style={{alignSelf: "stretch"}} onPress={() => this.props.navigation.navigate("Log")}>
-                    <LogCard type="Usage" logs={this.state.usageLogs.slice(0,5)}/>
+                    <LogCard type="Activity" logs={this.state.usageLogs.slice(0,5)}/>
                   </TouchableOpacity>
                 </View>
               : null}

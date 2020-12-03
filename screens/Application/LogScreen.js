@@ -84,7 +84,7 @@ class LogScreen extends React.Component {
 
     renderLogs = () => {
         if (this.state.usageLogs.length > 0 && this.state.accessLogs <= 0){
-            return <LogCard type='Usage' logs={this.state.usageLogs}/>
+            return <LogCard type='Activity' logs={this.state.usageLogs}/>
         }
         else if (this.state.accessLogs.length > 0 && this.state.usageLogs <= 0){
             return <LogCard type='Access' logs={this.state.accessLogs}/>
@@ -92,7 +92,7 @@ class LogScreen extends React.Component {
         else if (this.state.accessLogs.length > 0 && this.state.usageLogs > 0){
             return (
                 <View>
-                    <LogCard type='Usage' logs={this.state.usageLogs}/>
+                    <LogCard type='Activity' logs={this.state.usageLogs}/>
                     <LogCard type='Access' logs={this.state.accessLogs}/>
                 </View>
             )    
