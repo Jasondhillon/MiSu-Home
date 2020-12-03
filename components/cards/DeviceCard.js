@@ -680,7 +680,7 @@ class DeviceCard extends Component {
                           
                           {/* Render Property Readonly */}
                           {prop.read_only == 1 && 
-                            <AppText style={{fontStyle: 'italic', fontSize:16}}> Read Only</AppText>
+                                        <AppText style={{ fontStyle: 'italic', fontSize: 16 }}> {prop.value == '' ? 'Read only': prop.value}</AppText>
                           }
         
                           {/* Render Switch for Boolean */}
