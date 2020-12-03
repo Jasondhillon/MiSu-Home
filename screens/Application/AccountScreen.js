@@ -62,7 +62,7 @@ class AccountScreen extends React.Component {
                               
   
                     <TouchableOpacity style={[{marginHorizontal:50, marginBottom: 10}, appStyle.redButton]} onPress={this.signOut}>
-                        <AppText>Log out</AppText>
+                        <AppText style={{color:'white'}}>Log out</AppText>
                     </TouchableOpacity> 
                 </View>       
             </View>       

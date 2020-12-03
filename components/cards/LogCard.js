@@ -10,7 +10,7 @@ const LogCard = props => {
             <View style={[appStyle.container, {paddingBottom: 0, flex: 1}]}>
                 <View style={appStyle.rowLeft}>
                     <Image style={{width:30, height:30, marginRight:20}} source={require('../../assets/log.png')} />
-                    <AppHeaderText>{props.type} Logs</AppHeaderText>
+                    <AppHeaderText style={{fontSize:20, marginTop:2, marginLeft:-5}}>{props.type} Logs</AppHeaderText>
                 </View> 
                 <View style={ [appStyle.lineSeperatorFull, {marginTop:10, marginBottom:10, flex:1} ]}/>
                                

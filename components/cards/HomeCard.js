@@ -50,7 +50,7 @@ class HomeCard extends React.Component {
                     <View style={[appStyle.row, {marginLeft:10, marginTop:-10, marginBottom:5}]}>
                         <View style={appStyle.rowLeft}>
                             <Image style={{width:30, height:30, marginRight:20}} source={require('../../assets/home.png')} />
-                            <AppHeaderText>{`${this.props.sharedDevice.sharer_name}'s House`}</AppHeaderText>    
+                            <AppHeaderText style={{fontSize:20, marginTop:2, marginLeft:-5}}>{`${this.props.sharedDevice.sharer_name}'s House`}</AppHeaderText>    
                         </View>
                         <View style={appStyle.rowRight}>
                             <View style={{flexDirection: 'row'}}>
