@@ -11,7 +11,7 @@ const  HomeCardDeviceEntry = (props) => {
     <TouchableOpacity style={appStyle.deviceItem} onPress={()=> {props.navigation.navigate("Device", { device: props.device, owner:props.owner })}}>
         {
             props.device.name == "Google Home Mini" &&
-            <SmallIcon img={getDeviceIcon("Unknown Model")} />
+            <SmallIcon img={getDeviceIcon("Google Home Mini")} />
         }
         {
             props.device.name !== "Google Home Mini" &&

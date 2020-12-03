@@ -232,8 +232,10 @@ class DeviceCard extends Component {
       // Temporary Rules
       if (temp.temporary)
       {
+        console.log(date, temp.temp_date);
+        console.log(date <= temp.temp_date);
         // Check if it is still the same day
-        if (date <= temp.temp_date)
+        if (date > temp.temp_date)
         {
           this.showToast("Temporary access for this device has expired");
         }
@@ -262,7 +264,7 @@ class DeviceCard extends Component {
                     account: account,
                     device: device.shared_device_properties_id,
                     property: property.shared_property_id,
-                    value: property.value
+                    value: !property.value
                   })
               })
               .then(response => response.json())
@@ -652,7 +654,7 @@ class DeviceCard extends Component {
           {this.props.device.name === "Google Home Mini" &&
             <Image
               style={[style.icon, { marginBottom: 0 }]}
-              source={getDeviceIcon("Unknown Model")}
+              source={getDeviceIcon("Google Home Mini")}
             />
           }
 
@@ -675,80 +677,80 @@ class DeviceCard extends Component {
 
           {/* Render each property */}
           {this.state.device !== null && this.state.device.properties.map((prop, index) => {
-                return (
-                  <View key={index} style={appStyle.container}>
-                    <View style={appStyle.row}>
-                      <View style={{ flex: 1, flexDirection: "row" }}>
-                        
-                        {/* Render Property Left Side  */}
-                        <View style={appStyle.rowLeft}>
-                          {/* Render Property Name */}
-                          <AppText> {prop.name} </AppText>
-                        </View>
-                        
-                        {/* Render Property Right Side */}
-                        <View style={appStyle.rowRight}>
-                          
-                          {/* Render Property Readonly */}
-                          {prop.read_only == 1 && 
-                                        <AppText style={{ fontStyle: 'italic', fontSize: 16 }}> {prop.value == '' ? 'No Value': prop.value}</AppText>
-                          }
-        
-                          {/* Render Switch for Boolean */}
-                          {prop.type == "boolean" && prop.read_only == 0 && (
-                            <View style={{ flex: 1, flexDirection: "row", justifyContent: "flex-end" }}>
-                              <Switch
-                                value={this.state.device.properties[index].value}
-                                onValueChange={(x) => {
-                                    this.toggleSwitch(index);
-                                }}
-                              />
-                            </View>
-                          )}
-                          
-                          {/* Render Slider for float and integers */}
-                          {(prop.type == "float" || prop.type == "integer") &&
-                            prop.read_only == 0 && (
-                                <View>
-                                  <Slider
-                                    style={{ width: 200 }}
-                                    step={1}
-                                    minimumValue={0}
-                                    maximumValue={100}
-                                    value={prop.value}
-                                    onSlidingComplete={(currentVal) =>
-                                      {
-                                          var temp = this.state.device;
-                                          var temp2 = temp.properties[temp.properties.indexOf(prop)];
-                                          temp2.value = currentVal;
-                                          this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, temp2);
-                                          this.setState({device: temp})
-                                      }
-                                    }
-                                  />
-                                </View>
-                            )}
-                          {/* Render Buttons for actions */}
-                          {prop.type == "action" &&
-                            <View style={{bottom:5}}>
-                              <TouchableOpacity onPress={() => this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, prop)}> 
-                                <Text style={{fontSize: 20}}>&#9899;</Text>
-                              </TouchableOpacity>
-                            </View>
-                          }
-                        </View>
-                      </View>
+            return (
+              <View key={index} style={appStyle.container}>
+                <View style={appStyle.row}>
+                  <View style={{ flex: 1, flexDirection: "row" }}>
+                    
+                    {/* Render Property Left Side  */}
+                    <View style={appStyle.rowLeft}>
+                      {/* Render Property Name */}
+                      <AppText> {prop.name} </AppText>
                     </View>
                     
-                    <View style={appStyle.row}>
-
-                      {/* Render Property Info */}
-                      <RenderAccess curVal={prop}/>
-
+                    {/* Render Property Right Side */}
+                    <View style={appStyle.rowRight}>
+                      
+                      {/* Render Property Readonly */}
+                      {prop.read_only == 1 && 
+                        <AppText style={{ fontStyle: 'italic', fontSize: 16 }}> {prop.value == '' ? 'No Value': prop.value}</AppText>
+                      }
+    
+                      {/* Render Switch for Boolean */}
+                      {prop.type == "boolean" && prop.read_only == 0 && (
+                        <View style={{ flex: 1, flexDirection: "row", justifyContent: "flex-end" }}>
+                          <Switch
+                            value={this.state.device.properties[index].value}
+                            onValueChange={(x) => {
+                                this.toggleSwitch(index);
+                            }}
+                          />
+                        </View>
+                      )}
+                      
+                      {/* Render Slider for float and integers */}
+                      {(prop.type == "float" || prop.type == "integer") &&
+                        prop.read_only == 0 && (
+                            <View>
+                              <Slider
+                                style={{ width: 200 }}
+                                step={1}
+                                minimumValue={0}
+                                maximumValue={100}
+                                value={prop.value}
+                                onSlidingComplete={(currentVal) =>
+                                  {
+                                      var temp = this.state.device;
+                                      var temp2 = temp.properties[temp.properties.indexOf(prop)];
+                                      temp2.value = currentVal;
+                                      this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, temp2);
+                                      this.setState({device: temp})
+                                  }
+                                }
+                              />
+                            </View>
+                        )}
+                      {/* Render Buttons for actions */}
+                      {prop.type == "action" &&
+                        <View style={{bottom:5}}>
+                          <TouchableOpacity onPress={() => this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, prop)}> 
+                            <Text style={{fontSize: 20}}>&#9899;</Text>
+                          </TouchableOpacity>
+                        </View>
+                      }
                     </View>
-                    <View style = {style.lineContainer} />
                   </View>
-                );})}
+                </View>
+                
+                <View style={appStyle.row}>
+
+                  {/* Render Property Info */}
+                  <RenderAccess curVal={prop}/>
+
+                </View>
+                <View style = {style.lineContainer} />
+              </View>
+            );})}
         </View>
       </View>
     );

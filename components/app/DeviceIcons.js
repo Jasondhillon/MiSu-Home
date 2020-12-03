@@ -3,7 +3,7 @@ import Lock from '../../assets/DeviceIcons/Lock.png'
 import Speaker from '../../assets/DeviceIcons/Speaker.png'
 import device from '../../assets/device.png'
 import Plug from '../../assets/DeviceIcons/outlet.png'
-import Doorbell from '../../assets/icons/hub.png'
+import Doorbell from '../../assets/DeviceIcons/ring.png'
 
 export default getDeviceIcon = (deviceType) =>{
     if (deviceType === ""){
@@ -16,6 +16,8 @@ export default getDeviceIcon = (deviceType) =>{
         return Plug
     else if (deviceType === 'Unknown Model') // This is the Ring doorbell default description
         return Doorbell
+    else if (deviceType === 'Google Home Mini')
+        return Speaker
     else 
         return device
 }
