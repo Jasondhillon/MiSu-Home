@@ -180,13 +180,13 @@ class DeviceCard extends Component {
                 // Check if this rule is operating on the correct day(s)
                 if (temp.time_range_reoccuring !== null)
                 {
-                  var withinTimeFrame = 0;
+                  var withinTimeFrame = false;
                   var daysReoccuring = temp.time_range_reoccuring.match(/.{1,3}/g);
                   for (var i = 0; i < daysReoccuring.length; i++)
                   {
                     if (day === daysReoccuring[i])
                     {
-                      withinTimeFrame = 1;
+                      withinTimeFrame = true;
                     }
                   }
                   

@@ -19,7 +19,7 @@ const  HubCardSharedUsersListEntry =props =>  {
             </View>
 
             <View style={appStyle.rowRight}>
-              <Image style={style.rightIcon} source={require('../../../assets/right.png')} />
+              <Image style={style.rightIcon} source={require('../../../assets/rightArrow.png')} />
               
             </View>
           </View>
@@ -35,7 +35,7 @@ const  HubCardSharedUsersListEntry =props =>  {
       <View style={{ flexDirection:'row' ,justifyContent:'space-around' ,marginTop: 10 ,marginBottom: 10}}>
      <Icon img={require('../../../assets/wifi.png' )} />
      <AppText>{props.name} </AppText>
-     <Icon img={require('../../../assets/right.png')} />
+     <Icon img={require('../../../assets/rightArrow.png')} />
      </View>
      
      </TouchableOpacity>

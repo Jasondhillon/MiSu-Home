@@ -75,7 +75,7 @@ const DeviceItem = (props) => {
                 </View>
                 <View style={appStyle.rowRight}>
                     <AppText style={{paddingBottom:12, marginRight:10, fontSize:14}}> {desc}</AppText>
-                    <Image style={{width:30, height:30, marginTop:3}} source={require('../../assets/right.png')} />
+                    <Image style={{width:30, height:30, marginTop:3}} source={require('../../assets/rightArrow.png')} />
                 </View>
                 <View style={[(appStyle.lineSeperatorAlt), {marginTop:5}]}/>
             </View>
