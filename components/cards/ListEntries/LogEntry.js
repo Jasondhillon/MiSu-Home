@@ -12,8 +12,10 @@ const formatEntryText = (log) => {
             return `${log.primary_user} revoked your access`
         else if (log.operation === 'Ended sharing early')
             return `You ended sharing early`
-        else
+        else if (log.operation === 'Accept')
             return `You accepted access`
+        else
+            return log.operation
     }
     return `${log.secondary_user} set the ${log.property_name} property of ${log.device_name} to ${log.value == true ? 'On' : (log.value == false ? 'Off' : log.value)}`
 }
