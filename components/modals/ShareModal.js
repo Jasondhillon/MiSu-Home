@@ -12,7 +12,7 @@ import { PermissionOptions } from '../Share/PermissionOptions';
 import { UserList } from '../Share/userList';
 import SmallIcon from '../SmallIcon';
 const liftImg = require('../../assets/left.png')
-const rightImg = require('../../assets/chevron.png')
+const rightImg = require('../../assets/right.png')
 const removeImg = require('../../assets/x.png')
 const shareImg = require('../../assets/share.png')
 
