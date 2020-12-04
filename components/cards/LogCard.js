@@ -6,7 +6,7 @@ import LogEntry from './ListEntries/LogEntry';
 
 const LogCard = props => {
     return (
-        <View style={[appStyle.card, { paddingBottom:0 , flex: 1}]}>
+        <View style={[appStyle.card, { paddingBottom:0 , flex: 1, marginHorizontal:5}]}>
             <View style={[appStyle.container, {paddingBottom: 0, flex: 1}]}>
                 <View style={appStyle.rowLeft}>
                     <Image style={{width:30, height:30, marginRight:20}} source={require('../../assets/log.png')} />

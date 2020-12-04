@@ -7,8 +7,11 @@ import { getHubInfoAction } from '../../redux/Action/getHubInfoAction';
 import { registerHubAction } from '../../redux/Action/registerHubAction';
 import appStyle from '../../styles/AppStyle';
 import LogCard from '../../components/cards/LogCard'
+import AppText from '../../components/app/AppText';
+import AppHeaderText from '../../components/app/AppHeaderText';
 
 class LogScreen extends React.Component {
+
     static navigationOptions = ({ navigate, navigation }) => ({
         headerTitle: navigation.getParam('device','').name,
         headerLeft: () => (
@@ -52,7 +55,6 @@ class LogScreen extends React.Component {
         })
         .catch((error) => {
           //console.error('getUsageLogs error:', error);
-          this.showToast(error);
           this.setState({error});
         });
       }
@@ -77,7 +79,6 @@ class LogScreen extends React.Component {
         })
         .catch((error) => {
             //console.error('getAccessLogs error:', error);      
-            this.showToast(error);
             this.setState({error});
         });
     }
@@ -97,13 +98,13 @@ class LogScreen extends React.Component {
                 </View>
             )    
         }
-        else return null
+        else return (<View><AppHeaderText style={{fontSize:18, marginLeft:10}}>Loading...</AppHeaderText></View>)
     }
    
     render()
     {
         return(
-            <View style={[appStyle.container, {alignItems: 'stretch'}]}>
+            <View style={[appStyle.container, {alignItems: 'stretch', marginHorizontal:-5}]}>
                 <ScrollView style={appStyle.scrollView}>
                     {this.renderLogs()}
                     {/*
