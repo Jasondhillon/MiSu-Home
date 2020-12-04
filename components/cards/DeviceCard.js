@@ -13,6 +13,7 @@ import {
 import AppHeaderText from "../app/AppHeaderText";
 import AppText from "../app/AppText";
 import appStyle from "../../styles/AppStyle";
+import Moment from 'moment'
 
 // Render each properties access values
 const RenderAccess = (props) => {
@@ -128,6 +129,91 @@ class DeviceCard extends Component {
     ToastAndroid.show(text, ToastAndroid.LONG);
   };
 
+  canAccess = (temp) => {
+
+    var dateTime = new Date();
+    var localTime = dateTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York'});
+    localTime = localTime.substring(0, localTime.length-3);
+    // MM/DD/YY
+    var date = dateTime.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit',timeZone: 'America/New_York'});
+    // Not sure why but dateTime.toLocaleDateString('en-US', {weekday:'short'}); kept returning the full date and not the day, so switch statement is the work around
+    var day = dateTime.getDay();
+    
+    if (!temp.unrestricted)
+    {
+      // Temporary Rules
+      if (temp.temporary)
+      {
+        // Check if it is still the same day
+        if (date > temp.temp_date)
+        {
+        }
+        // Check if within the time rules
+        else
+        {   
+          if (localTime < temp.temp_time_range_start)
+          {
+          }
+          else if (localTime > temp.temp_time_range_end)
+          {
+          }
+          else
+          {
+            return true;
+          }
+        }
+      }
+      // Schedule based rules
+      else if (temp.time_range)
+      {
+        // Check if within the schedule start date
+        if (date >= temp.time_range_start_date)
+        {   
+          // Check if within the schedule end date
+          if (date <= temp.time_range_end_date)
+          {
+            // Check if we are within the time range window
+            if (localTime >= temp.time_range_start)
+            {
+              if (localTime <= temp.time_range_end)
+              {
+                // Check if this rule is operating on the correct day(s)
+                if (temp.time_range_reoccuring !== null)
+                {
+                  var withinTimeFrame = 0;
+                  var daysReoccuring = temp.time_range_reoccuring.match(/.{1,3}/g);
+                  for (var i = 0; i < daysReoccuring.length; i++)
+                  {
+                    if (day === daysReoccuring[i])
+                    {
+                      withinTimeFrame = 1;
+                    }
+                  }
+                  
+                  if (withinTimeFrame)
+                  {
+                    return true;
+                  }
+                }
+              }
+            }
+          }
+        }
+        else
+        {
+        }
+      }
+      else
+      {
+      }
+    }
+    else
+    {
+      return true;
+    }
+    return false;
+  };
+
   getValueForSharedDeviceProperty = async (account, device, property) => {
     // console.log("\n\n%j", 2, property);
     var list = this.props.device;
@@ -171,13 +257,15 @@ class DeviceCard extends Component {
   getCurrentValues = async () => {
     if (this.state.switchVals.length !== 0)
       this.setState({switchVals: []});
-    this.props.device.properties.map((property) => {
-      this.getValueForSharedDeviceProperty(
+    await Promise.all(this.props.device.properties.map(async (property) => {
+      await this.getValueForSharedDeviceProperty(
         this.props.device.login_credentials_id,
         this.props.device,
         property
       );
-    });
+    }));
+
+    this.setState({lastRefreshed:new Date()});
   };
 
   toggleSwitch = (switchProp) => {
@@ -692,12 +780,12 @@ class DeviceCard extends Component {
                     <View style={appStyle.rowRight}>
                       
                       {/* Render Property Readonly */}
-                      {prop.read_only == 1 && 
-                        <AppText style={{ fontStyle: 'italic', fontSize: 16 }}> {prop.value == '' ? 'No Value': prop.value}</AppText>
+                      {prop.read_only == 1 || this.canAccess(prop) == false && 
+                        <AppText style={{ fontStyle: 'italic', fontSize: 16, top:-2, marginLeft:40 }}>View Only</AppText>
                       }
     
                       {/* Render Switch for Boolean */}
-                      {prop.type == "boolean" && prop.read_only == 0 && (
+                      {prop.type == "boolean" && prop.read_only == 0 && this.canAccess(prop) == true && (
                         <View style={{ flex: 1, flexDirection: "row", justifyContent: "flex-end" }}>
                           <Switch
                             value={this.state.device.properties[index].value}
@@ -709,7 +797,7 @@ class DeviceCard extends Component {
                       )}
                       
                       {/* Render Slider for float and integers */}
-                      {(prop.type == "float" || prop.type == "integer") &&
+                      {(prop.type == "float" || prop.type == "integer") && this.canAccess(prop) == true &&
                         prop.read_only == 0 && (
                             <View>
                               <Slider
@@ -731,7 +819,7 @@ class DeviceCard extends Component {
                             </View>
                         )}
                       {/* Render Buttons for actions */}
-                      {prop.type == "action" &&
+                      {prop.type == "action" && this.canAccess(prop) == true &&
                         <View style={{bottom:5}}>
                           <TouchableOpacity onPress={() => this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, prop)}> 
                             <Text style={{fontSize: 20}}>&#9899;</Text>
@@ -751,6 +839,21 @@ class DeviceCard extends Component {
                 <View style = {style.lineContainer} />
               </View>
             );})}
+
+          {/* Render refresh access */}
+          {this.state.device !== null && this.state.lastRefreshed !== null &&(
+            <View style={[appStyle.row, {height:20, paddingTop:5}]}>
+              <View style={appStyle.rowLeft}>
+                <AppText style={{fontSize:14, marginLeft:15}}>Last Refreshed: {Moment(this.state.lastRefreshed).format("MM/DD @ h:mm:ss a")}</AppText>
+              </View>
+              <View style={[appStyle.rowRight, {marginRight:15, top:7}]}>
+                <TouchableOpacity onPress={() => {this.getCurrentValues(); }}>
+                  <AppHeaderText style={{fontSize:28, color:'blue'}}>↺</AppHeaderText>
+                </TouchableOpacity>
+              </View>
+            </View>)
+          }
+  
         </View>
       </View>
     );

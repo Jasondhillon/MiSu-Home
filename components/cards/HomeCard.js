@@ -95,7 +95,7 @@ class HomeCard extends React.Component {
                                         </TouchableOpacity>
                                     </View>
                                     <View style={{ marginLeft:5, flex:1 }}>
-                                        <TouchableOpacity style={appStyle.redButton} onPress={()=> this.props.updateInvite(this.props.sharedDevice.login_credentials_id,0,this.props.IdToken)}>
+                                        <TouchableOpacity style={appStyle.redButton} onPress={()=> this.props.exitHub(this.props.sharedDevice.login_credentials_id,this.props.IdToken)}>
                                                 <Text style={{ color: 'white',textAlign:"center"}}> Decline</Text>
                                         </TouchableOpacity>
                                     </View>

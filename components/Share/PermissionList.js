@@ -16,7 +16,7 @@ const PermView = (props) => {
             </View>
             <View style={[appStyle.rowRight, {marginRight:15}]}>
                 <View style={[appStyle.row, {justifyContent:'flex-end'}]}>
-                    <TouchableOpacity style={[(props.access == 1) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginRight:50}]} onPress={() => {
+                    <TouchableOpacity style={[appStyle.checkBox, {marginRight:50}]} onPress={() => {
                         if(props.access == 1)
                         {
                             props.updatePerm({...pr ,access:0 })
@@ -25,8 +25,11 @@ const PermView = (props) => {
                         {
                             props.updatePerm({...pr ,access:1 })
                         }
-                    }}/>
-                    <TouchableOpacity style={[(props.access == 2) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginRight:12}]} onPress={() => {
+                    }}>
+                        {/* Check Mark */}
+                        {props.access == 1 && <AppHeaderText style={{fontSize:16}}>✔</AppHeaderText>}
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[appStyle.checkBox, {marginRight:12}]} onPress={() => {
                         if(props.access == 2)
                         {
                             props.updatePerm({...pr ,access:0 })
@@ -35,7 +38,10 @@ const PermView = (props) => {
                         {
                             props.updatePerm({...pr ,access:2 })
                         }
-                    }}/>
+                    }}>
+                        {/* Check Mark */}
+                        {props.access == 2 && <AppHeaderText style={{fontSize:16}}>✔</AppHeaderText>}
+                    </TouchableOpacity>
                 </View>
             </View>
         </View>
@@ -74,8 +80,8 @@ export const PermissionList = props => {
                 <View style={[appStyle.rowRight, {marginLeft:45}]}>
                     <View style={[appStyle.row, {justifyContent:'flex-end'}]}>
                         <View style={[appStyle.column, {marginLeft:-40, marginRight:5}]}>
-                            {/* Select All Read-Only options */}
-                            <TouchableOpacity style={[(selectedAllReadOnly) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginLeft:10, width:25, height:25}]} onPress={() => {
+                            {/* Select All View options */}
+                            <TouchableOpacity style={[appStyle.checkBox, {marginLeft:10, width:25, height:25}]} onPress={() => {
                                     if(selectedAllReadOnly)
                                     {
                                         const tempProps = props.properties;
@@ -92,12 +98,15 @@ export const PermissionList = props => {
                                           }, tempProps); 
                                         props.setPerm(tempProps);
                                     }
-                                }}/>
+                                }}>
+                                {/* Check Mark */}
+                                {selectedAllReadOnly && <AppHeaderText style={{fontSize:16}}>✔</AppHeaderText>}
+                            </TouchableOpacity>
                             <AppText style={{marginRight:15}}>View</AppText>
                         </View>
                         <View style={[appStyle.column, {marginRight:-2.5}]}>
-                            {/* Select All Allow options */}
-                            <TouchableOpacity style={[(selectedAllAccess) ? appStyle.checkBoxSelected : appStyle.checkBox, {marginLeft:25, width:25, height:25}]} onPress={() => {
+                            {/* Select All Control options */}
+                            <TouchableOpacity style={[appStyle.checkBox, {marginLeft:25, width:25, height:25}]} onPress={() => {
                                 if(selectedAllAccess)
                                 {
                                     const tempProps = props.properties;
@@ -114,7 +123,11 @@ export const PermissionList = props => {
                                       }, tempProps); 
                                     props.setPerm(tempProps);
                                 }
-                                }}/>
+                            }}>
+                                {/* Check Mark */}
+                                {selectedAllAccess && <AppHeaderText style={{fontSize:16}}>✔</AppHeaderText>}
+                            </TouchableOpacity>
+
                             <AppText style={{marginLeft:5}}>Control</AppText>
                         </View>
                     </View>
