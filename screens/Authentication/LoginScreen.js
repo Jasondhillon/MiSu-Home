@@ -14,8 +14,8 @@ class LoginScreen extends React.Component
 {
     state = 
     {   
-        username: '',// 'secondary@example.com'
-        password: '',
+        username: 'primary@example.com',// 'secondary@example.com'
+        password: '#Cop4935',
         errorMessage: null,
         message: null,
         isLoading: false,
