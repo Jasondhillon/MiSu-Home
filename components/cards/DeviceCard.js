@@ -217,7 +217,7 @@ class DeviceCard extends Component {
   };
 
   getValueForSharedDeviceProperty = async (account, device, property) => {
-    // console.log("\n\n%j", 2, property);
+    console.log("\n\n%j", 2, property);
     var list = this.props.device;
     var temp = list.properties[list.properties.indexOf(property)]; 
     if (property.type !== "action")
@@ -243,8 +243,14 @@ class DeviceCard extends Component {
             if (data.message.hasOwnProperty(key)) {
               temp.value = data.message[key];
 
-              if (temp.type === "boolean")
-                this.state.switchVals.push(temp.value);
+                if (temp.type === "boolean") {
+                    this.state.switchVals.push(temp.value);
+                }
+                if (temp.name === "Battery" || temp.name === "State") {
+                    temp.read_only = 1;
+                    console.log(temp);
+                }
+
             }
           }
         } else throw error("Values empty");
@@ -789,9 +795,13 @@ class DeviceCard extends Component {
                     <View style={appStyle.rowRight}>
                       
                       {/* Render Property Readonly */}
-                      {prop.read_only == 1 || this.canAccess(prop) == false && 
-                        <AppText style={{ fontStyle: 'italic', fontSize: 16, top:-2, marginLeft:40 }}>View Only</AppText>
-                      }
+                      {prop.read_only == 1 && this.canAccess(prop) == false && 
+                        <AppText style={{ fontStyle: 'italic', fontSize: 16, top:-2, marginLeft:40 }}>Cannot View</AppText>
+                        }
+                        {/* Render Property Readonly */}
+                        {prop.read_only == 1 && this.canAccess(prop) == true &&
+                            <AppText style={{ fontStyle: 'italic', fontSize: 16, top: -2, marginLeft: 40 }}>{prop.value}</AppText>
+                        }
     
                       {/* Render Switch for Boolean */}
                       {prop.type == "boolean" && prop.read_only == 0 && this.canAccess(prop) == true && (
