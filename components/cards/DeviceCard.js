@@ -8,6 +8,7 @@ import {
   Slider,
   TouchableOpacity,
   Text,
+  TextInput,
   ToastAndroid,
 } from "react-native";
 import AppHeaderText from "../app/AppHeaderText";
@@ -123,6 +124,7 @@ class DeviceCard extends Component {
     maxVal: 100,
     device: null,
     slider: 0,
+    text: "",
   };
 
   showToast = (text) => {
@@ -275,7 +277,10 @@ class DeviceCard extends Component {
     this.setState({
       device: switchV,
     });
-  };
+    };
+    handleText = (textInput) => {
+        this.setState({ text: textInput });
+    };
 
   // Sends a command to a hub
   useSharedDevice = async (account, device, property) => {
@@ -378,7 +383,8 @@ class DeviceCard extends Component {
                     account: account,
                     device: device.shared_device_properties_id,
                     property: property.shared_property_id,
-                    value: property.name
+                    value: property.name,
+                    text: this.state.text
                   })
               })
               .then(response => response.json())
@@ -489,7 +495,8 @@ class DeviceCard extends Component {
                             account: account,
                             device: device.shared_device_properties_id,
                             property: property.shared_property_id,
-                            value: property.name
+                            value: property.name,
+                            text: this.state.text
                           })
                       })
                       .then(response => response.json())
@@ -600,7 +607,8 @@ class DeviceCard extends Component {
                 account: account,
                 device: device.shared_device_properties_id,
                 property: property.shared_property_id,
-                value: property.name
+                value: property.name,
+                text: this.state.text
               })
           })
           .then(response => response.json())
@@ -684,7 +692,8 @@ class DeviceCard extends Component {
               account: account,
               device: device.shared_device_properties_id,
               property: property.shared_property_id,
-              value: property.name
+              value: property.name,
+              text: this.state.text
             })
         })
         .then(response => response.json())
@@ -819,13 +828,26 @@ class DeviceCard extends Component {
                             </View>
                         )}
                       {/* Render Buttons for actions */}
-                      {prop.type == "action" && this.canAccess(prop) == true &&
+                      {prop.type == "action" && prop.name != "speak" && this.canAccess(prop) == true &&
                         <View style={{bottom:5}}>
                           <TouchableOpacity onPress={() => this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, prop)}> 
                             <Text style={{fontSize: 20}}>&#9899;</Text>
                           </TouchableOpacity>
                         </View>
                       }
+                        {/* Render Buttons and text input for Google Home Mini */}
+                        {prop.type == "action" && prop.name == "speak" && this.canAccess(prop) == true &&
+                            <View style={{ bottom: 5 }}>
+                                <TextInput style={style.input}
+                                    underlineColorAndroid="transparent"
+                                    placeholder="Text to Speech"
+                                    autoCapitalize="none"
+                                    onChangeText={this.handleText} />
+                                <TouchableOpacity onPress={() => this.useSharedDevice(this.props.device.login_credentials_id, this.state.device, prop)}>
+                                    <Text style={{ fontSize: 20 }}>&#9899;</Text>
+                                </TouchableOpacity>
+                            </View>
+                        }
                     </View>
                   </View>
                 </View>
@@ -885,7 +907,30 @@ const style = StyleSheet.create({
     left:0,
     right:0,
     top:40,
-  },
+    },
+    input: {
+        alignSelf: 'center',
+        
+        borderRadius: 30,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 10,
+        shadowRadius: 20.41,
+        borderWidth: 3,
+        borderColor: "#a8a8a8",
+        elevation: 3,
+        backgroundColor: '#fcfcfc',
+        maxHeight: 40,
+        padding: 0,
+        width: 220,
+        paddingRight: 0,
+        paddingLeft: 10,
+        marginRight: 22,
+        marginLeft: 1
+    },
 });
 
 export default DeviceCard;
