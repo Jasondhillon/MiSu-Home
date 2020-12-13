@@ -61,7 +61,7 @@ class RegisterHubPopup extends Component
                                     value={this.state.hub_url}
                                     placeholder="Hub URL">
                                 </TextInput>
-                                <AppText style={{alignSelf:'flex-end', paddingBottom:10, marginLeft:5, paddingRight:10, color:'grey', fontSize:14}}>.mozilla-iot.org</AppText>
+                                <AppText style={{alignSelf:'flex-end', paddingBottom:10, marginLeft:5, paddingRight:10, color:'grey', fontSize:14}}>.webthings.io</AppText>
                             </View>
 
                             <TextInput 
