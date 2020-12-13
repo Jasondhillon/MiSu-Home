@@ -27,7 +27,7 @@ export const registerHubAction = ({
 
         try {
             dispatch(registerHubStart({ loading: true , success: null, error: null}))
-            hub_url = hub_url + '.mozilla-iot.org';
+            hub_url = hub_url + '.webthings.io';
             const hubDat = { 
                 hub_url,
                 hub_email,

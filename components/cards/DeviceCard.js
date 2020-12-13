@@ -246,7 +246,7 @@ class DeviceCard extends Component {
                 if (temp.type === "boolean") {
                     this.state.switchVals.push(temp.value);
                 }
-                if (temp.name === "Battery" || temp.name === "State") {
+                if (temp.name === "Battery" || temp.name === "State" ) {
                     temp.read_only = 1;
                     console.log(temp);
                 }
@@ -802,6 +802,9 @@ class DeviceCard extends Component {
                         {prop.read_only == 1 && this.canAccess(prop) == true &&
                             <AppText style={{ fontStyle: 'italic', fontSize: 16, top: -2, marginLeft: 40 }}>{prop.value}</AppText>
                         }
+                                {prop.type == "boolean" && prop.read_only == 1 &&
+                                    <AppText style={{ fontStyle: 'italic', fontSize: 16, top: -2, marginLeft: 40 }}>{prop.value}</AppText>
+                                }
     
                       {/* Render Switch for Boolean */}
                       {prop.type == "boolean" && prop.read_only == 0 && this.canAccess(prop) == true && (
